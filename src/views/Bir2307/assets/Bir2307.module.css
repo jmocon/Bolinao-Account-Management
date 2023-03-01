@@ -1,0 +1,230 @@
+.ImageForm {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: -1;
+  width: 1790px;
+  height: 2662px;
+  max-width: none !important;
+}
+
+.Wrapper div {
+  position: absolute;
+}
+
+.Wrapper p {
+  color: #000;
+  line-height: 22px;
+  font-size: 22px;
+  font-weight: 600;
+  position: absolute;
+  top: 50%;
+  transform: translate(0, -50%);
+  width: 100%;
+  text-align: center;
+}
+
+.oneFrom {
+  top: 346px;
+  left: 407px;
+  width: 340px;
+  height: 56px;
+}
+
+.oneTo {
+  top: 346px;
+  left: 1140px;
+  width: 340px;
+  height: 56px;
+}
+
+.twoFirst {
+  top: 434px;
+  left: 578px;
+  width: 125px;
+  height: 60px;
+}
+
+.twoSecond {
+  top: 434px;
+  left: 748px;
+  width: 134px;
+  height: 60px;
+}
+
+.twoThird {
+  top: 434px;
+  left: 926px;
+  width: 126px;
+  height: 60px;
+}
+
+.twoFourth {
+  top: 434px;
+  left: 1097px;
+  width: 212px;
+  height: 60px;
+}
+
+.payeeName {
+  top: 525px;
+  left: 66px;
+  width: 1665px;
+  height: 54px;
+  text-align: left !important;
+}
+
+.payeeName p {
+  text-align: left !important;
+  padding-left: 10px;
+}
+
+.payeeAddress {
+  top: 608px;
+  left: 66px;
+  width: 1498px;
+  height: 54px;
+}
+
+.payeeAddress p {
+  text-align: left !important;
+  padding-left: 10px;
+}
+
+.sixFirst {
+  top: 777px;
+  left: 578px;
+  width: 125px;
+  height: 57px;
+}
+
+.sixSecond {
+  top: 777px;
+  left: 748px;
+  width: 134px;
+  height: 57px;
+}
+
+.sixThird {
+  top: 777px;
+  left: 926px;
+  width: 126px;
+  height: 57px;
+}
+
+.sixFourth {
+  top: 777px;
+  left: 1097px;
+  width: 212px;
+  height: 57px;
+}
+
+.payorsName {
+  top: 864px;
+  left: 66px;
+  width: 1665px;
+  height: 54px;
+  text-align: left !important;
+}
+
+.payorsName p {
+  text-align: left !important;
+  padding-left: 10px;
+}
+
+.payorsAddress {
+  top: 947px;
+  left: 66px;
+  width: 1498px;
+  height: 46px;
+}
+
+.payorsAddress p {
+  text-align: left !important;
+  padding-left: 10px;
+}
+
+.ewtDescription {
+  top: 1114px;
+  left: 25px;
+  width: 466px;
+  height: 40px;
+}
+
+.ewtAtc {
+  top: 1114px;
+  left: 492px;
+  width: 126px;
+  height: 40px;
+}
+
+.firstQuarter {
+  top: 1114px;
+  left: 620px;
+  width: 213px;
+  height: 40px;
+}
+
+.secondQuarter {
+  top: 1114px;
+  left: 835px;
+  width: 217px;
+  height: 40px;
+}
+
+.thirdQuarter {
+  top: 1114px;
+  left: 1054px;
+  width: 212px;
+  height: 40px;
+}
+
+.vatableAmount {
+  top: 1114px;
+  left: 1268px;
+  width: 210px;
+  height: 40px;
+}
+
+.ewtTotal {
+  top: 1114px;
+  left: 1481px;
+  width: 275px;
+  height: 40px;
+}
+
+
+.firstQuarterTotal {
+  top: 1518px;
+  left: 620px;
+  width: 213px;
+  height: 39px;
+}
+
+.secondQuarterTotal {
+  top: 1518px;
+  left: 835px;
+  width: 217px;
+  height: 39px;
+}
+
+.thirdQuarterTotal {
+  top: 1518px;
+  left: 1054px;
+  width: 212px;
+  height: 39px;
+}
+
+.vatableAmountTotal {
+  top: 1518px;
+  left: 1268px;
+  width: 210px;
+  height: 39px;
+}
+
+.ewtTotalTotal {
+  top: 1518px;
+  left: 1481px;
+  width: 275px;
+  height: 39px;
+}

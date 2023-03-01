@@ -1,0 +1,13 @@
+.Wrapper {
+  width: 840px;
+  padding: 20px;
+  border: 1px solid #ccc;
+}
+
+.BorderDotted {
+  border-style: dotted;
+  border: 1px dotted #000;
+  font-weight: bold;
+  vertical-align: top;
+  padding: 5px;
+}
