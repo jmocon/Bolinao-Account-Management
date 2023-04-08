@@ -7,7 +7,8 @@ const mapData = (bankAccount) => ({
   name: bankAccount.name,
   bankId: bankAccount.bank_id,
   bankName: bankAccount.bank_name,
-  accountNumber: bankAccount.account_number
+  accountNumber: bankAccount.account_number,
+  accountName: bankAccount.account_name
 });
 
 export const getBankAccount = async (id) => {
@@ -18,7 +19,13 @@ export const getBankAccount = async (id) => {
     throw new Error(`Error occurred while getting bank account: ${error}`);
   }
 
-  return mapData(response.data.data[0]);
+  if (!response.data.success) {
+    throw new Error(
+      `Error occurred while getting bank account: ${response.message}`
+    );
+  }
+
+  return response.data.data;
 };
 
 export const getBankAccounts = async () => {

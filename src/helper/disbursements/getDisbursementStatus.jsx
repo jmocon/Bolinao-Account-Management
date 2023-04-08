@@ -1,35 +1,42 @@
+import disbursementStatus from 'constants/disbursementStatus';
+
 const DISBURSEMENT_STATUS_DRAFT = {
-  value: 0,
+  value: disbursementStatus.draft,
   title: 'Draft',
   color: 'secondary'
 };
 const DISBURSEMENT_STATUS_PENDING = {
-  value: 1,
+  value: disbursementStatus.forApproval,
   title: 'Pending',
   color: 'primary'
 };
 const DISBURSEMENT_STATUS_FOR_CORRECTION = {
-  value: 2,
+  value: disbursementStatus.forCorrection,
   title: 'For Correction',
   color: 'warning'
 };
 const DISBURSEMENT_STATUS_APPROVED = {
-  value: 3,
+  value: disbursementStatus.approved,
   title: 'Approved',
   color: 'success'
 };
 const DISBURSEMENT_STATUS_PRINT = {
-  value: 4,
+  value: disbursementStatus.print,
   title: 'Printed',
   color: 'info'
 };
+const DISBURSEMENT_STATUS_CHECK = {
+  value: disbursementStatus.check,
+  title: 'Check Printed',
+  color: 'primary'
+};
 const DISBURSEMENT_STATUS_CLEARED = {
-  value: 5,
+  value: disbursementStatus.cleared,
   title: 'Cleared',
   color: 'dark'
 };
 const DISBURSEMENT_STATUS_CANCELLED = {
-  value: 6,
+  value: disbursementStatus.cancelled,
   title: 'Cancelled',
   color: 'light'
 };
@@ -51,6 +58,8 @@ export const getDisbursementStatus = (value) => {
       return DISBURSEMENT_STATUS_APPROVED;
     case DISBURSEMENT_STATUS_PRINT.value:
       return DISBURSEMENT_STATUS_PRINT;
+    case DISBURSEMENT_STATUS_CHECK.value:
+      return DISBURSEMENT_STATUS_CHECK;
     case DISBURSEMENT_STATUS_CLEARED.value:
       return DISBURSEMENT_STATUS_CLEARED;
     case DISBURSEMENT_STATUS_CANCELLED.value:
@@ -73,6 +82,8 @@ export const getDisbursementStatusByTitle = (title) => {
       return DISBURSEMENT_STATUS_APPROVED;
     case DISBURSEMENT_STATUS_PRINT.title:
       return DISBURSEMENT_STATUS_PRINT;
+    case DISBURSEMENT_STATUS_CHECK.title:
+      return DISBURSEMENT_STATUS_CHECK;
     case DISBURSEMENT_STATUS_CLEARED.title:
       return DISBURSEMENT_STATUS_CLEARED;
     case DISBURSEMENT_STATUS_CANCELLED.title:

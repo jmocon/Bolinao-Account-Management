@@ -25,3 +25,17 @@ textarea {
 .ps__rail-x {
 	left: 0px !important;
 }
+
+tfoot tr th {
+	font-size: 12px;
+	text-transform: uppercase;
+	font-weight: 700;
+}
+
+.white-content tfoot tr th {
+	color: #222a42b3 !important;
+}
+
+.modal-fullscreen {
+	max-width: calc(100vw - 40px);
+}

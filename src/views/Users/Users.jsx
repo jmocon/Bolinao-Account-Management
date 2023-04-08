@@ -9,11 +9,10 @@ import {
   Badge,
   Button
 } from 'reactstrap';
+import NotificationAlert from 'react-notification-alert';
 
 // Sample Data
 import { getRole } from 'helper/sampleData/sampleRoles';
-import sampleUsers from 'helper/sampleData/sampleUsers';
-
 import getFullName from 'helper/getFullName';
 
 import DataTable from 'components/DataTable/DataTable';
@@ -23,6 +22,7 @@ import Add from './actions/Add';
 import View from './actions/View';
 import Update from './actions/Update';
 import Delete from './actions/Delete';
+import { getUsers } from 'api/user';
 
 function Users() {
   // DataTable
@@ -36,13 +36,26 @@ function Users() {
     'Actions'
   ];
 
-  const handleNotify = () => {};
+  const notifyRef = React.useRef(null);
+  const handleNotify = (type, message, icon = 'tim-icons icon-bell-55') => {
+    const options = {
+      place: 'bc',
+      message,
+      type,
+      icon,
+      autoDismiss: 5
+    };
+    notifyRef.current.notificationAlert(options);
+  };
 
   // Modal
   const [itemId, setItemId] = useState();
   const [modalType, setModalType] = useState();
   const [modalState, setModalState] = useState(false);
-  const toggleModal = () => setModalState(!modalState);
+  const toggleModal = () => {
+    setModalState(!modalState);
+    fetchUsers();
+  };
   const handleModal = (type, id = '') => {
     setModalType(type);
     setItemId(id);
@@ -52,21 +65,13 @@ function Users() {
   const displayModal = () => {
     if (modalState) {
       switch (modalType) {
-        case 'add':
-          return (
-            <Add
-              toggle={toggleModal}
-              isOpen={modalState}
-              notif={handleNotify}
-            />
-          );
         case 'view':
           return (
             <View
-              userId={itemId}
+              id={itemId}
               toggle={toggleModal}
               isOpen={modalState}
-              toast={handleNotify}
+              notify={handleNotify}
             />
           );
         case 'update':
@@ -75,7 +80,7 @@ function Users() {
               id={itemId}
               toggle={toggleModal}
               isOpen={modalState}
-              notif={handleNotify}
+              notify={handleNotify}
             />
           );
         case 'delete':
@@ -84,7 +89,7 @@ function Users() {
               id={itemId}
               toggle={toggleModal}
               isOpen={modalState}
-              notif={handleNotify}
+              notify={handleNotify}
             />
           );
         default:
@@ -94,8 +99,15 @@ function Users() {
     return '';
   };
 
-  const fetchUsers = useCallback(() => {
-    const userList = sampleUsers().map((user) => {
+  const fetchUsers = useCallback(async () => {
+    let rows = [];
+    try {
+      rows = await getUsers();
+    } catch (error) {
+      console.error(error);
+    }
+
+    const userList = rows.map((user) => {
       const role = getRole(user.roleId);
       return [
         user.userId,
@@ -153,6 +165,7 @@ function Users() {
 
   return (
     <div className='content'>
+      <NotificationAlert ref={notifyRef} />
       <Row>
         <Col md='12'>
           <Card>
@@ -162,14 +175,7 @@ function Users() {
                   <CardTitle tag='h4'>Users</CardTitle>
                 </Col>
                 <Col className='text-right'>
-                  <Button
-                    color='info'
-                    size='sm'
-                    title='View'
-                    onClick={() => handleModal('add')}
-                    className='animation-on-hover'>
-                    <i className='fa fa-plus'></i> Add New User
-                  </Button>
+                  <Add onChange={fetchUsers} notify={handleNotify} />
                 </Col>
               </Row>
             </CardHeader>

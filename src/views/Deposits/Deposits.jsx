@@ -19,7 +19,6 @@ import View from './actions/View';
 import Update from './actions/Update';
 import Delete from './actions/Delete';
 import { getDepositTable } from 'api/deposit';
-import Clear from './actions/Clear';
 
 const Deposits = () => {
   const [rows, setRows] = useState([]);
@@ -67,17 +66,15 @@ const Deposits = () => {
   const displayModal = () => {
     if (modalState) {
       switch (modalType) {
-        case 'clear':
+        case 'view':
           return (
-            <Clear
+            <View
               id={itemId}
               toggle={toggleModal}
               isOpen={modalState}
               notify={handleNotify}
             />
           );
-        case 'view':
-          return <View id={itemId} toggle={toggleModal} isOpen={modalState} />;
         case 'update':
           return (
             <Update
@@ -125,14 +122,6 @@ const Deposits = () => {
         deposit.checkDate,
         deposit.clearedDate,
         <>
-          <Button
-            size='sm'
-            color='primary'
-            title='Clear'
-            className='btn-icon mr-1'
-            onClick={() => handleModal('clear', deposit.depositId)}>
-            <i className='tim-icons icon-check-2'></i>
-          </Button>
           <Button
             size='sm'
             color='info'

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Row,
   Col,
@@ -29,16 +29,15 @@ const View = ({ id, isOpen, toggle }) => {
       visible: false
     });
 
-
   useEffect(() => {
-  const fetchBank = async () => {
-    if (id) {
-      const result = await getBank(id);
-      setBank(result);
-    }
-  };
+    const fetchBank = async () => {
+      if (id) {
+        const result = await getBank(id);
+        setBank(result);
+      }
+    };
     fetchBank();
-  }, []);
+  }, [id]);
 
   return (
     <Modal isOpen={isOpen} toggle={toggle} size='xl'>

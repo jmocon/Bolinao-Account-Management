@@ -26,6 +26,7 @@ import { getEWT } from 'api/ewt';
 import { getSupplier } from 'api/supplier';
 import ItemCodeDropdown from 'components/Dropdown/ItemCodeDropdown';
 import BankAccountDropdown from 'components/Dropdown/BankAccountDropdown';
+import computeDisbursement from 'helper/computeDisbursement';
 
 const Update = ({ id, isOpen, toggle, notify }) => {
   const [companyId, setCompanyId] = useState();
@@ -148,16 +149,17 @@ const Update = ({ id, isOpen, toggle, notify }) => {
   }, [supplierId]);
 
   useEffect(() => {
-    const tmpVat = vatableAmount * 0.12;
-    const tmpGross = vatableAmount + tmpVat + nonVatableAmount;
-    const tmpEwtAmount = (vatableAmount * ewt.taxRate) / 100;
-    const tmpNet = tmpGross - tmpEwtAmount;
+    const computeResult = computeDisbursement(
+      nonVatableAmount,
+      vatableAmount,
+      ewt.ewtTaxRate
+    );
 
-    setVat(tmpVat);
-    setGross(tmpGross);
-    setEwtAmount(tmpEwtAmount);
-    setNet(tmpNet);
-  }, [vatableAmount, nonVatableAmount, ewt.taxRate]);
+    setVat(computeResult.vat);
+    setGross(computeResult.gross);
+    setEwtAmount(computeResult.ewt);
+    setNet(computeResult.net);
+  }, [ewt.ewtTaxRate, nonVatableAmount, vatableAmount]);
 
   useEffect(() => {
     const fetchDisbursement = async () => {
@@ -234,7 +236,6 @@ const Update = ({ id, isOpen, toggle, notify }) => {
           </Col>
           <Col lg='4' md='6' sm='12'>
             <Label>Non-Expense Category</Label>
-            {console.log('test', nonExpenseCategory)}
             <NonExpenseCategoryDropdown
               value={nonExpenseCategory}
               onChange={handleNonExpenseCategory}

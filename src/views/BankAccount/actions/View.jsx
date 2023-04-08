@@ -56,9 +56,15 @@ const View = ({ id, isOpen, toggle }) => {
             <Label>Bank</Label>
             <span className='form-control'>{bankAccount.bankName}</span>
           </Col>
+        </Row>
+        <Row>
           <Col>
             <Label>Account Number</Label>
             <span className='form-control'>{bankAccount.accountNumber}</span>
+          </Col>
+          <Col>
+            <Label>Account Name</Label>
+            <span className='form-control'>{bankAccount.accountName}</span>
           </Col>
         </Row>
       </ModalBody>

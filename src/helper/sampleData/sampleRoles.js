@@ -16,6 +16,7 @@ const sampleRoles = [
   }
 ];
 
-export const getRole = (id) => sampleRoles.find((role) => role.roleId === id) || {};
+export const getRole = (id) =>
+  sampleRoles.find((role) => role.roleId === Number(id)) || {};
 
 export default sampleRoles;

@@ -12,17 +12,14 @@ import {
   Table
 } from 'reactstrap';
 import NotificationAlert from 'react-notification-alert';
-import { useReactToPrint } from 'react-to-print';
 
 import CompanyDropdown from 'components/Dropdown/CompanyDropdown';
 import { getDESummary } from 'api/disbursement';
 import numberToCurrency from 'helper/numberToCurrency';
+import { Link } from 'react-router-dom';
+import computeDisbursement from 'helper/computeDisbursement';
 
 const DESummary = () => {
-  const printRef = useRef();
-  const handlePrint = useReactToPrint({
-    content: () => printRef.current
-  });
   const notifyRef = useRef(null);
   const [companyId, setCompanyId] = useState();
   const [month, setMonth] = useState('');
@@ -67,8 +64,10 @@ const DESummary = () => {
   };
 
   const calculated = summary.map((item) => {
-    const vat = item.vatableAmount * 0.12;
-    const gross = item.vatableAmount + item.nonVatableAmount + vat;
+    const { vat, gross } = computeDisbursement(
+      item.nonVatableAmount,
+      item.vatableAmount
+    );
 
     totals.vatableAmount = totals.vatableAmount + item.vatableAmount;
     totals.nonVatableAmount = totals.nonVatableAmount + item.nonVatableAmount;
@@ -88,14 +87,22 @@ const DESummary = () => {
               <CardTitle tag='h4'>DE Summary</CardTitle>
             </Col>
             <Col className='text-right'>
-              <Button
-                color='info'
-                size='sm'
-                title='Print'
-                className='animation-on-hover'
-                onClick={handlePrint}>
-                <i className='fa fa-print'></i> Print
-              </Button>
+              <Link
+                to={
+                  !companyId || !month
+                    ? '#'
+                    : `/deSummary/${companyId}/${month}`
+                }
+                target='_blank'>
+                <Button
+                  color='info'
+                  size='sm'
+                  title='Print'
+                  className='animation-on-hover'
+                  disabled={!companyId || !month}>
+                  <i className='fa fa-print'></i> Print
+                </Button>
+              </Link>
             </Col>
           </Row>
         </CardHeader>
@@ -120,7 +127,7 @@ const DESummary = () => {
           </Row>
           <Row>
             <Col>
-              <Table ref={printRef}>
+              <Table>
                 <thead>
                   <tr>
                     <th>Supplier</th>
@@ -134,9 +141,8 @@ const DESummary = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {calculated.map((row) => {
-                    return (
-                      <tr>
+                  {calculated.map((row) => (
+                      <tr key={row.disbursementId}>
                         <td>{row.supplierName}</td>
                         <td>{row.supplierAddress}</td>
                         <td>{row.supplierTIN}</td>
@@ -146,8 +152,7 @@ const DESummary = () => {
                         <td>{numberToCurrency(row.vat)}</td>
                         <td>{numberToCurrency(row.gross)}</td>
                       </tr>
-                    );
-                  })}
+                    ))}
                 </tbody>
                 <thead>
                   <tr>

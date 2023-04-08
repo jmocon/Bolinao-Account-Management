@@ -18,6 +18,12 @@ import Icons from "views/Icons.js";
 // import Notifications from "views/Notifications.js";
 import Company from "views/Company/Company";
 import DESummary from "views/DESummary/DESummary";
+import IESummary from "views/IESummary/IESummary";
+import EWTSummary from "views/EWTSummary/EWTSummary";
+import CheckFormats from "views/CheckFormats/CheckFormats";
+import DepositSlips from "views/DepositSlips/DepositSlips";
+import BankReconciliation from "views/BankReconciliation/BankReconciliation";
+import DepositSlipFormats from "views/DepositSlipFormat/DepositSlipFormat";
 // import Rtl from "views/Rtl.js";
 // import TableList from "views/TableList.js";
 // import Typography from "views/Typography.js";
@@ -26,7 +32,7 @@ import DESummary from "views/DESummary/DESummary";
 var routes = [
   {
     path: '/expense',
-    name: 'Expenses',
+    name: 'Manual Expenses',
     icon: 'fa fa-receipt',
     component: Expenses,
     layout: '/admin'
@@ -36,6 +42,13 @@ var routes = [
     name: 'Disbursements',
     icon: 'fa fa-rectangle-list',
     component: Disbursements,
+    layout: '/admin'
+  },
+  {
+    path: '/depositslips',
+    name: 'Deposit Slips',
+    icon: 'fa-solid fa-file-invoice-dollar',
+    component: DepositSlips,
     layout: '/admin'
   },
   {
@@ -57,7 +70,21 @@ var routes = [
     path: '/iesummary',
     name: 'IE Summary',
     icon: 'fa-solid fa-chart-simple',
-    component: DESummary,
+    component: IESummary,
+    layout: '/admin'
+  },
+  {
+    path: '/ewtsummary',
+    name: 'EWT Summary',
+    icon: 'fa-solid fa-chart-simple',
+    component: EWTSummary,
+    layout: '/admin'
+  },
+  {
+    path: '/bankreconciliation',
+    name: 'Bank Reconciliation',
+    icon: 'fa-solid fa-magnifying-glass-dollar',
+    component: BankReconciliation,
     layout: '/admin'
   },
   { divider: true },
@@ -109,6 +136,20 @@ var routes = [
     name: 'Item Code',
     icon: 'fa fa-bars-staggered',
     component: ItemCodes,
+    layout: '/admin'
+  },
+  {
+    path: '/checkformat',
+    name: 'Check Format',
+    icon: 'fa fa-money-check-dollar',
+    component: CheckFormats,
+    layout: '/admin'
+  },
+  {
+    path: '/depositSlipFormat',
+    name: 'Deposit Slip Format',
+    icon: 'fa fa-file-pen',
+    component: DepositSlipFormats,
     layout: '/admin'
   },
   {

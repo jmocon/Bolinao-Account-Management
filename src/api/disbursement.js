@@ -1,3 +1,4 @@
+import disbursementStatus from 'constants/disbursementStatus';
 import axios from './axios';
 
 const DEFAULT_ROUTE = '/disbursements';
@@ -33,6 +34,25 @@ export const getDisbursement = async (id) => {
   const disbursement = mapData(response.data[0]);
 
   return disbursement;
+};
+
+export const getBankReconciliation = async ({
+  bankAccountId,
+  startDate,
+  endDate
+}) => {
+  let response;
+  try {
+    response = await axios.get(
+      `${DEFAULT_ROUTE}/bankReconciliation/${bankAccountId}/${startDate}/${endDate}`
+    );
+  } catch (error) {
+    throw new Error(
+      `Error occurred while getting bank reconciliation: ${error}`
+    );
+  }
+
+  return response.data;
 };
 
 export const getDisbursementDetails = async (id) => {
@@ -92,11 +112,35 @@ export const getDisbursementTable = async () => {
 export const getDESummary = async (params) => {
   let response;
   try {
-    response = await axios.get(`${DEFAULT_ROUTE}/deSummary`, {params});
+    response = await axios.get(`${DEFAULT_ROUTE}/deSummary`, { params });
   } catch (error) {
-    throw new Error(
-      `Error occurred while getting disbursement table: ${error}`
-    );
+    throw new Error(`Error occurred while getting DE Summary: ${error}`);
+  }
+
+  const disbursements = response.data;
+
+  return disbursements;
+};
+
+export const getIESummary = async (params) => {
+  let response;
+  try {
+    response = await axios.get(`${DEFAULT_ROUTE}/ieSummary`, { params });
+  } catch (error) {
+    throw new Error(`Error occurred while getting IE Summary: ${error}`);
+  }
+
+  const disbursements = response.data;
+
+  return disbursements;
+};
+
+export const getEWTSummary = async (params) => {
+  let response;
+  try {
+    response = await axios.get(`${DEFAULT_ROUTE}/ewtSummary`, { params });
+  } catch (error) {
+    throw new Error(`Error occurred while getting EWT Summary: ${error}`);
   }
 
   const disbursements = response.data;
@@ -125,36 +169,29 @@ export const updateDisbursement = async (id, disbursement) => {
 
   return response;
 };
-export const forApprovalDisbursement = async (id) => {
+
+export const updateStatus = async (id, status) => {
   let response;
   try {
-    response = await axios.put(`${DEFAULT_ROUTE}/${id}/forApproval`);
-  } catch (error) {
-    throw new Error(`Error occurred while approving disbursement: ${error}`);
-  }
-
-  return response.data;
-};
-
-export const approveDisbursement = async (id) => {
-  let response;
-  try {
-    response = await axios.put(`${DEFAULT_ROUTE}/${id}/approve`);
-  } catch (error) {
-    throw new Error(`Error occurred while approving disbursement: ${error}`);
-  }
-
-  return response.data;
-};
-
-export const forCorrectionDisbursement = async (id) => {
-  let response;
-  try {
-    response = await axios.put(`${DEFAULT_ROUTE}/${id}/forCorrection`);
+    response = await axios.put(`${DEFAULT_ROUTE}/${id}/${status}`);
   } catch (error) {
     throw new Error(
-      `Error occurred while returning disbursement for correction: ${error}`
+      `Error occurred while updating disbursement status: ${error}`
     );
+  }
+
+  return response.data;
+};
+
+export const clearDisbursement = async (id, clearedDate) => {
+  let response;
+  try {
+    response = await axios.put(
+      `${DEFAULT_ROUTE}/${id}/${disbursementStatus.cleared}`,
+      { clearedDate }
+    );
+  } catch (error) {
+    throw new Error(`Error occurred while clearing disbursement: ${error}`);
   }
 
   return response.data;

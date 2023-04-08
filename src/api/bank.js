@@ -13,7 +13,7 @@ export const getBank = async (id) => {
   try {
     response = await axios.get(`${DEFAULT_ROUTE}/${id}`);
   } catch (error) {
-    console.log(`Error occurred while getting bank: ${error}`);
+    throw new Error(`Error occurred while getting bank: ${error}`);
   }
 
   return mapData(response.data.data[0]);
@@ -24,7 +24,7 @@ export const getBanks = async () => {
   try {
     response = await axios.get(DEFAULT_ROUTE);
   } catch (error) {
-    console.log(`Error occurred while getting banks: ${error}`);
+    throw new Error(`Error occurred while getting banks: ${error}`);
   }
 
   const { data, success } = response.data;
@@ -42,7 +42,7 @@ export const addBank = async (data) => {
   try {
     response = await axios.post(DEFAULT_ROUTE, data);
   } catch (error) {
-    console.log(`Error occurred while adding bank: ${error}`);
+    throw new Error(`Error occurred while adding bank: ${error}`);
   }
 
   return response.data;
@@ -53,7 +53,7 @@ export const updateBank = async (id,data) => {
   try {
     response = await axios.put(`${DEFAULT_ROUTE}/${id}`, data);
   } catch (error) {
-    console.log(`Error occurred while updating bank: ${error}`);
+    throw new Error(`Error occurred while updating bank: ${error}`);
   }
 
   return response.data;
@@ -64,7 +64,7 @@ export const deleteBank = async (id) => {
   try {
     response = await axios.delete(`${DEFAULT_ROUTE}/${id}`);
   } catch (error) {
-    console.log(`Error occurred while deleting Bank: ${error}`);
+    throw new Error(`Error occurred while deleting Bank: ${error}`);
   }
 
   return response.data;

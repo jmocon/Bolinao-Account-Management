@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import decimalToWords from 'decimal-number-to-words';
 import { getVoucherDetail } from 'api/voucher';
 
 import style from './Voucher.module.css';
+import computeDisbursement from 'helper/computeDisbursement';
+import amountToWords from 'helper/amountToWords';
 
 const Voucher = () => {
   const { voucherId } = useParams();
@@ -24,21 +25,17 @@ const Voucher = () => {
         console.log(error);
       }
 
-      const tmpVatableAmount = result.vatableAmount || 0;
-      const tmpNonVatableAmount = result.nonVatableAmount || 0;
-      const tmpVat = tmpVatableAmount * 0.12;
-      const tmpGross = tmpVatableAmount + tmpVat + tmpNonVatableAmount;
-      const tmpEwtAmount = (tmpVatableAmount * (result.ewtTaxRate || 0)) / 100;
-      const tmpNet = tmpGross - tmpEwtAmount;
+      const computeResult = computeDisbursement(
+        result.nonVatableAmount,
+        result.vatableAmount,
+        result.ewtTaxRate
+      );
 
-      setEwtAmount(tmpEwtAmount);
-      setNet(tmpNet);
+      setEwtAmount(computeResult.ewt);
+      setNet(computeResult.net);
       setVoucher(result);
 
-      const splitAmount = `${tmpNet}`.split('.');
-      const inWords = decimalToWords.toWords(splitAmount[0]);
-      const centavo = splitAmount[1] ? ` & ${Number(splitAmount[1])}/100` : '';
-      setAmountInWords(`${inWords}${centavo}`);
+      setAmountInWords(amountToWords(computeResult.net));
     };
     fetchData();
   }, [voucherId]);

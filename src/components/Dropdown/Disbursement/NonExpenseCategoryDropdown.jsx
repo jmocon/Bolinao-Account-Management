@@ -9,11 +9,10 @@ const NonExpenseCategoryDropdown = ({ label, value, onChange }) => {
     value: Number(val)
   }));
 
-  const selected = options.find((option) => String(option.value) === String(value));
+  const selected = options.find(
+    (option) => String(option.value) === String(value)
+  );
 
-
-  console.log(options)
-  console.log(value)
   return (
     <Select
       styles={{

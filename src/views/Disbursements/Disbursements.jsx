@@ -20,6 +20,7 @@ import Delete from './actions/Delete';
 import View from './actions/View';
 import getDisbursementStatus from 'helper/disbursements/getDisbursementStatus';
 import sortDirections from 'constants/sortDirections';
+import computeDisbursement from 'helper/computeDisbursement';
 
 const Disbursements = () => {
   const [data, setData] = useState([]);
@@ -68,7 +69,6 @@ const Disbursements = () => {
     {
       Title: 'Supplier',
       accessor: 'supplierName',
-      cellClassName: 'text-nowrap'
     },
     { Title: 'Check Payee', accessor: 'checkPayee' },
     { Title: 'Particulars', accessor: 'particulars' },
@@ -85,12 +85,12 @@ const Disbursements = () => {
     { Title: 'EWT Rate', accessor: 'ewtRate', cellClassName: 'text-nowrap' },
     {
       Title: 'EWT Amount',
-      accessor: 'ewtAmount',
+      accessor: 'ewt',
       cellFormat: numberToCurrency
     },
     {
       Title: 'Net Amount',
-      accessor: 'netAmount',
+      accessor: 'net',
       cellFormat: numberToCurrency
     },
     {
@@ -120,7 +120,11 @@ const Disbursements = () => {
       Title: 'Actions',
       accessor: 'actionValue',
       cellFormat: (value) => (
-        <ActionButtons id={value.id} status={value.status} handleModal={handleModal} />
+        <ActionButtons
+          id={value.id}
+          status={value.status}
+          handleModal={handleModal}
+        />
       ),
       cellClassName: 'text-nowrap',
       isFilterable: false,
@@ -137,24 +141,24 @@ const Disbursements = () => {
     }
 
     const dataList = disbursements.map((dc) => {
-      const amount = dc.vatableAmount + dc.nonVatableAmount;
-      const vat = dc.vatableAmount ? dc.vatableAmount * 0.12 : 0;
-      const gross = amount + vat;
-      const ewtAmount = dc.ewtRate ? (dc.ewtRate / 100) * dc.vatableAmount : 0;
-      const netAmount = gross - ewtAmount;
+      const { nonVatable, vatable, vat, gross, ewt, net } = computeDisbursement(
+        dc.nonVatableAmount,
+        dc.vatableAmount,
+        dc.ewtRate
+      );
 
       return {
         ...dc,
         expenseCategory: expenseCategories[dc.expenseCategory],
         nonExpenseCategory: nonExpenseCategories[dc.nonExpenseCategory],
-        amount,
+        amount: vatable + nonVatable,
         vat,
         gross,
         ewtRate: `${dc.ewtRate || 0} %`,
-        ewtAmount,
-        netAmount,
+        ewt,
+        net,
         checkStatus: checkStatuses[dc.checkStatus],
-        actionValue: {id:dc.id, status:dc.status}
+        actionValue: { id: dc.id, status: dc.status }
       };
     });
 
@@ -219,7 +223,12 @@ const Disbursements = () => {
               </Row>
             </CardHeader>
             <CardBody>
-              <TableGrid columns={columns} data={data} defaultSortColumn={'id'} defaultSortDirection={sortDirections.asc} />
+              <TableGrid
+                columns={columns}
+                data={data}
+                defaultSortColumn={'id'}
+                defaultSortDirection={sortDirections.asc}
+              />
             </CardBody>
           </Card>
         </Col>

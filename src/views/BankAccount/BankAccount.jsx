@@ -152,7 +152,7 @@ const BankAccounts = () => {
             </CardHeader>
             <CardBody>
               <DataTable
-                title='BankAccount'
+                title='Bank Account'
                 columns={columns}
                 rows={rows}
                 withAction

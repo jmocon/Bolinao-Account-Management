@@ -19,6 +19,7 @@ const Update = ({ id, isOpen, toggle, notify }) => {
   const [name, setName] = useState('');
   const [bankId, setBankId] = useState(0);
   const [accountNumber, setAccountNumber] = useState('');
+  const [accountName, setAccountName] = useState('');
 
   const [submitted, setSubmitted] = useState(false);
 
@@ -36,7 +37,7 @@ const Update = ({ id, isOpen, toggle, notify }) => {
     });
 
   const CheckContent = () => {
-    return !name || !bankId || !accountNumber;
+    return !name || !bankId || !accountNumber || !accountName;
   };
 
   useEffect(() => {
@@ -55,6 +56,7 @@ const Update = ({ id, isOpen, toggle, notify }) => {
       setName(bankAccount.name);
       setBankId(bankAccount.bankId);
       setAccountNumber(bankAccount.accountNumber);
+      setAccountName(bankAccount.accountName);
     };
 
     if (id) {
@@ -77,7 +79,8 @@ const Update = ({ id, isOpen, toggle, notify }) => {
     const data = {
       name,
       bankId,
-      accountNumber
+      accountNumber,
+      accountName
     };
 
     let result;
@@ -131,6 +134,8 @@ const Update = ({ id, isOpen, toggle, notify }) => {
             <Label>Bank</Label>
             <BankDropdown label='Bank' onChange={setBankId} value={bankId} />
           </Col>
+        </Row>
+        <Row>
           <Col>
             <Label>Account Number</Label>
             <Input
@@ -138,6 +143,15 @@ const Update = ({ id, isOpen, toggle, notify }) => {
               placeholder='Account Number'
               invalid={!accountNumber && submitted}
               onChange={(e) => setAccountNumber(e.target.value)}
+            />
+          </Col>
+          <Col>
+            <Label>Account Name</Label>
+            <Input
+              value={accountName}
+              placeholder='Account Name'
+              invalid={!accountName && submitted}
+              onChange={(e) => setAccountName(e.target.value)}
             />
           </Col>
         </Row>

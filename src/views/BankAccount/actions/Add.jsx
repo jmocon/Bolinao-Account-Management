@@ -28,6 +28,7 @@ const Add = ({ onChange = () => {}, notify = () => {} }) => {
   const [name, setName] = useState();
   const [bankId, setBankId] = useState();
   const [accountNumber, setAccountNumber] = useState();
+  const [accountName, setAccountName] = useState();
 
   // Notification
   const [alert, setAlert] = useState({
@@ -44,7 +45,7 @@ const Add = ({ onChange = () => {}, notify = () => {} }) => {
     });
 
   const CheckContent = () => {
-    return !name || !bankId || !accountNumber;
+    return !name || !bankId || !accountNumber || !accountName;
   };
 
   const handleAdd = async () => {
@@ -59,7 +60,7 @@ const Add = ({ onChange = () => {}, notify = () => {} }) => {
       return;
     }
 
-    const data = { name, bankId, accountNumber };
+    const data = { name, bankId, accountNumber, accountName };
 
     let result;
     try {
@@ -121,6 +122,8 @@ const Add = ({ onChange = () => {}, notify = () => {} }) => {
               <Label>Bank</Label>
               <BankDropdown label='Bank' onChange={setBankId} value={bankId} />
             </Col>
+          </Row>
+          <Row>
             <Col>
               <Label>Account Number</Label>
               <Input
@@ -128,6 +131,15 @@ const Add = ({ onChange = () => {}, notify = () => {} }) => {
                 placeholder='Account Number'
                 invalid={!accountNumber && submitted}
                 onChange={(e) => setAccountNumber(e.target.value)}
+              />
+            </Col>
+            <Col>
+              <Label>Account Name</Label>
+              <Input
+                value={accountName}
+                placeholder='Account Name'
+                invalid={!accountName && submitted}
+                onChange={(e) => setAccountName(e.target.value)}
               />
             </Col>
           </Row>

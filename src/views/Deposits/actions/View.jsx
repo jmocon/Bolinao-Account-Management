@@ -11,15 +11,17 @@ import {
   Alert
 } from 'reactstrap';
 
-import { getDeposit } from 'api/deposit';
+import { clearDeposit, getDeposit } from 'api/deposit';
 import { getBankAccount } from 'api/bankAccount';
-import modeOfPayments from 'constants/modeOfPayments';
+import modeOfPayments, { modeOfPaymentValues } from 'constants/modeOfPayments';
 import { getBank } from 'api/bank';
+import ClearedDate from '../components/ClearedDate';
 
-const View = ({ id, isOpen, toggle }) => {
+const View = ({ id, isOpen, toggle, notify }) => {
   const [deposit, setDeposit] = useState({});
   const [bankAccount, setBankAccount] = useState({});
   const [bank, setBank] = useState({});
+  const [clearDateModal, setClearDateModal] = useState(false);
 
   // Notification
   const [alert, setAlert] = useState({
@@ -34,35 +36,65 @@ const View = ({ id, isOpen, toggle }) => {
       visible: false
     });
 
-    useEffect(() => {
-      const fetchDeposit = async () => {
-        if (id) {
-          const result = await getDeposit(id);
-          setDeposit(result);
-        }
-      };
-      fetchDeposit();
-    }, [id]);
+  useEffect(() => {
+    const fetchDeposit = async () => {
+      if (id) {
+        const result = await getDeposit(id);
+        setDeposit(result);
+      }
+    };
+    fetchDeposit();
+  }, [id]);
 
-    useEffect(() => {
-      const fetchData = async () => {
-        if (deposit.bankAccountId) {
-          const result = await getBankAccount(deposit.bankAccountId);
-          setBankAccount(result);
-        }
-      };
-      fetchData();
-    }, [deposit]);
+  useEffect(() => {
+    const fetchData = async () => {
+      if (deposit.bankAccountId) {
+        const result = await getBankAccount(deposit.bankAccountId);
+        setBankAccount(result);
+      }
+    };
+    fetchData();
+  }, [deposit]);
 
-    useEffect(() => {
-      const fetchData = async () => {
-        if (deposit.bankId) {
-          const result = await getBank(deposit.bankId);
-          setBank(result);
-        }
-      };
-      fetchData();
-    }, [deposit]);
+  useEffect(() => {
+    const fetchData = async () => {
+      if (deposit.bankId) {
+        const result = await getBank(deposit.bankId);
+        setBank(result);
+      }
+    };
+    fetchData();
+  }, [deposit]);
+
+  const handleClearedDate = async (clearedDate) => {
+    let response;
+    try {
+      response = await clearDeposit(id, { clearedDate });
+    } catch (error) {
+      setAlert({
+        color: 'danger',
+        message: `Error encountered while fetching Disbursement: ${error}`,
+        visible: true
+      });
+      return;
+    }
+
+    if (!response.success) {
+      setAlert({
+        color: 'danger',
+        message: `Error encountered while setting cleared date: ${response.message}`,
+        visible: true
+      });
+    }
+
+    notify(
+      'success',
+      'Successfully cleared deposit.',
+      'tim-icons icon-check-2'
+    );
+    setClearDateModal(false);
+    toggle();
+  };
 
   return (
     <Modal isOpen={isOpen} toggle={toggle} size='xl'>
@@ -98,25 +130,50 @@ const View = ({ id, isOpen, toggle }) => {
           </Col>
         </Row>
         <Row className='mb-2'>
-          <Col md={4}>
+          <Col md={3}>
             <Label>Mode of Payment</Label>
-            <span className='form-control'>{modeOfPayments[ deposit.modeOfPayment]}</span>
+            <span className='form-control'>
+              {modeOfPayments[deposit.modeOfPayment]}
+            </span>
           </Col>
-          {deposit.modeOfPayment === 0 && (
+          {[modeOfPaymentValues.Check, modeOfPaymentValues.Online].includes(
+            deposit.modeOfPayment
+          ) && (
+            <Col md={3}>
+              <Label>Bank</Label>
+              <span className='form-control'>{bank.abbr}</span>
+            </Col>
+          )}
+          {deposit.modeOfPayment === modeOfPaymentValues.Check && (
             <>
-              <Col md={4}>
-                <Label>Bank</Label>
-                <span className='form-control'>{bank.abbr}</span>
-              </Col>
-              <Col md={4}>
+              <Col md={3}>
                 <Label>Check Number</Label>
                 <span className='form-control'>{deposit.checkNumber}</span>
+              </Col>
+              <Col md={3}>
+                <Label>Check Date</Label>
+                <span className='form-control'>{deposit.checkDate}</span>
               </Col>
             </>
           )}
         </Row>
+        {deposit.clearedDate && (
+          <Row className='mb-2'>
+            <Col md={4}>
+              <Label>Cleared Date</Label>
+              <span className='form-control'>{deposit.clearedDate}</span>
+            </Col>
+          </Row>
+        )}
       </ModalBody>
       <ModalFooter className='p-4 justify-content-end'>
+        {!deposit.clearedDate && (
+          <ClearedDate
+            onClear={handleClearedDate}
+            modalState={clearDateModal}
+            setModalState={setClearDateModal}
+          />
+        )}
         <Button color='default' onClick={toggle}>
           Close
         </Button>

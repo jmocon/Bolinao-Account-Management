@@ -12,272 +12,392 @@ import {
   Input,
   Alert
 } from 'reactstrap';
-// import Select from 'react-select';
 
-// Sample Data
-import sampleRoles, { getRole } from 'helper/sampleData/sampleRoles';
-import { sampleUser } from 'helper/sampleData/sampleUsers';
+import CompanyDropdown from 'components/Dropdown/CompanyDropdown';
+import SupplierDropdown from 'components/Dropdown/SupplierDropdown';
+import EWTDropdown from 'components/Dropdown/EWTDropdown';
+import ExpenseCategoryDropdown from 'components/Dropdown/Disbursement/ExpenseCategoryDropdown';
+import NonExpenseCategoryDropdown from 'components/Dropdown/Disbursement/NonExpenseCategoryDropdown';
 
-const Update = ({ id, isOpen, toggle }) => {
-  const [role, setRole] = useState({ value: 0, label: '' });
-  const [firstName, setFirstName] = useState('');
-  const [middleName, setMiddleName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [suffixName, setSuffixName] = useState('');
-  const [address, setAddress] = useState('');
-  const [contactNumber, setContactNumber] = useState('');
-  const [emailAddress, setEmailAddress] = useState('');
-  const [birthDate, setBirthDate] = useState('');
-  const [gender, setGender] = useState(0);
-  const [username, setUsername] = useState('');
-  const [roles, setRoles] = useState([]);
-  // Checks if valid or not
-  const [submitted, setSubmitted] = useState(false);
-  // Notification
-  const [notif, setNotif] = useState({
+import numberToCurrency from 'helper/numberToCurrency';
+
+import { updateDisbursement, getDisbursement } from 'api/disbursement';
+import { getEWT } from 'api/ewt';
+import { getSupplier } from 'api/supplier';
+import ItemCodeDropdown from 'components/Dropdown/ItemCodeDropdown';
+import BankAccountDropdown from 'components/Dropdown/BankAccountDropdown';
+import computeDisbursement from 'helper/computeDisbursement';
+
+const Update = ({ id, isOpen, toggle, notify }) => {
+  const [companyId, setCompanyId] = useState();
+  const [disbursementDate, setDisbursementDate] = useState();
+  const [expenseCategory, setExpenseCategory] = useState();
+  const [nonExpenseCategory, setNonExpenseCategory] = useState();
+  const [supplierId, setSupplierId] = useState();
+  const [particulars, setParticulars] = useState();
+  const [itemCode, setItemCode] = useState();
+  const [vatableAmount, setVatableAmount] = useState(0);
+  const [nonVatableAmount, setNonVatableAmount] = useState(0);
+  const [hasEwt, setHasEwt] = useState(false);
+  const [ewtId, setEwtId] = useState();
+  const [apChargeTo, setApChargeTo] = useState();
+  const [bankAccountId, setBankAccountId] = useState();
+  const [checkNumber, setCheckNumber] = useState();
+  const [checkDate, setCheckDate] = useState();
+
+  const [checkPayee, setCheckPayee] = useState();
+  const [ewt, setEwt] = useState({});
+
+  const [vat, setVat] = useState(0);
+  const [gross, setGross] = useState(0);
+  const [ewtAmount, setEwtAmount] = useState(0);
+  const [net, setNet] = useState(0);
+
+  useEffect(() => {
+    const fetchEWT = async () => {
+      if (hasEwt && ewtId) {
+        const selectedEWT = await getEWT(ewtId);
+        setEwt(selectedEWT);
+        return;
+      }
+      setEwt({ taxRate: 0 });
+    };
+
+    fetchEWT();
+  }, [ewtId, hasEwt]);
+
+  const [alert, setAlert] = useState({
     color: 'primary',
     message: '',
     visible: false
   });
   const onDismiss = () =>
-    setNotif({
+    setAlert({
       color: 'primary',
       message: '',
       visible: false
     });
 
-  useEffect(() => {
-    setRoles(sampleRoles);
-    // var data = {
-    // 	Function: 'dropdown'
-    // };
-    // axios
-    // 	.post('/Role.php', data)
-    // 	.then((response) => {
-    // 		setRoles(response.data.List);
-    // 	})
-    // 	.catch(() => handleNotif('danger', 'Error', 'Connection Error'));
-  }, []);
+  const handleUpdate = async (status = 1) => {
+    const data = {
+      companyId,
+      disbursementDate,
+      expenseCategory,
+      nonExpenseCategory,
+      supplierId,
+      particulars,
+      itemCode,
+      vatableAmount,
+      nonVatableAmount,
+      ewtId,
+      apChargeTo,
+      bankAccountId,
+      checkNumber: checkNumber || '',
+      checkDate: checkDate || '',
+      status
+    };
+
+    let result;
+    try {
+      result = await updateDisbursement(id, data);
+    } catch (error) {
+      setAlert({
+        color: 'danger',
+        message: `Error encountered while updating Disbursement: ${error}`,
+        visible: true
+      });
+      return;
+    }
+
+    if (result.success === false) {
+      setAlert({
+        color: 'danger',
+        message: `Error encountered while updating Disbursement: ${result.message}`,
+        visible: true
+      });
+      return;
+    }
+
+    notify(
+      'success',
+      'Successfully updated disbursement.',
+      'tim-icons icon-check-2'
+    );
+    toggle();
+  };
 
   useEffect(() => {
-    // const data = {
-    // 	Function: 'getbyid',
-    // 	User_Id: props.id
-    // };
-    // axios
-    // 	.post('/User.php', data)
-    // 	.then((response) => {
-    // 		var u = response.data.Model;
-    const user = sampleUser();
-    const role = getRole(user.roleId);
-    setRole({ value: role.roleId, label: role.name });
-    setFirstName(user.firstName);
-    setMiddleName(user.middleName);
-    setLastName(user.lastName);
-    setSuffixName(user.suffixName);
-    setAddress(user.address);
-    setContactNumber(user.contactNumber);
-    setEmailAddress(user.emailAddress);
-    setBirthDate(user.birthDate);
-    setGender(user.gender);
-    setUsername(user.username);
-    // 	})
-    // 	.catch(() => handleNotif('danger', 'Error', 'Connection Error'));
+    const fetchSupplier = async () => {
+      let result;
+      try {
+        result = await getSupplier(supplierId);
+      } catch (error) {
+        setAlert({
+          color: 'danger',
+          message: `Error encountered while fetching supplier: ${error}`,
+          visible: true
+        });
+        return;
+      }
+
+      setCheckPayee(result.checkPayee);
+    };
+
+    if (supplierId) {
+      fetchSupplier();
+    }
+  }, [supplierId]);
+
+  useEffect(() => {
+    const computeResult = computeDisbursement(
+      nonVatableAmount,
+      vatableAmount,
+      ewt.ewtTaxRate
+    );
+
+    setVat(computeResult.vat);
+    setGross(computeResult.gross);
+    setEwtAmount(computeResult.ewt);
+    setNet(computeResult.net);
+  }, [ewt.ewtTaxRate, nonVatableAmount, vatableAmount]);
+
+  useEffect(() => {
+    const fetchDisbursement = async () => {
+      let result;
+      try {
+        result = await getDisbursement(id);
+      } catch (error) {
+        setAlert({
+          color: 'danger',
+          message: `Error encountered while fetching Disbursement: ${error}`,
+          visible: true
+        });
+        return;
+      }
+
+      setCompanyId(result.companyId);
+      setDisbursementDate(result.disbursementDate);
+      setExpenseCategory(result.expenseCategory);
+      setNonExpenseCategory(result.nonExpenseCategory);
+      setApChargeTo(result.apChargeTo);
+      setSupplierId(result.supplierId);
+      setParticulars(result.particulars);
+      setItemCode(result.itemCodeId);
+      setVatableAmount(result.vatableAmount);
+      setNonVatableAmount(result.nonVatableAmount);
+      setHasEwt(!!result.ewtId);
+      setEwtId(result.ewtId);
+      setBankAccountId(result.bankAccountId);
+      setCheckNumber(result.checkNumber);
+      setCheckDate(result.checkDate);
+    };
+    fetchDisbursement();
   }, [id]);
 
-  const CheckContent = () => {
-    var error = false;
-    if (!firstName) {
-      error = true;
-    }
-    if (!emailAddress) {
-      error = true;
-    }
-    if (!username) {
-      error = true;
-    }
-    setSubmitted(true);
-    return error;
-  };
-
-  const handleNotif = (color, title, message) => {
-    var msg = message;
-    if (title) {
-      msg = (
-        <span>
-          <b>{title} - </b> {msg}
-        </span>
-      );
-    }
-    setNotif({ color: color, message: msg, visible: true });
-  };
-
-  const handleUpdate = () => {
-    if (CheckContent()) {
-      handleNotif(
-        'danger',
-        'Incomplete Details',
-        'Kindly fillup required details.'
-      );
-    } else {
-      // const data = {
-      // 	Function: 'update',
-      // 	Model: {
-      // 		User_Id: props.id,
-      // 		roleId: role.value,
-      // 		FirstName: firstName,
-      // 		MiddleName: middleName,
-      // 		LastName: lastName,
-      // 		SuffixName: suffixName,
-      // 		Address: address,
-      // 		ContactNumber: contactNumber,
-      // 		EmailAddress: emailAddress,
-      // 		BirthDate: birthDate,
-      // 		Gender: gender,
-      // 		Username: username
-      // 	}
-      // };
-      // axios
-      // 	.post('/User.php', data)
-      // 	.then((response) => {
-      // 		if (response.data.Success) {
-      // 			props.notif('success', 'Successfully updated user.');
-      // 			props.toggle();
-      // 		} else {
-      // 			handleNotif('danger', 'Error', response.data.Message);
-      // 		}
-      // 	})
-      // 	.catch(() => handleNotif('danger', 'Error', 'Connection Error'));
+  const handleNonExpenseCategory = (value) => {
+    setNonExpenseCategory(value);
+    if (value === 0) {
+      setApChargeTo(null);
     }
   };
 
   return (
     <Modal isOpen={isOpen} toggle={toggle} size='xl'>
-      <ModalHeader toggle={toggle}>Update Expenses</ModalHeader>
+      <ModalHeader toggle={toggle}>Update Disbursement</ModalHeader>
       <ModalBody>
-        <Alert color={notif.color} isOpen={notif.visible} toggle={onDismiss}>
-          {notif.message}
+        <Alert color={alert.color} isOpen={alert.visible} toggle={onDismiss}>
+          {alert.message}
         </Alert>
-        <Row>
-          <Col lg='3' md='6'>
-            <Label>First Name</Label>
-            <Input
-              value={firstName}
-              placeholder='Juan'
-              invalid={!firstName && submitted}
-              onChange={(e) => setFirstName(e.target.value)}
-            />
-          </Col>
-          <Col lg='3' md='6'>
-            <Label>Middle Name</Label>
-            <Input
-              defaultValue={middleName}
-              placeholder='Dela'
-              onChange={(e) => setMiddleName(e.target.value)}
-            />
-          </Col>
-          <Col lg='3' md='6'>
-            <Label>Last Name</Label>
-            <Input
-              defaultValue={lastName}
-              placeholder='Cruz'
-              onChange={(e) => setLastName(e.target.value)}
-            />
-          </Col>
-          <Col lg='3' md='6'>
-            <Label>Suffix Name</Label>
-            <Input
-              defaultValue={suffixName}
-              placeholder='Jr'
-              onChange={(e) => setSuffixName(e.target.value)}
-            />
-          </Col>
-        </Row>
-        <Row>
-          <Col lg='3' md='6'>
-            <Label>Birth Date</Label>
+
+        <Row className='mb-2'>
+          <Col lg='4' md='6' sm='12'>
+            <Label>Month Posting</Label>
             <Input
               type='date'
-              defaultValue={birthDate}
-              placeholder='Birth Date'
-              onChange={(e) => setBirthDate(e.target.value)}
+              defaultValue={disbursementDate}
+              onChange={(e) => setDisbursementDate(e.target.value)}
             />
           </Col>
-          <Col lg='3' md='6'>
-            <Label>Gender</Label>
-            <Input
-              type='select'
-              value={gender}
-              placeholder='Gender'
-              onChange={(e) => setGender(e.target.value)}>
-              <option value='0'>Male</option>
-              <option value='1'>Female</option>
-            </Input>
-          </Col>
-          <Col lg='3' md='6'>
-            <Label>Contact Number</Label>
-            <Input
-              defaultValue={contactNumber}
-              placeholder='+63 912 345 6789'
-              onChange={(e) => setContactNumber(e.target.value)}
-            />
-          </Col>
-          <Col lg='3' md='6'>
-            <Label>Email Address</Label>
-            <Input
-              defaultValue={emailAddress}
-              placeholder='email@whjewels.com'
-              invalid={!emailAddress && submitted}
-              onChange={(e) => setEmailAddress(e.target.value)}
+          <Col lg='4' md='6' sm='12'>
+            <Label>Company</Label>
+            <CompanyDropdown
+              value={companyId}
+              onChange={(e) => setCompanyId(e)}
             />
           </Col>
         </Row>
-        <Row>
+        <Row className='mb-2'>
+          <Col lg='4' md='6' sm='12'>
+            <Label>Expense Category</Label>
+            <ExpenseCategoryDropdown
+              value={expenseCategory}
+              onChange={setExpenseCategory}
+            />
+          </Col>
+          <Col lg='4' md='6' sm='12'>
+            <Label>Non-Expense Category</Label>
+            <NonExpenseCategoryDropdown
+              value={nonExpenseCategory}
+              onChange={handleNonExpenseCategory}
+            />
+          </Col>
+          {nonExpenseCategory === 0 && (
+            <Col lg='4' md='6'>
+              <Label>AP Charge To</Label>
+              <Input
+                defaultValue={apChargeTo}
+                placeholder='AP Charge To'
+                onChange={(e) => setApChargeTo(e.target.value)}
+              />
+            </Col>
+          )}
+        </Row>
+        <Row className='mb-2'>
+          <Col lg='4' md='6' sm='12'>
+            <Label>Item Code</Label>
+            <ItemCodeDropdown
+              label='Item Code'
+              value={itemCode}
+              onChange={setItemCode}
+            />
+          </Col>
+          <Col lg='4' md='12'>
+            <Label>Supplier</Label>
+            <SupplierDropdown
+              value={supplierId}
+              onChange={(e) => setSupplierId(e)}
+            />
+          </Col>
+          <Col lg='4' md='6' sm='12'>
+            <Label>Check Payee</Label>
+            <span className='form-control'>{checkPayee}</span>
+          </Col>
+        </Row>
+        <Row className='mb-2'>
           <Col>
-            <Label>Home Address</Label>
+            <Label>Particulars</Label>
             <Input
-						className='pl-3'
               type='textarea'
-              defaultValue={address}
-              placeholder='House No., Street, District, City'
-              onChange={(e) => setAddress(e.target.value)}
+              defaultValue={particulars}
+              placeholder='Particulars'
+              onChange={(e) => setParticulars(e.target.value)}
             />
           </Col>
         </Row>
-        <Row>
-          <Col lg='6' md='6'>
-            <Label>Role</Label>
-            {/* <Select
-							classNamePrefix='sel_fc'
-							isSearchable
-							label='Roles'
-							options={roles}
-							value={role}
-							onChange={(e) => setRole(e)}
-						/> */}
+        <hr />
+        <Row className='mb-2'>
+          <Col lg='4' md='6' sm='12'>
+            <Label>Vatable Amount</Label>
             <Input
-              type='select'
-              value={role}
-              placeholder='Role'
-              onChange={(e) => setRole(e.target.value)}>
-              {roles.map((roleOption) => (
-                <option value={roleOption.roleId}>{roleOption.name}</option>
-              ))}
-            </Input>
+              type='number'
+              value={vatableAmount}
+              placeholder='Amount'
+              onChange={(e) => setVatableAmount(Number(e.target.value))}
+            />
           </Col>
-          <Col lg='6' md='6'>
-            <Label>Username</Label>
+          <Col lg='4' md='6' sm='12'>
+            <Label>VAT</Label>
+            <span className='form-control'>{numberToCurrency(vat)}</span>
+          </Col>
+        </Row>
+        <Row className='mb-2'>
+          <Col lg='4' md='6' sm='12'>
+            <Label>Non-Vatable Amount</Label>
             <Input
-              defaultValue={username}
-              placeholder='jdcruz'
-              invalid={!username && submitted}
-              onChange={(e) => setUsername(e.target.value)}
+              type='number'
+              value={nonVatableAmount}
+              placeholder='Amount'
+              onChange={(e) => setNonVatableAmount(Number(e.target.value))}
+            />
+          </Col>
+          <Col lg='4' md='6' sm='12'>
+            <Label>Gross Amount</Label>
+            <span className='form-control'>{numberToCurrency(gross)}</span>
+          </Col>
+        </Row>
+        <Row className='mb-2'>
+          <Col lg='2' md='6' sm='6'>
+            <Label>EWT</Label>
+            <p>
+              <Input
+                type='checkbox'
+                defaultValue={hasEwt}
+                onChange={(e) => {
+                  setHasEwt(e.target.checked);
+                  setEwtId();
+                }}
+                style={{
+                  marginLeft: '0px',
+                  marginRight: '5px',
+                  marginTop: '10px',
+                  position: 'relative'
+                }}
+              />{' '}
+              with EWT
+            </p>
+          </Col>
+          {hasEwt && (
+            <>
+              <Col lg='2' md='6' sm='6'>
+                <Label>Code</Label>
+                <EWTDropdown value={ewtId} onChange={setEwtId} />
+              </Col>
+              <Col lg='4' md='6' sm='12'>
+                <Label>EWT Rate</Label>
+                <span className='form-control'>{ewt.taxRate} %</span>
+              </Col>
+              <Col lg='4' md='6' sm='12'>
+                <Label>EWT Amount</Label>
+                <span className='form-control'>
+                  {numberToCurrency(ewtAmount)}
+                </span>
+              </Col>
+            </>
+          )}
+        </Row>
+        <Row className='mb-2'>
+          <Col lg='4' md='6' sm='12'>
+            <Label>NET Amount</Label>
+            <span className='form-control'>{numberToCurrency(net)}</span>
+          </Col>
+        </Row>
+        <hr />
+        <Row className='mb-2'>
+          <Col lg='4' md='6'>
+            <Label>Bank Account</Label>
+            <BankAccountDropdown
+              value={bankAccountId}
+              onChange={(e) => {
+                setBankAccountId(e);
+              }}
+            />
+          </Col>
+          <Col lg='4' md='6'>
+            <Label>Check Number</Label>
+            <Input
+              defaultValue={checkNumber}
+              placeholder='Check Number'
+              onChange={(e) => setCheckNumber(e.target.value)}
+            />
+          </Col>
+          <Col lg='4' md='6'>
+            <Label>Check Date</Label>
+            <Input
+              type='date'
+              defaultValue={checkDate}
+              onChange={(e) => setCheckDate(e.target.value)}
             />
           </Col>
         </Row>
       </ModalBody>
       <ModalFooter className='p-4 justify-content-end'>
-        <Button color='info' onClick={handleUpdate} className='mr-2'>
+        <Button
+          color='primary'
+          onClick={() => handleUpdate(0)}
+          className='mr-2'>
+          Draft
+        </Button>
+        <Button color='info' onClick={() => handleUpdate(1)} className='mr-2'>
           Update
         </Button>
         <Button color='default' onClick={toggle}>

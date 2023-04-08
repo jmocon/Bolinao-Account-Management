@@ -72,7 +72,7 @@ const Add = ({ onChange = () => {}, notify = () => {} }) => {
         break;
 
       default:
-        break;
+        return true;
     }
 
     return !bankAccountId || !payee || !particular || !depositDate || !amount;

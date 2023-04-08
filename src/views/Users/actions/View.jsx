@@ -12,61 +12,52 @@ import {
 } from 'reactstrap';
 
 import getFullName from 'helper/getFullName';
-
-// Sample Data
+import { getUser } from 'api/user';
+import genders from 'constants/genders';
 import { getRole } from 'helper/sampleData/sampleRoles';
-import { sampleUser } from 'helper/sampleData/sampleUsers';
 
-const View = ({ userId, isOpen, toggle, toast }) => {
-  const [user, setUser] = useState({})
-  const role = getRole(user.roleId);
+const View = ({ id, isOpen, toggle, notify }) => {
+  const [user, setUser] = useState({});
 
   // Notification
-  const [notif, setNotif] = useState({
+   const defaultAlert = {
     color: 'primary',
     message: '',
     visible: false
-  });
-  const onDismiss = () =>
-    setNotif({
-      color: 'primary',
-      message: '',
-      visible: false
-    });
+  };
+  const [alert, setAlert] = useState(defaultAlert);
+  const onDismiss = () => setAlert(defaultAlert);
 
-  useEffect(() => {
-    setUser(sampleUser());
-  	// const data = {
-  	// 	Function: 'getdisplaybyid',
-  	// 	User_Id: userId
-  	// };
-  	// axios
-  	// 	.post('/User.php', data)
-  	// 	.then((response) => {
-  	// 		var u = response.data.Model;
+ useEffect(() => {
+    const fetchData = async () => {
+      let result = {};
+      try {
+        result = await getUser(id);
+      } catch (error) {
+        setAlert({
+          color: 'danger',
+          message: `Error while fetching User: ${error}`,
+          visible: true
+        });
+      }
 
-  	// 	})
-  	// 	.catch(() => handleNotif('danger', 'Error', 'Connection Error'));
-  }, [userId]);
+      
+      const role = getRole(result.roleId);
 
-  // const handleNotif = (color, title, message) => {
-  // var msg = message;
-  // if (title) {
-  //   msg = (
-  //     <span>
-  //       <b>{title} - </b> {msg}
-  //     </span>
-  //   );
-  // }
-  // setNotif({ color: color, message: msg, visible: true });
-  // };
+      setUser({...result,roleName: role.name});
+    };
+
+    if (id) {
+      fetchData();
+    }
+  }, [id]);
 
   return (
     <Modal isOpen={isOpen} toggle={toggle} size='xl'>
       <ModalHeader toggle={toggle}>View User</ModalHeader>
       <ModalBody>
-        <Alert color={notif.color} isOpen={notif.visible} toggle={onDismiss}>
-          {notif.message}
+        <Alert color={alert.color} isOpen={alert.visible} toggle={onDismiss}>
+          {alert.message}
         </Alert>
         <Row>
           <Col md='6'>
@@ -93,7 +84,7 @@ const View = ({ userId, isOpen, toggle, toast }) => {
           </Col>
           <Col lg='4' md='6'>
             <Label>Gender</Label>
-            <span className='form-control'>{user.gender}</span>
+            <span className='form-control'>{genders[user.gender]}</span>
           </Col>
           <Col lg='4' md='6'>
             <Label>Contact Number</Label>
@@ -103,7 +94,7 @@ const View = ({ userId, isOpen, toggle, toast }) => {
         <Row>
           <Col>
             <Label>Home Address</Label>
-            <span className='form-control'>{user.address}</span>
+            <span className='form-control'>{user.homeAddress}</span>
           </Col>
         </Row>
         <Row>
@@ -113,7 +104,7 @@ const View = ({ userId, isOpen, toggle, toast }) => {
           </Col>
           <Col>
             <Label>Role</Label>
-            <span className='form-control'>{role.name}</span>
+            <span className='form-control'>{user.roleName}</span>
           </Col>
           <Col>
             <Label>Username</Label>

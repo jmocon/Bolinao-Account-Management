@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-// reactstrap components
 import {
   Row,
   Col,
@@ -12,39 +11,68 @@ import {
   Alert
 } from 'reactstrap';
 
-// Sample Data
-import { sampleUser } from 'helper/sampleData/sampleUsers';
-
 import getFullName from 'helper/getFullName';
+import { deleteUser, getUser } from 'api/user';
+import { getRole } from 'helper/sampleData/sampleRoles';
 
-const Delete = (props) => {
-  const [user, setUser] = useState('');
+const Delete = ({ id, isOpen, toggle, notify }) => {
+  const [user, setUser] = useState({});
+
   // Notification
-  const [notif, setNotif] = useState({
+  const defaultAlert = {
     color: 'primary',
     message: '',
     visible: false
-  });
-  const onDismiss = () =>
-    setNotif({
-      color: 'primary',
-      message: '',
-      visible: false
-    });
+  };
+  const [alert, setAlert] = useState(defaultAlert);
+  const onDismiss = () => setAlert(defaultAlert);
 
   useEffect(() => {
-    setUser(sampleUser());
-  }, [props]);
+    const fetchData = async () => {
+      let result = {};
+      try {
+        result = await getUser(id);
+      } catch (error) {
+        setAlert({
+          color: 'danger',
+          message: `Error while fetching User: ${error}`,
+          visible: true
+        });
+      }
 
-  const handleDelete = () => {
+      const role = getRole(result.roleId);
+
+      setUser({ ...result, roleName: role.name });
+    };
+
+    if (id) {
+      fetchData();
+    }
+  }, [id]);
+
+  const handleDelete = async () => {
+    try {
+      await deleteUser(id);
+    } catch (error) {
+      setAlert({
+        color: 'danger',
+        message: error,
+        visible: false
+      });
+      return;
+    }
+
+    notify('success', 'Successfully deleted user.', 'tim-icons icon-check-2');
+
+    toggle();
   };
 
   return (
-    <Modal isOpen={props.isOpen} toggle={props.toggle} size='lg'>
-      <ModalHeader toggle={props.toggle}>Delete User</ModalHeader>
+    <Modal isOpen={isOpen} toggle={toggle} size='lg'>
+      <ModalHeader toggle={toggle}>Delete User</ModalHeader>
       <ModalBody>
-        <Alert color={notif.color} isOpen={notif.visible} toggle={onDismiss}>
-          {notif.message}
+        <Alert color={alert.color} isOpen={alert.visible} toggle={onDismiss}>
+          {alert.message}
         </Alert>
         <Row>
           <Col>
@@ -73,7 +101,7 @@ const Delete = (props) => {
         <Button color='danger' onClick={handleDelete} className='mr-2'>
           Delete
         </Button>
-        <Button color='default' onClick={props.toggle}>
+        <Button color='default' onClick={toggle}>
           Close
         </Button>
       </ModalFooter>

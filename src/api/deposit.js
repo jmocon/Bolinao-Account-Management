@@ -2,16 +2,19 @@ import axios from './axios';
 
 const DEFAULT_ROUTE = '/deposit';
 
-const mapData = (deposit) => ({
+export const mapDeposit = (deposit) => ({
+  ...deposit,
   depositId: deposit.id,
   bankAccountId: deposit.bank_account_id,
   payee: deposit.payee,
   particular: deposit.particular,
-  depositDate: deposit.deposit_date,
+  depositDate: deposit.deposit_date && deposit.deposit_date.substring(0, 10),
   bankId: deposit.bank_id,
   modeOfPayment: deposit.mode_of_payment,
   amount: deposit.amount,
-  checkNumber: deposit.check_number
+  checkNumber: deposit.check_number,
+  checkDate: deposit.check_date && deposit.check_date.substring(0, 10),
+  clearedDate: deposit.cleared_date && deposit.cleared_date.substring(0, 10)
 });
 
 export const getDeposit = async (id) => {
@@ -22,7 +25,7 @@ export const getDeposit = async (id) => {
     throw new Error(`Error occurred while getting deposit: ${error}`);
   }
 
-  return mapData(response.data.data[0]);
+  return mapDeposit(response.data.data[0]);
 };
 
 export const getDeposits = async () => {
@@ -41,7 +44,7 @@ export const getDeposits = async () => {
     );
   }
 
-  return data.map(mapData);
+  return data.map(mapDeposit);
 };
 
 export const getDepositTable = async () => {
@@ -57,6 +60,25 @@ export const getDepositTable = async () => {
   if (!success) {
     throw new Error(
       `Error occurred while getting deposits: ${response.data.message}`
+    );
+  }
+
+  return data;
+};
+
+export const getOpenDeposits = async () => {
+  let response;
+  try {
+    response = await axios.get(`${DEFAULT_ROUTE}/open`);
+  } catch (error) {
+    throw new Error(`Error occurred while getting open deposits: ${error}`);
+  }
+
+  const { data, success } = response.data;
+
+  if (!success) {
+    throw new Error(
+      `Error occurred while getting open deposits: ${response.data.message}`
     );
   }
 

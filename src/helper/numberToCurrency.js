@@ -1,4 +1,4 @@
-const numberToCurrency = (value) => (
+const numberToCurrency = (value = 0) => (
   <div className='d-flex justify-content-between'>
     <div className="mr-1">₱</div>
     <div>

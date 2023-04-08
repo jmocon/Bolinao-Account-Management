@@ -4,8 +4,9 @@ const disbursementStatus = {
   forCorrection: 2,
   approved: 3,
   print: 4,
-  cleared: 5,
-  cancelled: 6,
+  check: 5,
+  cleared: 6,
+  cancelled: 7,
 };
 
 export default disbursementStatus;

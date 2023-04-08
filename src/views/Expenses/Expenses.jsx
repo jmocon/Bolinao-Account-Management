@@ -1,164 +1,173 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import {
-  Card,
-  CardHeader,
-  CardBody,
-  CardTitle,
-  Row,
-  Col,
-  Button
-} from 'reactstrap';
+import { Card, CardHeader, CardBody, CardTitle, Row, Col } from 'reactstrap';
+import NotificationAlert from 'react-notification-alert';
 
-// Sample Data
-import { sampleAccount } from 'helper/sampleData/sampleAccounts';
-import { sampleSupplier } from 'helper/sampleData/sampleSuppliers';
-import { sampleVoucher } from 'helper/sampleData/sampleVouchers';
-import { sampleEWT } from 'helper/sampleData/sampleEWTs';
-import { getBank } from 'helper/sampleData/sampleBanks';
+import expenseCategories from 'constants/expenseCategories';
+import nonExpenseCategories from 'constants/nonExpenseCategories';
+import checkStatuses from 'constants/checkStatuses';
 
-import { getExpenses } from 'api/expense';
-import DataTable from 'components/DataTable/DataTable';
-import ExpenseStatusPill from 'components/Pills/ExpenseStatusPill';
-import categories from 'constants/expenseCategories';
-import modeOfPayments from 'constants/modeOfPayments';
-import getExpenseStatus from 'helper/expenses/getExpenseStatus';
 import numberToCurrency from 'helper/numberToCurrency';
 
-import AddExpense from './actions/AddExpense';
-import DeleteExpense from './actions/DeleteExpense';
+import ActionButtons from 'views/Disbursements/components/ActionButtons';
+import TableGrid from 'components/TableGrid/TableGrid';
+import DisbursementStatusPill from 'components/Pills/DisbursementStatusPill';
+
+import Add from './actions/Add';
+import Update from './actions/Update';
+import Delete from './actions/Delete';
+import View from './actions/View';
+import getDisbursementStatus from 'helper/disbursements/getDisbursementStatus';
+import sortDirections from 'constants/sortDirections';
+import computeDisbursement from 'helper/computeDisbursement';
+import { getExpenseTable } from 'api/expense';
 
 const Expenses = () => {
-  const [rows, setRows] = useState([]);
+  const [data, setData] = useState([]);
 
   // Modal
   const [itemId, setItemId] = useState();
   const [modalType, setModalType] = useState();
   const [modalState, setModalState] = useState(false);
-  const toggleModal = () => setModalState(!modalState);
+  const toggleModal = () => {
+    fetchData();
+    setModalState(!modalState);
+  };
   const handleModal = (type, id = '') => {
     setModalType(type);
     setItemId(id);
     setModalState(true);
   };
 
-  const handleNotify = () => {};
+  const notifyRef = React.useRef(null);
+  const handleNotify = (type, message, icon = 'tim-icons icon-bell-55') => {
+    const options = {
+      place: 'bc',
+      message,
+      type,
+      icon,
+      autoDismiss: 5
+    };
+    notifyRef.current.notificationAlert(options);
+  };
 
   const columns = [
-    'Id',
-    'Account',
-    'Category',
-    'Voucher Code',
-    'Voucher Date',
-    'Payee',
-    'Particulars',
-    'Tax Base',
-    'VAT',
-    'Gross Amount',
-    'EWT Code',
-    'EWT Rate',
-    'EWT Amount',
-    'Net Amount',
-    'MOP',
-    'Bank',
-    'Check No.',
-    'Check Date',
-    'Status',
-    'Actions'
+    { Title: 'Id', accessor: 'id' },
+    { Title: 'Company', accessor: 'companyName', cellClassName: 'text-nowrap' },
+    { Title: 'Expense Category', accessor: 'expenseCategory' },
+    { Title: 'Item Code', accessor: 'itemCode' },
+    { Title: 'Particulars', accessor: 'particulars' },
+    { Title: 'Invoice Date', accessor: 'invoiceDate' },
+    { Title: 'Invoice Number', accessor: 'invoiceNumber' },
+    { Title: 'Supplier Name', accessor: 'supplierName' },
+    { Title: 'Supplier TIN', accessor: 'supplierTin' },
+    { Title: 'Supplier Address', accessor: 'supplierAddress' },
+    {
+      Title: 'Vatable Amount',
+      accessor: 'vatableAmount',
+      cellFormat: numberToCurrency
+    },
+    { Title: 'VAT', accessor: 'vat', cellFormat: numberToCurrency },
+    {
+      Title: 'Non-Vatable Amount',
+      accessor: 'nonVatableAmount',
+      cellFormat: numberToCurrency
+    },
+    { Title: 'Gross Amount', accessor: 'gross', cellFormat: numberToCurrency },
+    { Title: 'EWT Code', accessor: 'ewtCode' },
+    { Title: 'EWT Rate', accessor: 'ewtRate', cellClassName: 'text-nowrap' },
+    {
+      Title: 'EWT Amount',
+      accessor: 'ewt',
+      cellFormat: numberToCurrency
+    },
+    {
+      Title: 'Net Amount',
+      accessor: 'net',
+      cellFormat: numberToCurrency
+    },
+    {
+      Title: 'Mode of Payment',
+      accessor: 'modeOfPayment',
+      cellClassName: 'text-nowrap'
+    },
+    { Title: 'Remarks', accessor: 'remarks' },
+    {
+      Title: 'Status',
+      accessor: 'status',
+      searchValue: (value) => getDisbursementStatus(value).title,
+      cellFormat: (value) => <DisbursementStatusPill status={value} />
+    },
+    {
+      Title: 'Actions',
+      accessor: 'actionValue',
+      cellFormat: (value) => (
+        <ActionButtons
+          id={value.id}
+          status={value.status}
+          handleModal={handleModal}
+        />
+      ),
+      cellClassName: 'text-nowrap',
+      isFilterable: false,
+      isSortable: false
+    }
   ];
 
-  const fetchExpenses = useCallback(async () => {
-    const expenses = await getExpenses();
+  const fetchData = useCallback(async () => {
+    let data;
+    try {
+      data = await getExpenseTable();
+    } catch (error) {
+      console.log(error);
+    }
 
-    const expenseList = expenses.map((expense) => {
-      const account = sampleAccount();
-      const supplier = sampleSupplier();
-      const voucher = sampleVoucher();
-      const ewt = sampleEWT();
+    console.log(data)
 
-      const vat = expense.vatableAmount ? expense.nonVatableAmount * 0.12 : 0;
-      const gross = vat + expense.nonVatableAmount;
-      const ewtAmount = expense.nonVatableAmount * ewt.taxRate / 100;
-      const net = gross - ewtAmount;
-      return [
-        expense.expenseId,
-        account.owner,
-        categories[expense.category],
-        voucher.code,
-        voucher.date,
-        supplier.name,
-        expense.particulars,
-        expense.nonVatableAmount,
+    const dataList = data.map((dc) => {
+      const { nonVatable, vatable, vat, gross, ewt, net } = computeDisbursement(
+        dc.nonVatableAmount,
+        dc.vatableAmount,
+        dc.ewtRate
+      );
+
+      return {
+        ...dc,
+        expenseCategory: expenseCategories[dc.expenseCategory],
+        nonExpenseCategory: nonExpenseCategories[dc.nonExpenseCategory],
+        amount: vatable + nonVatable,
         vat,
         gross,
-        ewt.atc,
-        `${ewt.taxRate}%`,
-        ewtAmount,
+        ewtRate: `${dc.ewtRate || 0} %`,
+        ewt,
         net,
-        modeOfPayments[expense.modeOfPayment],
-        `${getBank(account.bankId).abbr} ${account.accountNumber.slice(-4)}`,
-        expense.checkNumber,
-        expense.checkDate,
-        getExpenseStatus(expense.status).title,
-        <>
-          <Button
-            size='sm'
-            color='info'
-            title='View'
-            className='btn-icon mr-1'
-            onClick={() => handleModal('view', expense.expenseId)}>
-            <i className='tim-icons icon-zoom-split'></i>
-          </Button>
-          <Button
-            size='sm'
-            color='success'
-            title='Edit'
-            className='btn-icon mr-1'
-            onClick={() => handleModal('update', expense.expenseId)}>
-            <i className='tim-icons icon-pencil'></i>
-          </Button>
-          <Button
-            size='sm'
-            color='danger'
-            title='Delete'
-            className='btn-icon mr-1'
-            onClick={() => handleModal('delete', expense.expenseId)}>
-            <i className='tim-icons icon-simple-remove'></i>
-          </Button>
-        </>
-      ];
+        checkStatus: checkStatuses[dc.checkStatus],
+        actionValue: { id: dc.id, status: dc.status }
+      };
     });
 
-    setRows(expenseList);
+    setData(dataList);
   }, []);
 
   const displayModal = () => {
     if (modalState) {
       switch (modalType) {
-        //   case 'view':
-        //     return (
-        //       <View
-        //         roleId={itemId}
-        //         toggle={toggleModal}
-        //         isOpen={modalState}
-        //         notification={handleNotify}
-        //       />
-        //     );
-        // case 'add':
-        // 	return (
-        //     <Add
-        //       toggle={toggleModal}
-        //       isOpen={modalState}
-        //       notif={handleNotify}
-        //     />
-        //   );
-        // case 'update':
-        // 	return <Update id={itemId} toggle={toggleModal} isOpen={modalState} notif={handleNotify} />;
+        case 'view':
+          return <View id={itemId} toggle={toggleModal} isOpen={modalState} />;
+        case 'update':
+          return (
+            <Update
+              id={itemId}
+              toggle={toggleModal}
+              isOpen={modalState}
+              notify={handleNotify}
+            />
+          );
         case 'delete':
           return (
-            <DeleteExpense
-              expenseId={itemId}
-              toggleModal={toggleModal}
-              isModalOpen={modalState}
+            <Delete
+              id={itemId}
+              toggle={toggleModal}
+              isOpen={modalState}
               notify={handleNotify}
             />
           );
@@ -170,44 +179,38 @@ const Expenses = () => {
   };
 
   useEffect(() => {
-    fetchExpenses();
+    fetchData();
     const interval = setInterval(() => {
-      fetchExpenses();
+      fetchData();
     }, 100000);
 
     return () => {
       clearInterval(interval);
     };
-  }, [fetchExpenses]);
+  }, [fetchData]);
 
   return (
     <div className='content'>
+      <NotificationAlert ref={notifyRef} />
       <Row>
-        <Col md='12'>
+        <Col>
           <Card>
             <CardHeader>
               <Row>
                 <Col>
-                  <CardTitle tag='h4'>Expenses</CardTitle>
+                  <CardTitle tag='h4'>Manual Expenses</CardTitle>
                 </Col>
                 <Col className='text-right'>
-                  <AddExpense />
+                  <Add onChange={fetchData} notify={handleNotify} />
                 </Col>
               </Row>
             </CardHeader>
             <CardBody>
-              <DataTable
-                title='Expense'
+              <TableGrid
                 columns={columns}
-                rows={rows}
-                format={{
-                  7: (value) => numberToCurrency(value),
-                  8: (value) => numberToCurrency(value),
-                  9: (value) => numberToCurrency(value),
-                  12: (value) => numberToCurrency(value),
-                  18: (value) => <ExpenseStatusPill status={value} />,
-                }}
-                withAction
+                data={data}
+                defaultSortColumn={'id'}
+                defaultSortDirection={sortDirections.asc}
               />
             </CardBody>
           </Card>

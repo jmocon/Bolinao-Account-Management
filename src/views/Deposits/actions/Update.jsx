@@ -19,15 +19,15 @@ import ModeOfPaymentDropdown from 'components/Dropdown/Disbursement/ModeOfPaymen
 import { modeOfPaymentValues } from 'constants/modeOfPayments';
 
 const Update = ({ id, isOpen, toggle, notify }) => {
-  const [bankAccountId, setBankAccountId] = useState();
-  const [payee, setPayee] = useState();
-  const [particular, setParticular] = useState();
-  const [depositDate, setDepositDate] = useState();
-  const [amount, setAmount] = useState();
-  const [modeOfPayment, setModeOfPayment] = useState();
-  const [bankId, setBankId] = useState();
-  const [checkNumber, setCheckNumber] = useState();
-  const [checkDate, setCheckDate] = useState();
+  const [bankAccountId, setBankAccountId] = useState('');
+  const [payee, setPayee] = useState('');
+  const [particular, setParticular] = useState('');
+  const [depositDate, setDepositDate] = useState('');
+  const [amount, setAmount] = useState('');
+  const [modeOfPayment, setModeOfPayment] = useState('');
+  const [bankId, setBankId] = useState('');
+  const [checkNumber, setCheckNumber] = useState('');
+  const [checkDate, setCheckDate] = useState('');
 
   const [submitted, setSubmitted] = useState(false);
 

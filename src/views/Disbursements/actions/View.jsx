@@ -12,11 +12,9 @@ import {
 } from 'reactstrap';
 
 import {
-  approveDisbursement,
-  cancelledDisbursement,
-  forApprovalDisbursement,
-  forCorrectionDisbursement,
-  getDisbursementDetails
+  clearDisbursement,
+  getDisbursementDetails,
+  updateStatus
 } from 'api/disbursement';
 import { addVoucher } from 'api/voucher';
 import numberToCurrency from 'helper/numberToCurrency';
@@ -24,6 +22,8 @@ import disbursementStatus from 'constants/disbursementStatus';
 import expenseCategories from 'constants/expenseCategories';
 import nonExpenseCategories from 'constants/nonExpenseCategories';
 import DisbursementStatusPill from 'components/Pills/DisbursementStatusPill';
+import computeDisbursement from 'helper/computeDisbursement';
+import ClearedDate from '../components/ClearedDate';
 
 const View = ({ id, isOpen, toggle }) => {
   const [dis, setDis] = useState({});
@@ -31,6 +31,8 @@ const View = ({ id, isOpen, toggle }) => {
   const [gross, setGross] = useState(0);
   const [ewtAmount, setEwtAmount] = useState(0);
   const [net, setNet] = useState(0);
+
+  const [clearDateModal, setClearDateModal] = useState(false);
 
   // Notification
   const [alert, setAlert] = useState({
@@ -59,17 +61,16 @@ const View = ({ id, isOpen, toggle }) => {
         return;
       }
 
-      const tmpVatableAmount = result.vatableAmount || 0;
-      const tmpNonVatableAmount = result.nonVatableAmount || 0;
-      const tmpVat = tmpVatableAmount * 0.12;
-      const tmpGross = tmpVatableAmount + tmpVat + tmpNonVatableAmount;
-      const tmpEwtAmount = (tmpVatableAmount * (result.ewtTaxRate || 0)) / 100;
-      const tmpNet = tmpGross - tmpEwtAmount;
+      const computeResult = computeDisbursement(
+        result.nonVatableAmount,
+        result.vatableAmount,
+        result.ewtTaxRate
+      );
 
-      setVat(tmpVat);
-      setGross(tmpGross);
-      setEwtAmount(tmpEwtAmount);
-      setNet(tmpNet);
+      setVat(computeResult.vat);
+      setGross(computeResult.gross);
+      setEwtAmount(computeResult.ewt);
+      setNet(computeResult.net);
       setDis(result);
     };
     fetchDisbursement();
@@ -78,24 +79,16 @@ const View = ({ id, isOpen, toggle }) => {
   const handleStatus = async (status) => {
     let response;
     switch (status) {
-      case disbursementStatus.forApproval:
-        response = await forApprovalDisbursement(id);
-        break;
-      case disbursementStatus.approved:
-        response = await approveDisbursement(id);
-        break;
-      case disbursementStatus.forCorrection:
-        response = await forCorrectionDisbursement(id);
-        break;
-      case disbursementStatus.cancelled:
-        response = await cancelledDisbursement(id);
-        break;
       case disbursementStatus.print:
         response = await addVoucher({ disbursementId: id });
-        handlePrintVoucher();
+        handlePrintVoucher(response.data.insertId);
         break;
-
+      case disbursementStatus.check:
+        response = await updateStatus(id, status);
+        handlePrintCheck();
+        break;
       default:
+        response = await updateStatus(id, status);
         break;
     }
 
@@ -104,12 +97,41 @@ const View = ({ id, isOpen, toggle }) => {
     }
   };
 
-  const handlePrintVoucher = () => {
-    window.open(`/voucher/${dis.voucherId}`, '_blank');
+  const handlePrintVoucher = (voucherId) => {
+    window.open(`/voucher/${voucherId}`, '_blank');
+  };
+
+  const handlePrintCheck = () => {
+    window.open(`/check/${dis.disbursementId}`, '_blank');
   };
 
   const handlePrintBir2307 = () => {
     window.open(`/bir2307/${dis.disbursementId}`, '_blank');
+  };
+
+  const handleClearedDate = async (clearedDate) => {
+    let response;
+    try {
+      response = await clearDisbursement(id, clearedDate);
+    } catch (error) {
+      setAlert({
+        color: 'danger',
+        message: `Error encountered while fetching Disbursement: ${error}`,
+        visible: true
+      });
+      return;
+    }
+
+    if (!response.success) {
+      setAlert({
+        color: 'danger',
+        message: `Error encountered while setting cleared date: ${response.message}`,
+        visible: true
+      });
+     }
+
+    setClearDateModal(false);
+    toggle();
   };
 
   return (
@@ -230,10 +252,6 @@ const View = ({ id, isOpen, toggle }) => {
             <Label>Bank Account</Label>
             <span className='form-control'>{dis.bankAccountName}</span>
           </Col>
-          <Col lg='4' md='6'>
-            <Label>AP Charge To</Label>
-            <span className='form-control'>{dis.apChargeTo}</span>
-          </Col>
         </Row>
         <Row className='mb-2'>
           <Col lg='4' md='6'>
@@ -244,10 +262,12 @@ const View = ({ id, isOpen, toggle }) => {
             <Label>Check Date</Label>
             <span className='form-control'>{dis.checkDate}</span>
           </Col>
-          <Col lg='4' md='6'>
-            <Label>Cleared Date</Label>
-            <span className='form-control'>{dis.clearedDate}</span>
-          </Col>
+          {dis.clearedDate && (
+            <Col lg='4' md='6'>
+              <Label>Cleared Date</Label>
+              <span className='form-control'>{dis.clearedDate}</span>
+            </Col>
+          )}
         </Row>
       </ModalBody>
       <ModalFooter className='p-4 justify-content-end'>
@@ -285,30 +305,44 @@ const View = ({ id, isOpen, toggle }) => {
           </Button>
         )}
 
-        {[disbursementStatus.cleared, disbursementStatus.print].includes(
-          dis.status
-        ) && (
-          <Button color='info' className='mr-2' onClick={handlePrintVoucher}>
+        {[
+          disbursementStatus.cleared,
+          disbursementStatus.print,
+          disbursementStatus.check
+        ].includes(dis.status) && (
+          <Button
+            color='info'
+            className='mr-2'
+            onClick={() => handlePrintVoucher(dis.voucherId)}>
             Re-print Voucher
           </Button>
         )}
 
-        {([
+        {[
           disbursementStatus.approved,
-          disbursementStatus.cleared,
-          disbursementStatus.print
-        ].includes(dis.status) && dis.ewtCode) && (
-          <Button color='info' className='mr-2' onClick={handlePrintBir2307}>
-            Print BIR 2307
-          </Button>
-        )}
+          disbursementStatus.print,
+          disbursementStatus.check,
+          disbursementStatus.cleared
+        ].includes(dis.status) &&
+          dis.ewtCode && (
+            <Button color='info' className='mr-2' onClick={handlePrintBir2307}>
+              Print BIR 2307
+            </Button>
+          )}
         {disbursementStatus.print === dis.status && (
           <Button
             color='info'
             className='mr-2'
-            onClick={() => handleStatus(disbursementStatus.cancelled)}>
-            Cleared
+            onClick={() => handleStatus(disbursementStatus.check)}>
+            Print Check
           </Button>
+        )}
+        {disbursementStatus.check === dis.status && (
+          <ClearedDate
+            onClear={handleClearedDate}
+            modalState={clearDateModal}
+            setModalState={setClearDateModal}
+          />
         )}
         {disbursementStatus.cleared !== dis.status &&
           disbursementStatus.draft !== dis.status && (

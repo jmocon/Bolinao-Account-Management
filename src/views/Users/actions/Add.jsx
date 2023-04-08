@@ -12,201 +12,219 @@ import {
   Alert
 } from 'reactstrap';
 
-import sampleRoles from 'helper/sampleData/sampleRoles';
-
 import RoleDropdown from 'components/Dropdown/RoleDropdown';
+import { addUser } from 'api/user';
+import ShowTemporaryPassword from 'views/Deposits/components/ShowTemporaryPassword';
 
-const Add = ({ isOpen, toggle }) => {
-  const defaultRole = sampleRoles.find((role) => role.roleId === 3);
-  const [role, setRole] = useState({
-    value: defaultRole.roleId,
-    label: defaultRole.name
-  });
-  const [firstName, setFirstName] = useState('');
-  const [middleName, setMiddleName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [suffixName, setSuffixName] = useState('');
-  const [address, setAddress] = useState('');
-  const [contactNumber, setContactNumber] = useState('');
-  const [emailAddress, setEmailAddress] = useState('');
-  const [birthDate, setBirthDate] = useState('');
-  const [gender, setGender] = useState(0);
-  const [username, setUsername] = useState('');
-
-  // Checks if valid or not
-  const [submitted, setSubmitted] = useState(false);
+const Add = ({ onChange, notify }) => {
   // Notification
-  const [notif, setNotif] = useState({
+  const defaultAlert = {
     color: 'primary',
     message: '',
     visible: false
-  });
-  const onDismiss = () =>
-    setNotif({
-      color: 'primary',
-      message: '',
-      visible: false
-    });
+  };
+  const [alert, setAlert] = useState(defaultAlert);
+  const onDismiss = () => setAlert(defaultAlert);
+
+  const [submitted, setSubmitted] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const [inputs, setInputs] = useState({});
+  const [tempPass, setTempPass] = useState('');
+  const [isShowPassOpen, setIsShowPassOpen] = useState(false);
+
+  const handleInput = (name, value) => {
+    setInputs((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const toggleModal = () => {
+    setInputs({});
+    setSubmitted(false);
+    onDismiss();
+    setIsOpen((currState) => !currState);
+  };
 
   const CheckContent = () => {
-    var error = false;
-    if (!firstName) {
-      error = true;
-    }
-    if (!emailAddress) {
-      error = true;
-    }
-    if (!username) {
-      error = true;
-    }
     setSubmitted(true);
-    return error;
+    return !inputs.firstName || !inputs.emailAddress || !inputs.username;
   };
 
-  const handleNotif = (color, message, title = '') => {
-    var msg = message;
-    if (title) {
-      msg = (
-        <span>
-          <b>{title} - </b> {msg}
-        </span>
-      );
-    }
-    setNotif({ color: color, message: msg, visible: true });
-  };
-
-  const handleAdd = () => {
+  const handleAdd = async () => {
     if (CheckContent()) {
-      handleNotif(
-        'danger',
-        'Kindly fill-up required details.',
-        'Incomplete Details'
-      );
-    } else {
+      setAlert({
+        color: 'danger',
+        message: 'Complete all required fields',
+        visible: true
+      });
+      return;
     }
+
+    let result;
+    try {
+      result = await addUser(inputs);
+    } catch (error) {
+      setAlert({
+        color: 'danger',
+        message: error.message,
+        visible: true
+      });
+      return;
+    }
+
+    if (!result.success) {
+      setAlert({
+        color: 'danger',
+        message: result.message,
+        visible: true
+      });
+      return;
+    }
+    setTempPass(result.temporaryPassword);
+    setIsShowPassOpen(true);
+  };
+  const togglePass = () => {
+    setIsShowPassOpen(false);
+    onChange();
+    toggleModal();
+    notify('success', 'Successfully added user.', 'tim-icons icon-check-2');
   };
 
   return (
-    <Modal isOpen={isOpen} toggle={toggle} size='xl'>
-      <ModalHeader toggle={toggle}>Add User</ModalHeader>
-      <ModalBody>
-        <Alert color={notif.color} isOpen={notif.visible} toggle={onDismiss}>
-          {notif.message}
-        </Alert>
-        <Row>
-          <Col lg='3' md='6'>
-            <Label>First Name</Label>
-            <Input
-              value={firstName}
-              placeholder='First Name'
-              invalid={!firstName && submitted}
-              onChange={(e) => setFirstName(e.target.value)}
-            />
-          </Col>
-          <Col lg='3' md='6'>
-            <Label>Middle Name</Label>
-            <Input
-              defaultValue={middleName}
-              placeholder='Middle Name'
-              onChange={(e) => setMiddleName(e.target.value)}
-            />
-          </Col>
-          <Col lg='3' md='6'>
-            <Label>Last Name</Label>
-            <Input
-              defaultValue={lastName}
-              placeholder='Last Name'
-              onChange={(e) => setLastName(e.target.value)}
-            />
-          </Col>
-          <Col lg='3' md='6'>
-            <Label>Suffix Name</Label>
-            <Input
-              defaultValue={suffixName}
-              placeholder='Suffix Name'
-              onChange={(e) => setSuffixName(e.target.value)}
-            />
-          </Col>
-        </Row>
-        <Row>
-          <Col lg='3' md='6'>
-            <Label>Birth Date</Label>
-            <Input
-              type='date'
-              defaultValue={birthDate}
-              placeholder='Birth Date'
-              onChange={(e) => setBirthDate(e.target.value)}
-            />
-          </Col>
-          <Col lg='3' md='6'>
-            <Label>Gender</Label>
-            <Input
-              type='select'
-              value={gender}
-              placeholder='Gender'
-              onChange={(e) => setGender(e.target.value)}>
-              <option value='0'>Male</option>
-              <option value='1'>Female</option>
-            </Input>
-          </Col>
-          <Col lg='3' md='6'>
-            <Label>Contact Number</Label>
-            <Input
-              defaultValue={contactNumber}
-              placeholder='(+639) 12345 6789'
-              onChange={(e) => setContactNumber(e.target.value)}
-            />
-          </Col>
-          <Col lg='3' md='6'>
-            <Label>Email Address</Label>
-            <Input
-              defaultValue={emailAddress}
-              placeholder='Email Address'
-              invalid={!emailAddress && submitted}
-              onChange={(e) => setEmailAddress(e.target.value)}
-            />
-          </Col>
-        </Row>
-        <Row>
-          <Col>
-            <Label>Home Address</Label>
-            <Input
-              type='textarea'
-              defaultValue={address}
-              placeholder='House No., Street, District, City'
-              onChange={(e) => setAddress(e.target.value)}
-            />
-          </Col>
-        </Row>
-        <Row>
-          <Col lg='6' md='6'>
-            <Label>Role</Label>
-            <RoleDropdown
-              value={role}
-              label='Roles'
-              onChange={(e) => setRole(e)}
-            />
-          </Col>
-          <Col lg='6' md='6'>
-            <Label>Username</Label>
-            <Input
-              defaultValue={username}
-              placeholder='Username'
-              invalid={!username && submitted}
-              onChange={(e) => setUsername(e.target.value)}
-            />
-          </Col>
-        </Row>
-      </ModalBody>
-      <ModalFooter className='p-4 justify-content-end'>
-        <Button color='info' onClick={handleAdd} className='mr-2'>
-          Add
-        </Button>
-        <Button color='default' onClick={toggle}>
-          Cancel
-        </Button>
-      </ModalFooter>
-    </Modal>
+    <>
+      <Button
+        color='info'
+        size='sm'
+        title='Add'
+        onClick={toggleModal}
+        className='animation-on-hover'>
+        <i className='fa fa-plus'></i> Add New User
+      </Button>
+      <Modal isOpen={isOpen} toggle={toggleModal} size='xl'>
+        <ModalHeader toggle={toggleModal}>Add User</ModalHeader>
+        <ModalBody>
+          <Alert color={alert.color} isOpen={alert.visible} toggle={onDismiss}>
+            {alert.message}
+          </Alert>
+          <Row>
+            <Col lg='3' md='6'>
+              <Label>First Name</Label>
+              <Input
+                defaultValue={inputs.firstName}
+                placeholder='First Name'
+                invalid={!inputs.firstName && submitted}
+                onChange={(e) => handleInput('firstName', e.target.value)}
+              />
+            </Col>
+            <Col lg='3' md='6'>
+              <Label>Middle Name</Label>
+              <Input
+                defaultValue={inputs.middleName}
+                placeholder='Middle Name'
+                onChange={(e) => handleInput('middleName', e.target.value)}
+              />
+            </Col>
+            <Col lg='3' md='6'>
+              <Label>Last Name</Label>
+              <Input
+                defaultValue={inputs.lastName}
+                placeholder='Last Name'
+                onChange={(e) => handleInput('lastName', e.target.value)}
+              />
+            </Col>
+            <Col lg='3' md='6'>
+              <Label>Suffix Name</Label>
+              <Input
+                defaultValue={inputs.suffixName}
+                placeholder='Suffix Name'
+                onChange={(e) => handleInput('suffixName', e.target.value)}
+              />
+            </Col>
+          </Row>
+          <Row>
+            <Col lg='3' md='6'>
+              <Label>Birth Date</Label>
+              <Input
+                type='date'
+                defaultValue={inputs.birthDate}
+                placeholder='Birth Date'
+                onChange={(e) => handleInput('birthDate', e.target.value)}
+              />
+            </Col>
+            <Col lg='3' md='6'>
+              <Label>Gender</Label>
+              <Input
+                type='select'
+                value={inputs.gender}
+                placeholder='Gender'
+                onChange={(e) => handleInput('gender', e.target.value)}>
+                <option value='0'>Male</option>
+                <option value='1'>Female</option>
+              </Input>
+            </Col>
+            <Col lg='3' md='6'>
+              <Label>Contact Number</Label>
+              <Input
+                defaultValue={inputs.contactNumber}
+                placeholder='(+639) 12345 6789'
+                onChange={(e) => handleInput('contactNumber', e.target.value)}
+              />
+            </Col>
+            <Col lg='3' md='6'>
+              <Label>Email Address</Label>
+              <Input
+                defaultValue={inputs.emailAddress}
+                placeholder='Email Address'
+                invalid={!inputs.emailAddress && submitted}
+                onChange={(e) => handleInput('emailAddress', e.target.value)}
+              />
+            </Col>
+          </Row>
+          <Row>
+            <Col>
+              <Label>Home Address</Label>
+              <Input
+                type='textarea'
+                defaultValue={inputs.homeAddress}
+                placeholder='House No., Street, District, City'
+                onChange={(e) => handleInput('homeAddress', e.target.value)}
+              />
+            </Col>
+          </Row>
+          <Row>
+            <Col lg='6' md='6'>
+              <Label>Role</Label>
+              <RoleDropdown
+                value={inputs.roleId}
+                label='Roles'
+                onChange={(e) => handleInput('roleId', e)}
+              />
+            </Col>
+            <Col lg='6' md='6'>
+              <Label>Username</Label>
+              <Input
+                defaultValue={inputs.username}
+                placeholder='Username'
+                invalid={!inputs.username && submitted}
+                onChange={(e) => handleInput('username', e.target.value)}
+              />
+            </Col>
+          </Row>
+        </ModalBody>
+        <ModalFooter className='p-4 justify-content-end'>
+          <Button color='info' onClick={handleAdd} className='mr-2'>
+            Add
+          </Button>
+          <Button color='default' onClick={toggleModal}>
+            Cancel
+          </Button>
+        </ModalFooter>
+      </Modal>
+      {tempPass}
+      <ShowTemporaryPassword
+        isOpen={isShowPassOpen}
+        toggle={togglePass}
+        password={tempPass}
+      />
+    </>
   );
 };
 
