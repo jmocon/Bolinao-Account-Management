@@ -167,7 +167,7 @@ export const updateDisbursement = async (id, disbursement) => {
     throw new Error(`Error occurred while adding disbursement: ${error}`);
   }
 
-  return response;
+  return response.data;
 };
 
 export const updateStatus = async (id, status) => {

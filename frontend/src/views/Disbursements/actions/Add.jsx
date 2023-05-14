@@ -26,6 +26,7 @@ import { getSupplier } from 'api/supplier';
 import ItemCodeDropdown from 'components/Dropdown/ItemCodeDropdown';
 import BankAccountDropdown from 'components/Dropdown/BankAccountDropdown';
 import computeDisbursement from 'helper/computeDisbursement';
+import defaultAlert from 'constants/defaultAlert';
 
 const Add = ({ onChange, notify }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -76,17 +77,8 @@ const Add = ({ onChange, notify }) => {
     fetchEWT();
   }, [hasEwt, inputs?.ewtId]);
 
-  const [alert, setAlert] = useState({
-    color: 'primary',
-    message: '',
-    visible: false
-  });
-  const onDismiss = () =>
-    setAlert({
-      color: 'primary',
-      message: '',
-      visible: false
-    });
+  const [alert, setAlert] = useState(defaultAlert);
+  const onDismiss = () => setAlert(defaultAlert);
 
   const handleAdd = async (status = 1) => {
     const data = {
@@ -97,7 +89,11 @@ const Add = ({ onChange, notify }) => {
     try {
       await addDisbursement(data);
     } catch (error) {
-      setAlert({ color: 'danger', message: error, visible: true });
+      setAlert({
+        color: 'danger',
+        message: `Error encountered while adding Disbursement: ${error}`,
+        visible: true
+      });
       return;
     }
 

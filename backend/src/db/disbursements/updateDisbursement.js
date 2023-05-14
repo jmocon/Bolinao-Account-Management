@@ -1,4 +1,6 @@
 import dbQueryError from '../../error/dbQueryError';
+import dbQuery from '../../helper/dbQuery';
+import { numberInput, stringInput } from '../../helper/emptyToNull';
 
 const updateDisbursement = async (dbPool, res, req) => {
   const data = req.body;
@@ -6,22 +8,20 @@ const updateDisbursement = async (dbPool, res, req) => {
   const query = `
   UPDATE disbursements
   SET
-    company_id = ${data.companyId || 'NULL'},
-    disbursement_date = "${data.disbursementDate || ''}",
-    expense_category = ${data.expenseCategory || 'NULL'},
-    non_expense_category = ${
-      data.nonExpenseCategory !== null ? data.nonExpenseCategory : 'NULL'
-    },
-    supplier_id = ${data.supplierId || 'NULL'},
-    particulars = "${data.particulars || ''}",
-    item_code = ${data.itemCode || 'NULL'},
-    vatable_amount = ${data.vatableAmount || 'NULL'},
-    non_vatable_amount = ${data.nonVatableAmount || 'NULL'},
-    ewt_id = ${data.ewtId || 'NULL'},
-    ap_charge_to = "${data.apChargeTo || ''}",
-    bank_account_id = ${data.bankAccountId || 'NULL'},
-    check_number = "${data.checkNumber || ''}",
-    check_date = "${data.checkDate || ''}",
+    company_id = ${numberInput(data.companyId)},
+    disbursement_date = ${stringInput(data.disbursementDate)},
+    expense_category = ${numberInput(data.expenseCategory)},
+    non_expense_category = ${numberInput(data.nonExpenseCategory)},
+    supplier_id = ${numberInput(data.supplierId)},
+    particulars = ${stringInput(data.particulars)},
+    item_code = ${numberInput(data.itemCode)},
+    vatable_amount = ${numberInput(data.vatableAmount)},
+    non_vatable_amount = ${numberInput(data.nonVatableAmount)},
+    ewt_id = ${numberInput(data.ewtId)},
+    ap_charge_to = ${stringInput(data.apChargeTo)},
+    bank_account_id = ${numberInput(data.bankAccountId)},
+    check_number = ${stringInput(data.checkNumber)},
+    check_date = ${stringInput(data.checkDate)},
     status = ${data.status}
   WHERE id = ${req.params.id}
     `;

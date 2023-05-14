@@ -27,26 +27,37 @@ import { getSupplier } from 'api/supplier';
 import ItemCodeDropdown from 'components/Dropdown/ItemCodeDropdown';
 import BankAccountDropdown from 'components/Dropdown/BankAccountDropdown';
 import computeDisbursement from 'helper/computeDisbursement';
+import defaultAlert from 'constants/defaultAlert';
 
 const Update = ({ id, isOpen, toggle, notify }) => {
-  const [companyId, setCompanyId] = useState();
-  const [disbursementDate, setDisbursementDate] = useState();
-  const [expenseCategory, setExpenseCategory] = useState();
-  const [nonExpenseCategory, setNonExpenseCategory] = useState();
-  const [supplierId, setSupplierId] = useState();
-  const [particulars, setParticulars] = useState();
-  const [itemCode, setItemCode] = useState();
-  const [vatableAmount, setVatableAmount] = useState(0);
-  const [nonVatableAmount, setNonVatableAmount] = useState(0);
-  const [hasEwt, setHasEwt] = useState(false);
-  const [ewtId, setEwtId] = useState();
-  const [apChargeTo, setApChargeTo] = useState();
-  const [bankAccountId, setBankAccountId] = useState();
-  const [checkNumber, setCheckNumber] = useState();
-  const [checkDate, setCheckDate] = useState();
+  const [inputs, setInputs] = useState({});
+  const [isDirty, setIsDirty] = useState(false);
+
+  const handleInput = (name, value) => {
+    setIsDirty(true);
+    setInputs((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const toggleModal = () => {
+    if (Object.keys(inputs).length !== 0 || isDirty) {
+      const response = window.confirm(
+        'There have been changes made. Are you sure you want to close the window?'
+      );
+
+      if (!response) {
+        return;
+      }
+    }
+
+    setInputs({});
+    setIsDirty(false);
+
+    toggle();
+  };
 
   const [checkPayee, setCheckPayee] = useState();
   const [ewt, setEwt] = useState({});
+  const [hasEwt, setHasEwt] = useState(false);
 
   const [vat, setVat] = useState(0);
   const [gross, setGross] = useState(0);
@@ -55,8 +66,8 @@ const Update = ({ id, isOpen, toggle, notify }) => {
 
   useEffect(() => {
     const fetchEWT = async () => {
-      if (hasEwt && ewtId) {
-        const selectedEWT = await getEWT(ewtId);
+      if (hasEwt && inputs?.ewtId) {
+        const selectedEWT = await getEWT(inputs?.ewtId);
         setEwt(selectedEWT);
         return;
       }
@@ -64,36 +75,14 @@ const Update = ({ id, isOpen, toggle, notify }) => {
     };
 
     fetchEWT();
-  }, [ewtId, hasEwt]);
+  }, [hasEwt, inputs?.ewtId]);
 
-  const [alert, setAlert] = useState({
-    color: 'primary',
-    message: '',
-    visible: false
-  });
-  const onDismiss = () =>
-    setAlert({
-      color: 'primary',
-      message: '',
-      visible: false
-    });
+  const [alert, setAlert] = useState(defaultAlert);
+  const onDismiss = () => setAlert(defaultAlert);
 
   const handleUpdate = async (status = 1) => {
     const data = {
-      companyId,
-      disbursementDate,
-      expenseCategory,
-      nonExpenseCategory,
-      supplierId,
-      particulars,
-      itemCode,
-      vatableAmount,
-      nonVatableAmount,
-      ewtId,
-      apChargeTo,
-      bankAccountId,
-      checkNumber: checkNumber || '',
-      checkDate: checkDate || '',
+      ...inputs,
       status
     };
 
@@ -130,7 +119,7 @@ const Update = ({ id, isOpen, toggle, notify }) => {
     const fetchSupplier = async () => {
       let result;
       try {
-        result = await getSupplier(supplierId);
+        result = await getSupplier(inputs?.supplierId);
       } catch (error) {
         setAlert({
           color: 'danger',
@@ -143,15 +132,15 @@ const Update = ({ id, isOpen, toggle, notify }) => {
       setCheckPayee(result.checkPayee);
     };
 
-    if (supplierId) {
+    if (inputs?.supplierId) {
       fetchSupplier();
     }
-  }, [supplierId]);
+  }, [inputs?.supplierId]);
 
   useEffect(() => {
     const computeResult = computeDisbursement(
-      nonVatableAmount,
-      vatableAmount,
+      inputs?.nonVatableAmount,
+      inputs?.vatableAmount,
       ewt.ewtTaxRate
     );
 
@@ -159,7 +148,7 @@ const Update = ({ id, isOpen, toggle, notify }) => {
     setGross(computeResult.gross);
     setEwtAmount(computeResult.ewt);
     setNet(computeResult.net);
-  }, [ewt.ewtTaxRate, nonVatableAmount, vatableAmount]);
+  }, [ewt.ewtTaxRate, inputs?.nonVatableAmount, inputs?.vatableAmount]);
 
   useEffect(() => {
     const fetchDisbursement = async () => {
@@ -175,54 +164,33 @@ const Update = ({ id, isOpen, toggle, notify }) => {
         return;
       }
 
-      setCompanyId(result.companyId);
-      setDisbursementDate(result.disbursementDate);
-      setExpenseCategory(result.expenseCategory);
-      setNonExpenseCategory(result.nonExpenseCategory);
-      setApChargeTo(result.apChargeTo);
-      setSupplierId(result.supplierId);
-      setParticulars(result.particulars);
-      setItemCode(result.itemCodeId);
-      setVatableAmount(result.vatableAmount);
-      setNonVatableAmount(result.nonVatableAmount);
+      setInputs(result);
       setHasEwt(!!result.ewtId);
-      setEwtId(result.ewtId);
-      setBankAccountId(result.bankAccountId);
-      setCheckNumber(result.checkNumber);
-      setCheckDate(result.checkDate);
     };
     fetchDisbursement();
   }, [id]);
 
-  const handleNonExpenseCategory = (value) => {
-    setNonExpenseCategory(value);
-    if (value === 0) {
-      setApChargeTo(null);
-    }
-  };
-
   return (
-    <Modal isOpen={isOpen} toggle={toggle} size='xl'>
-      <ModalHeader toggle={toggle}>Update Disbursement</ModalHeader>
+    <Modal isOpen={isOpen} toggle={toggleModal} size='xl'>
+      <ModalHeader toggle={toggleModal}>Update Disbursement</ModalHeader>
       <ModalBody>
         <Alert color={alert.color} isOpen={alert.visible} toggle={onDismiss}>
           {alert.message}
         </Alert>
-
         <Row className='mb-2'>
           <Col lg='4' md='6' sm='12'>
             <Label>Month Posting</Label>
             <Input
               type='date'
-              defaultValue={disbursementDate}
-              onChange={(e) => setDisbursementDate(e.target.value)}
+              value={inputs?.disbursementDate ?? ''}
+              onChange={(e) => handleInput('disbursementDate', e.target.value)}
             />
           </Col>
           <Col lg='4' md='6' sm='12'>
             <Label>Company</Label>
             <CompanyDropdown
-              value={companyId}
-              onChange={(e) => setCompanyId(e)}
+              value={inputs?.companyId}
+              onChange={(e) => handleInput('companyId', e)}
             />
           </Col>
         </Row>
@@ -230,24 +198,24 @@ const Update = ({ id, isOpen, toggle, notify }) => {
           <Col lg='4' md='6' sm='12'>
             <Label>Expense Category</Label>
             <ExpenseCategoryDropdown
-              value={expenseCategory}
-              onChange={setExpenseCategory}
+              value={inputs?.expenseCategory}
+              onChange={(e) => handleInput('expenseCategory', e)}
             />
           </Col>
           <Col lg='4' md='6' sm='12'>
             <Label>Non-Expense Category</Label>
             <NonExpenseCategoryDropdown
-              value={nonExpenseCategory}
-              onChange={handleNonExpenseCategory}
+              value={inputs?.nonExpenseCategory}
+              onChange={(e) => handleInput('nonExpenseCategory', e)}
             />
           </Col>
-          {nonExpenseCategory === 0 && (
+          {inputs?.nonExpenseCategory === 0 && (
             <Col lg='4' md='6'>
               <Label>AR Charge To</Label>
               <Input
-                defaultValue={apChargeTo}
+                value={inputs?.apChargeTo ?? ''}
                 placeholder='AR Charge To'
-                onChange={(e) => setApChargeTo(e.target.value)}
+                onChange={(e) => handleInput('apChargeTo', e.target.value)}
               />
             </Col>
           )}
@@ -257,15 +225,15 @@ const Update = ({ id, isOpen, toggle, notify }) => {
             <Label>Item Code</Label>
             <ItemCodeDropdown
               label='Item Code'
-              value={itemCode}
-              onChange={setItemCode}
+              value={inputs?.itemCode}
+              onChange={(e) => handleInput('itemCode', e)}
             />
           </Col>
           <Col lg='4' md='12'>
             <Label>Supplier</Label>
             <SupplierDropdown
-              value={supplierId}
-              onChange={(e) => setSupplierId(e)}
+              value={inputs?.supplierId}
+              onChange={(e) => handleInput('supplierId', e)}
             />
           </Col>
           <Col lg='4' md='6' sm='12'>
@@ -278,9 +246,9 @@ const Update = ({ id, isOpen, toggle, notify }) => {
             <Label>Particulars</Label>
             <Input
               type='textarea'
-              defaultValue={particulars}
+              defaultValue={inputs?.particulars ?? ''}
               placeholder='Particulars'
-              onChange={(e) => setParticulars(e.target.value)}
+              onChange={(e) => handleInput('particulars', e.target.value)}
             />
           </Col>
         </Row>
@@ -290,9 +258,11 @@ const Update = ({ id, isOpen, toggle, notify }) => {
             <Label>Vatable Amount</Label>
             <Input
               type='number'
-              value={vatableAmount}
+              defaultValue={inputs?.vatableAmount}
               placeholder='Amount'
-              onChange={(e) => setVatableAmount(Number(e.target.value))}
+              onChange={(e) =>
+                handleInput('vatableAmount', Number(e.target.value))
+              }
             />
           </Col>
           <Col lg='4' md='6' sm='12'>
@@ -305,9 +275,11 @@ const Update = ({ id, isOpen, toggle, notify }) => {
             <Label>Non-Vatable Amount</Label>
             <Input
               type='number'
-              value={nonVatableAmount}
+              defaultValue={inputs?.nonVatableAmount}
               placeholder='Amount'
-              onChange={(e) => setNonVatableAmount(Number(e.target.value))}
+              onChange={(e) =>
+                handleInput('nonVatableAmount', Number(e.target.value))
+              }
             />
           </Col>
           <Col lg='4' md='6' sm='12'>
@@ -322,10 +294,7 @@ const Update = ({ id, isOpen, toggle, notify }) => {
               <Input
                 type='checkbox'
                 defaultValue={hasEwt}
-                onChange={(e) => {
-                  setHasEwt(e.target.checked);
-                  setEwtId();
-                }}
+                onChange={(e) => setHasEwt(e.target.checked)}
                 style={{
                   marginLeft: '0px',
                   marginRight: '5px',
@@ -340,7 +309,10 @@ const Update = ({ id, isOpen, toggle, notify }) => {
             <>
               <Col lg='2' md='6' sm='6'>
                 <Label>Code</Label>
-                <EWTDropdown value={ewtId} onChange={setEwtId} />
+                <EWTDropdown
+                  value={inputs?.ewtId}
+                  onChange={(e) => handleInput('ewtId', e)}
+                />
               </Col>
               <Col lg='4' md='6' sm='12'>
                 <Label>EWT Rate</Label>
@@ -366,26 +338,24 @@ const Update = ({ id, isOpen, toggle, notify }) => {
           <Col lg='4' md='6'>
             <Label>Bank Account</Label>
             <BankAccountDropdown
-              value={bankAccountId}
-              onChange={(e) => {
-                setBankAccountId(e);
-              }}
+              value={inputs?.bankAccountId}
+              onChange={(e) => handleInput('bankAccountId', e)}
             />
           </Col>
           <Col lg='4' md='6'>
             <Label>Check Number</Label>
             <Input
-              defaultValue={checkNumber}
+              defaultValue={inputs?.checkNumber}
               placeholder='Check Number'
-              onChange={(e) => setCheckNumber(e.target.value)}
+              onChange={(e) => handleInput('checkNumber', e.target.value)}
             />
           </Col>
           <Col lg='4' md='6'>
             <Label>Check Date</Label>
             <Input
               type='date'
-              defaultValue={checkDate}
-              onChange={(e) => setCheckDate(e.target.value)}
+              defaultValue={inputs?.checkDate}
+              onChange={(e) => handleInput('checkDate', e.target.value)}
             />
           </Col>
         </Row>
@@ -400,7 +370,7 @@ const Update = ({ id, isOpen, toggle, notify }) => {
         <Button color='info' onClick={() => handleUpdate(1)} className='mr-2'>
           Update
         </Button>
-        <Button color='default' onClick={toggle}>
+        <Button color='default' onClick={toggleModal}>
           Cancel
         </Button>
       </ModalFooter>

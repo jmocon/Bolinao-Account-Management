@@ -52,20 +52,20 @@ const TableGrid = ({
     }
 
     tempData = tempData.sort((a, b) => {
-      if (
-        typeof a[sortColumn] === 'number' &&
-        typeof b[sortColumn] === 'number'
-      ) {
+      const val1 = a[sortColumn] ?? '';
+      const val2 = b[sortColumn] ?? '';
+
+      if (typeof val1 === 'number' && typeof val2 === 'number') {
         if (sortDirection === sortDirections.asc) {
-          return a[sortColumn] - b[sortColumn];
+          return val1 - val2;
         }
-        return b[sortColumn] - a[sortColumn];
+        return val2 - val1;
       }
 
       if (sortDirection === sortDirections.asc) {
-        return a[sortColumn].localeCompare(b[sortColumn]);
+        return val1.localeCompare(val2);
       }
-      return b[sortColumn].localeCompare(a[sortColumn]);
+      return val2.localeCompare(val1);
     });
     setOrganized(tempData);
   }, [columns, data, filters, sortColumn, sortDirection]);
