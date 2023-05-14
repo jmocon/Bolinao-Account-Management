@@ -32,11 +32,24 @@ const Add = ({ onChange, notify }) => {
 
   const [isOpen, setIsOpen] = useState(false);
   const toggleModal = () => {
+    if (Object.keys(inputs).length !== 0 || isDirty) {
+      const response = window.confirm(
+        'There have been changes made. Are you sure you want to close the window?'
+      );
+
+      if (!response) {
+        return;
+      }
+    }
     setIsOpen((currState) => !currState);
+    setInputs({});
+    setIsDirty(false);
   };
 
   const [inputs, setInputs] = useState({});
+  const [isDirty, setIsDirty] = useState(false);
   const handleInput = (name, value) => {
+    setIsDirty(true);
     setInputs((prev) => ({ ...prev, [name]: value }));
   };
 

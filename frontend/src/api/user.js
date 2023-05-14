@@ -9,14 +9,14 @@ const mapData = (user) => ({
   middleName: user.middle_name,
   lastName: user.last_name,
   suffixName: user.suffix_name,
-  birthDate: (user.birth_date || '').substr(0, 10),
+  birthDate: (user.birth_date || '').substring(0, 10),
   gender: user.gender,
   contactNumber: user.contact_number,
   homeAddress: user.home_address,
   emailAddress: user.email_address,
   username: user.username,
   resetPassword: user.reset_password,
-  dateCreated: user.date_created.substr(0, 10),
+  dateCreated: user.date_created.substring(0, 10),
   isArchived: user.is_archived
 });
 

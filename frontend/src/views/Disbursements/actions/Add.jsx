@@ -33,7 +33,7 @@ const Add = ({ onChange, notify }) => {
   const [inputs, setInputs] = useState({});
   const [isDirty, setIsDirty] = useState(false);
   const toggleModal = () => {
-    if (Object.keys(inputs).length !== 0 || isDirty) {
+    if (isDirty) {
       const response = window.confirm(
         'There have been changes made. Are you sure you want to close the window?'
       );

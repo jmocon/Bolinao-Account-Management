@@ -5,11 +5,11 @@ const DEFAULT_ROUTE = '/expenses';
 const mapData = (expense) => ({
   expenseId: expense.id,
   companyId: expense.company_id,
-  expenseDate: expense.expense_date.substr(0, 10),
+  expenseDate: `${expense.expense_date}`.substring(0, 10),
   expenseCategory: expense.expense_category,
   supplierId: expense.supplier_id,
   particulars: expense.particulars,
-  invoiceDate: expense.invoice_date.substr(0, 10),
+  invoiceDate: `${expense.invoice_date}`.substring(0, 10),
   invoiceNumber: expense.invoice_number,
   itemCode: expense.item_code,
   vatableAmount: expense.vatable_amount,

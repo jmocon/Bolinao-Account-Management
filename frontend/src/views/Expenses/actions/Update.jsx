@@ -31,8 +31,28 @@ const Update = ({ id, isOpen, toggle, notify }) => {
   const onDismiss = () => setAlert(defaultAlert);
 
   const [inputs, setInputs] = useState({});
+  const [isDirty, setIsDirty] = useState(false);
+
   const handleInput = (name, value) => {
+    setIsDirty(true);
     setInputs((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const toggleModal = () => {
+    if (isDirty) {
+      const response = window.confirm(
+        'There have been changes made. Are you sure you want to close the window?'
+      );
+
+      if (!response) {
+        return;
+      }
+    }
+
+    setInputs({});
+    setIsDirty(false);
+
+    toggle();
   };
 
   const [hasEwt, setHasEwt] = useState(false);
@@ -95,7 +115,7 @@ const Update = ({ id, isOpen, toggle, notify }) => {
       'Successfully updated expense.',
       'tim-icons icon-check-2'
     );
-    toggle();
+    toggleModal();
   };
 
   useEffect(() => {
@@ -119,8 +139,8 @@ const Update = ({ id, isOpen, toggle, notify }) => {
   }, [id]);
 
   return (
-    <Modal isOpen={isOpen} toggle={toggle} size='xl'>
-      <ModalHeader toggle={toggle}>Update Expense</ModalHeader>
+    <Modal isOpen={isOpen} toggle={toggleModal} size='xl'>
+      <ModalHeader toggle={toggleModal}>Update Expense</ModalHeader>
       <ModalBody>
         <Alert color={alert.color} isOpen={alert.visible} toggle={onDismiss}>
           {alert.message}
@@ -131,7 +151,7 @@ const Update = ({ id, isOpen, toggle, notify }) => {
             <Label>Date</Label>
             <Input
               type='date'
-              value={inputs?.expenseDate}
+              value={inputs?.expenseDate ?? ''}
               onChange={(e) => handleInput('expenseDate', e.target.value)}
             />
           </Col>
@@ -145,7 +165,7 @@ const Update = ({ id, isOpen, toggle, notify }) => {
           <Col lg='4' md='6' sm='12'>
             <Label>Expense Category</Label>
             <ExpenseCategoryDropdown
-              value={inputs?.expenseCategory}
+              value={inputs?.expenseCategory ?? ''}
               onChange={(e) => handleInput('expenseCategory', e)}
             />
           </Col>
@@ -173,7 +193,7 @@ const Update = ({ id, isOpen, toggle, notify }) => {
             <Input
               type='textarea'
               placeholder='Particulars'
-              value={inputs?.particulars}
+              value={inputs?.particulars ?? ''}
               onChange={(e) => handleInput('particulars', e.target.value)}
             />
           </Col>
@@ -185,7 +205,7 @@ const Update = ({ id, isOpen, toggle, notify }) => {
             <Input
               type='number'
               placeholder='Amount'
-              value={inputs?.vatableAmount}
+              value={inputs?.vatableAmount ?? ''}
               onChange={(e) => handleInput('vatableAmount', e.target.value)}
             />
           </Col>
@@ -200,7 +220,7 @@ const Update = ({ id, isOpen, toggle, notify }) => {
             <Input
               type='number'
               placeholder='Amount'
-              value={inputs?.nonVatableAmount}
+              value={inputs?.nonVatableAmount ?? ''}
               onChange={(e) => handleInput('nonVatableAmount', e.target.value)}
             />
           </Col>
@@ -271,14 +291,14 @@ const Update = ({ id, isOpen, toggle, notify }) => {
             <Label>Invoice Date</Label>
             <Input
               type='date'
-              value={inputs?.invoiceDate}
+              value={inputs?.invoiceDate ?? ''}
               onChange={(e) => handleInput('invoiceDate', e.target.value)}
             />
           </Col>
           <Col lg='4' md='6' sm='12'>
             <Label>Invoice Number</Label>
             <Input
-              value={inputs?.invoiceNumber}
+              value={inputs?.invoiceNumber ?? ''}
               placeholder='Invoice Number'
               onChange={(e) => handleInput('invoiceNumber', e.target.value)}
             />
@@ -291,7 +311,7 @@ const Update = ({ id, isOpen, toggle, notify }) => {
             <Input
               type='textarea'
               placeholder='Remarks'
-              value={inputs?.remarks}
+              value={inputs?.remarks ?? ''}
               onChange={(e) => handleInput('remarks', e.target.value)}
             />
           </Col>
@@ -307,7 +327,7 @@ const Update = ({ id, isOpen, toggle, notify }) => {
         <Button color='info' onClick={() => handleUpdate(1)} className='mr-2'>
           Update
         </Button>
-        <Button color='default' onClick={toggle}>
+        <Button color='default' onClick={toggleModal}>
           Cancel
         </Button>
       </ModalFooter>

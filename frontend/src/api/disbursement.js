@@ -6,7 +6,7 @@ const DEFAULT_ROUTE = '/disbursements';
 const mapData = (disbursement) => ({
   disbursementId: disbursement.id,
   companyId: disbursement.company_id,
-  disbursementDate: disbursement.disbursement_date.substr(0, 10),
+  disbursementDate: disbursement.disbursement_date.substring(0, 10),
   expenseCategory: disbursement.expense_category,
   nonExpenseCategory: disbursement.non_expense_category,
   supplierId: disbursement.supplier_id,
@@ -18,7 +18,7 @@ const mapData = (disbursement) => ({
   apChargeTo: disbursement.ap_charge_to,
   bankAccountId: disbursement.bank_account_id,
   checkNumber: disbursement.check_number,
-  checkDate: disbursement.check_date.substr(0, 10),
+  checkDate: disbursement.check_date.substring(0, 10),
   clearedDate: disbursement.cleared_date,
   status: disbursement.status
 });
