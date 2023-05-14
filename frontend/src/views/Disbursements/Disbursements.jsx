@@ -94,7 +94,7 @@ const Disbursements = () => {
       cellFormat: numberToCurrency
     },
     {
-      Title: 'AP Charge To',
+      Title: 'AR Charge To',
       accessor: 'apChargeTo',
       cellClassName: 'text-nowrap'
     },

@@ -1,3 +1,3 @@
-const nonExpenseCategories = { 0: 'AP', 1: 'PC', 2: 'FT', 3: 'NA' };
+const nonExpenseCategories = { 0: 'AR', 1: 'PC', 2: 'FT', 3: 'NA' };
 
 export default nonExpenseCategories;

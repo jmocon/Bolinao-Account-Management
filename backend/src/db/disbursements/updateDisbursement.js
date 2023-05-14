@@ -1,6 +1,6 @@
 import dbQueryError from '../../error/dbQueryError';
 
-const updateDisbursement = (dbPool, res, req) => {
+const updateDisbursement = async (dbPool, res, req) => {
   const data = req.body;
 
   const query = `
@@ -26,14 +26,15 @@ const updateDisbursement = (dbPool, res, req) => {
   WHERE id = ${req.params.id}
     `;
 
-  dbPool.query(query, (err, result) => {
-    if (err) {
-      dbQueryError(res, err, query);
-      return;
-    }
+  let result;
+  try {
+    result = await dbQuery(dbPool, query);
+  } catch (error) {
+    dbQueryError(res, error, query);
+    return;
+  }
 
-    res.send(JSON.stringify({ success: true, data: result }));
-  });
+  res.send(JSON.stringify({ success: true, data: result }));
 };
 
 export default updateDisbursement;

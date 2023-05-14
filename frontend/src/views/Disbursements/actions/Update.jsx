@@ -243,10 +243,10 @@ const Update = ({ id, isOpen, toggle, notify }) => {
           </Col>
           {nonExpenseCategory === 0 && (
             <Col lg='4' md='6'>
-              <Label>AP Charge To</Label>
+              <Label>AR Charge To</Label>
               <Input
                 defaultValue={apChargeTo}
-                placeholder='AP Charge To'
+                placeholder='AR Charge To'
                 onChange={(e) => setApChargeTo(e.target.value)}
               />
             </Col>

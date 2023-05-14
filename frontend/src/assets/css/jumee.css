@@ -39,3 +39,25 @@ tfoot tr th {
 .modal-fullscreen {
 	max-width: calc(100vw - 40px);
 }
+
+.sidebar {
+	width: 215px;
+}
+
+.sidebar .nav li>a {
+	font-size: 0.9rem
+}
+
+.sidebar .nav i {
+	margin-right: 5px;
+}
+
+.sidebar .nav li>a, .sidebar .nav li:first-child > a {
+	margin: 0 5px;
+	padding-left: 5px;
+	padding-right: 5px;
+}
+
+.content {
+	padding: 78px 30px 30px 250px !important;
+}

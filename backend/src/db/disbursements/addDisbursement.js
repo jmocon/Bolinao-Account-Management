@@ -1,6 +1,8 @@
 import dbQueryError from '../../error/dbQueryError';
+import dbQuery from '../../helper/dbQuery';
+import { numberInput, stringInput } from '../../helper/emptyToNull';
 
-const addDisbursement = (dbPool, res, req) => {
+const addDisbursement = async (dbPool, res, req) => {
   const data = req.body;
   const query = `
   INSERT INTO disbursements
@@ -21,31 +23,32 @@ const addDisbursement = (dbPool, res, req) => {
     check_date,
     status
   ) VALUES (
-    ${data.companyId || 'NULL'},
-    "${data.disbursementDate || ''}",
-    ${data.expenseCategory || 'NULL'},
-    ${data.nonExpenseCategory || 'NULL'},
-    ${data.supplierId || 'NULL'},
-    "${data.particulars || ''}",
-    ${data.itemCode || 'NULL'},
-    ${data.vatableAmount || 'NULL'},
-    ${data.nonVatableAmount || 'NULL'},
-    ${data.ewtId || 'NULL'},
-    "${data.apChargeTo || ''}",
-    ${data.bankAccountId || 'NULL'},
-    "${data.checkNumber || ''}",
-    "${data.checkDate || ''}",
+    ${numberInput(data.companyId)},
+    ${stringInput(data.disbursementDate)},
+    ${numberInput(data.expenseCategory)},
+    ${numberInput(data.nonExpenseCategory)},
+    ${numberInput(data.supplierId)},
+    ${stringInput(data.particulars)},
+    ${numberInput(data.itemCode)},
+    ${numberInput(data.vatableAmount)},
+    ${numberInput(data.nonVatableAmount)},
+    ${numberInput(data.ewtId)},
+    ${stringInput(data.apChargeTo)},
+    ${numberInput(data.bankAccountId)},
+    ${stringInput(data.checkNumber)},
+    ${stringInput(data.checkDate)},
     ${data.status}
-    )`;
+  )`;
 
-  dbPool.query(query, (err, result) => {
-    if (err) {
-      dbQueryError(res, err, query);
-      return;
-    }
+  let result;
+  try {
+    result = await dbQuery(dbPool, query);
+  } catch (error) {
+    dbQueryError(res, error, query);
+    return;
+  }
 
-    res.send(JSON.stringify({ success: true, data: result }));
-  });
+  res.send(JSON.stringify({ success: true, data: result }));
 };
 
 export default addDisbursement;

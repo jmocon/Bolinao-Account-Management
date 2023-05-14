@@ -170,7 +170,7 @@ const View = ({ id, isOpen, toggle }) => {
           </Col>
           {dis.nonExpenseCategory === 0 && (
             <Col lg='4' md='6'>
-              <Label>AP Charge To</Label>
+              <Label>AR Charge To</Label>
               <span className='form-control'>
                 {nonExpenseCategories[dis.apChargeTo]}
               </span>
