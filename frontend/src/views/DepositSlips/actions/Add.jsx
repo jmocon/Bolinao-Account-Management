@@ -15,8 +15,14 @@ import numberToCurrency from 'helper/numberToCurrency';
 import DataTable from 'components/DataTable/DataTable';
 import { addDepositSlip } from 'api/depositSlip';
 import modeOfPayments, { modeOfPaymentValues } from 'constants/modeOfPayments';
+import defaultAlert from 'constants/defaultAlert';
 
 const Add = ({ onChange = () => {}, notify = () => {} }) => {
+  const [alert, setAlert] = useState(defaultAlert);
+  const onDismiss = () => setAlert(defaultAlert);
+  const alertDanger = (message) =>
+    setAlert({ color: 'danger', message, visible: true });
+
   const [selected, setSelected] = useState([]);
   const [deposits, setDeposits] = useState([]);
   const [rows, setRows] = useState([]);
@@ -31,24 +37,23 @@ const Add = ({ onChange = () => {}, notify = () => {} }) => {
     'Actions'
   ];
   const [isOpen, setIsOpen] = useState(false);
-  const toggleModal = () => {
+  const closeModal = () => {
     onDismiss();
+    setSelected([]);
     setIsOpen((currState) => !currState);
   };
+  const toggleModal = () => {
+    if (selected.length !== 0) {
+      const response = window.confirm(
+        'There have been changes made. Are you sure you want to close the window?'
+      );
 
-  // Notification
-  const [alert, setAlert] = useState({
-    color: 'primary',
-    message: '',
-    visible: false
-  });
-
-  const onDismiss = () =>
-    setAlert({
-      color: 'primary',
-      message: '',
-      visible: false
-    });
+      if (!response) {
+        return;
+      }
+    }
+    closeModal();
+  };
 
   useEffect(() => {
     const data = deposits.filter(
@@ -62,7 +67,7 @@ const Add = ({ onChange = () => {}, notify = () => {} }) => {
     try {
       result = await getOpenDeposits();
     } catch (error) {
-      console.error(error);
+      alertDanger(error);
     }
 
     setDeposits(result);
@@ -132,7 +137,7 @@ const Add = ({ onChange = () => {}, notify = () => {} }) => {
       'Successfully added deposit slip.',
       'tim-icons icon-check-2'
     );
-    // toggleModal();
+    closeModal();
   };
 
   const handleSelect = (id) => {

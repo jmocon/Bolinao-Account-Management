@@ -16,6 +16,7 @@ import { getDepositSlip } from 'api/depositSlip';
 
 import numberToCurrency from 'helper/numberToCurrency';
 import Print from '../components/Print';
+import defaultAlert from 'constants/defaultAlert';
 
 const View = ({ id, isOpen, toggle, notify }) => {
   const [deposits, setDeposits] = useState([]);
@@ -29,17 +30,8 @@ const View = ({ id, isOpen, toggle, notify }) => {
     'Amount'
   ];
   // Notification
-  const [alert, setAlert] = useState({
-    color: 'primary',
-    message: '',
-    visible: false
-  });
-  const onDismiss = () =>
-    setAlert({
-      color: 'primary',
-      message: '',
-      visible: false
-    });
+  const [alert, setAlert] = useState(defaultAlert);
+  const onDismiss = () => setAlert(defaultAlert);
 
   useEffect(() => {
     const fetchDeposit = async () => {

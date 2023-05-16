@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Row,
   Col,
@@ -7,269 +7,242 @@ import {
   ModalHeader,
   ModalBody,
   ModalFooter,
-  Label,
-  Input,
-  Alert
+  Alert,
+  Label
 } from 'reactstrap';
 
-import { getDeposit, updateDeposit } from 'api/deposit';
-import BankAccountDropdown from 'components/Dropdown/BankAccountDropdown';
-import BankDropdown from 'components/Dropdown/BankDropdown';
-import ModeOfPaymentDropdown from 'components/Dropdown/Disbursement/ModeOfPaymentDropdown';
-import { modeOfPaymentValues } from 'constants/modeOfPayments';
+import { getOpenDeposits } from 'api/deposit';
+import modeOfPayments, { modeOfPaymentValues } from 'constants/modeOfPayments';
+import defaultAlert from 'constants/defaultAlert';
+import { getDepositSlip, updateDepositSlip } from 'api/depositSlip';
+import DataTable from 'components/DataTable/DataTable';
+import numberToCurrency from 'helper/numberToCurrency';
 
 const Update = ({ id, isOpen, toggle, notify }) => {
-  const [bankAccountId, setBankAccountId] = useState();
-  const [payee, setPayee] = useState();
-  const [particular, setParticular] = useState();
-  const [depositDate, setDepositDate] = useState();
-  const [amount, setAmount] = useState();
-  const [modeOfPayment, setModeOfPayment] = useState();
-  const [bankId, setBankId] = useState();
-  const [checkNumber, setCheckNumber] = useState();
-  const [checkDate, setCheckDate] = useState();
+  const [alert, setAlert] = useState(defaultAlert);
+  const onDismiss = () => setAlert(defaultAlert);
+  const alertDanger = (message) =>
+    setAlert({ color: 'danger', message, visible: true });
 
-  const [submitted, setSubmitted] = useState(false);
+  const [isDirty, setIsDirty] = useState(false);
 
-  // Notification
-  const [alert, setAlert] = useState({
-    color: 'primary',
-    message: '',
-    visible: false
-  });
-  const onDismiss = () =>
-    setAlert({
-      color: 'primary',
-      message: '',
-      visible: false
-    });
+  const [depositSlip, setDepositSlip] = useState({});
+  const [prevDeposits, setPrevDeposits] = useState([]);
+  const [selected, setSelected] = useState([]);
+  const [deposits, setDeposits] = useState([]);
+  const [rows, setRows] = useState([]);
+  const columns = [
+    'Deposit Id',
+    'Bank Account',
+    'Payee',
+    'Deposit Date',
+    'Mode Of Payment',
+    'Bank',
+    'Amount',
+    'Actions'
+  ];
 
-  useEffect(() => {
-    const fetchData = async () => {
-      let deposit = {};
-      try {
-        deposit = await getDeposit(id);
-      } catch (error) {
-        setAlert({
-          color: 'danger',
-          message: `Error while fetching Deposit: ${error}`,
-          visible: true
-        });
+  const toggleModal = () => {
+    if (isDirty) {
+      const response = window.confirm(
+        'There have been changes made. Are you sure you want to close the window?'
+      );
+
+      if (!response) {
+        return;
       }
-
-      setBankAccountId(deposit.bankAccountId);
-      setPayee(deposit.payee);
-      setParticular(deposit.particular);
-      setDepositDate(deposit.depositDate.substring(0, 10));
-      setAmount(deposit.amount);
-      setModeOfPayment(deposit.modeOfPayment);
-      setBankId(deposit.bankId);
-      setCheckNumber(deposit.checkNumber);
-      setCheckDate(deposit.checkDate);
-    };
-
-    if (id) {
-      fetchData();
     }
-  }, [id]);
-
-  const CheckContent = () => {
-    switch (modeOfPayment) {
-      case modeOfPaymentValues.Cash:
-        break;
-      case modeOfPaymentValues.Check:
-        if (!bankId || !checkNumber || !checkDate) return true;
-        break;
-      case modeOfPaymentValues.Online:
-        if (!bankId) return true;
-        break;
-
-      default:
-        break;
-    }
-
-    return !bankAccountId || !payee || !particular || !depositDate || !amount;
+    onDismiss();
+    toggle();
   };
 
-  const handleUpdate = async () => {
-    setSubmitted(true);
+  useEffect(() => {
+    const data = [
+      ...deposits,
+      ...prevDeposits.map((d) => ({ ...d, depositId: d.id }))
+    ].filter((deposit) => !selected.includes(deposit.depositId));
+    setRows(data);
+  }, [deposits, prevDeposits, selected]);
 
-    if (CheckContent()) {
-      setAlert({
-        color: 'danger',
-        message: 'Complete all required fields',
-        visible: true
-      });
+  const fetchDeposits = useCallback(async () => {
+    let result = [];
+    try {
+      result = await getOpenDeposits();
+    } catch (error) {
+      alertDanger(error);
+    }
+
+    setDeposits(result);
+  }, [setDeposits]);
+
+  useEffect(() => {
+    fetchDeposits();
+    const interval = setInterval(() => {
+      fetchDeposits();
+    }, 100000);
+
+    return () => {
+      clearInterval(interval);
+    };
+  }, [fetchDeposits]);
+
+  useEffect(() => {
+    const fetchDeposit = async () => {
+      if (id) {
+        const result = await getDepositSlip(id);
+        setDepositSlip(result.depositSlip);
+        setSelected(result.deposits.map((d) => d.id));
+        setPrevDeposits(result.deposits);
+      }
+    };
+    fetchDeposit();
+  }, [id]);
+
+  const handleUpdate = async () => {
+    const selectedDeposit = [
+      ...deposits,
+      ...prevDeposits.map((d) => ({ ...d, depositSlip: d.id }))
+    ].filter((deposit) => selected.includes(deposit.depositId));
+    if (selected.length <= 0) {
+      alertDanger('Select at least one deposit.');
+      return;
+    }
+    const checkCount = selectedDeposit.filter(
+      (deposit) => deposit.modeOfPayment === modeOfPaymentValues.Check
+    );
+
+    if (checkCount >= 9) {
+      alertDanger('Up to 9 checks only.');
       return;
     }
 
-    const data = {
-      bankAccountId,
-      payee,
-      particular,
-      depositDate,
-      amount,
-      modeOfPayment,
-      bankId,
-      checkNumber,
-      checkDate
-    };
-
     let result;
     try {
-      result = await updateDeposit(id, data);
+      result = await updateDepositSlip(id, selected);
     } catch (error) {
-      setAlert({
-        color: 'danger',
-        message: error,
-        visible: true
-      });
+      alertDanger(`Error occurred while updating deposit slip ${error}`);
       return;
     }
 
     if (!result.success) {
-      setAlert({
-        color: 'danger',
-        message: result.message,
-        visible: true
-      });
+      alertDanger(result.message);
       return;
     }
 
     notify(
       'success',
-      'Successfully updated deposit.',
+      'Successfully added deposit slip.',
       'tim-icons icon-check-2'
     );
-
     toggle();
   };
 
-  const handleModeOfPayment = (mop) => {
-    setModeOfPayment(mop);
-
-    switch (mop) {
-      case modeOfPaymentValues.Cash:
-        setBankId('');
-        setCheckNumber('');
-        setCheckDate('');
-        break;
-      case modeOfPaymentValues.Online:
-        setCheckNumber('');
-        setCheckDate('');
-        break;
-      default:
-        break;
-    }
+  const handleSelect = (id) => {
+    setIsDirty(true);
+    setSelected((prev) => [...prev, id]);
   };
 
+  const handleRemove = (id) => {
+    setIsDirty(true);
+    setSelected((prev) => prev.filter((item) => item !== id));
+  };
+
+  const selectedTable = () =>
+    [...deposits, ...prevDeposits.map((d) => ({ ...d, depositId: d.id }))]
+      .filter((deposit) => selected.includes(deposit.depositId))
+      .map((deposit) => [
+        `D${String(deposit.depositId).padStart(5, '0')}`,
+        deposit.bankAccountName,
+        deposit.payee,
+        deposit.depositDate,
+        modeOfPayments[deposit.modeOfPayment],
+        deposit.bankName,
+        deposit.amount,
+        <Button
+          size='sm'
+          color='danger'
+          title='View'
+          className='btn-icon mr-1'
+          onClick={() => handleRemove(deposit.depositId)}>
+          <i className='tim-icons icon-simple-remove'></i>
+        </Button>
+      ]);
+
+  const toAddTable = (value) =>
+    value.map((deposit) => [
+      `D${String(deposit.depositId).padStart(5, '0')}`,
+      deposit.bankAccountName,
+      deposit.payee,
+      deposit.depositDate,
+      modeOfPayments[deposit.modeOfPayment],
+      deposit.bankName,
+      deposit.amount,
+      <Button
+        size='sm'
+        color='info'
+        title='View'
+        className='btn-icon mr-1'
+        onClick={() => handleSelect(deposit.depositId)}>
+        <i className='tim-icons icon-simple-add'></i>
+      </Button>
+    ]);
+
   return (
-    <Modal isOpen={isOpen} toggle={toggle} size='xl'>
-      <ModalHeader toggle={toggle}>Update Deposit</ModalHeader>
+    <Modal isOpen={isOpen} toggle={toggleModal} size='xl'>
+      <ModalHeader toggle={toggleModal}>Update Deposit</ModalHeader>
       <ModalBody>
         <Alert color={alert.color} isOpen={alert.visible} toggle={onDismiss}>
           {alert.message}
         </Alert>
         <Row className='mb-2'>
-          <Col>
-            <Label>Bank Account</Label>
-            <BankAccountDropdown
-              value={bankAccountId}
-              onChange={(e) => {
-                setBankAccountId(e);
-              }}
-            />
+          <Col md={4}>
+            <Label>Deposit Slip Id</Label>
+            <span className='form-control'>{depositSlip.depositSlipCode}</span>
           </Col>
-          <Col>
-            <Label>Payee</Label>
-            <Input
-              value={payee}
-              placeholder='Payee'
-              invalid={!payee && submitted}
-              onChange={(e) => setPayee(e.target.value)}
-            />
+          <Col md={4}>
+            <Label>Date Created</Label>
+            <span className='form-control'>{depositSlip.dateCreated}</span>
           </Col>
-          <Col>
-            <Label>Deposit Date</Label>
-            <Input
-              type='date'
-              value={depositDate}
-              placeholder='Deposit Date'
-              invalid={!depositDate && submitted}
-              onChange={(e) => setDepositDate(e.target.value)}
-            />
+          <Col md={4}>
+            <Label>Date Printed</Label>
+            <span className='form-control'>{depositSlip.datePrinted}</span>
           </Col>
+        </Row>
+        <Row className='mt-3'>
           <Col>
-            <Label>Amount</Label>
-            <Input
-              type='number'
-              value={amount}
-              placeholder='Amount'
-              invalid={!amount && submitted}
-              onChange={(e) => setAmount(e.target.value)}
+            <h1>Selected</h1>
+            <DataTable
+              title='Deposit'
+              columns={columns}
+              rows={selectedTable()}
+              format={{ 6: (value) => numberToCurrency(value) }}
+              withAction
             />
           </Col>
         </Row>
-        <Row className='mb-2'>
+        <Row>
           <Col>
-            <Label>Particular</Label>
-            <Input
-              type='textarea'
-              value={particular}
-              placeholder='Particular'
-              invalid={!particular && submitted}
-              onChange={(e) => setParticular(e.target.value)}
-            />
+            <hr />
+            <h1>Deposits</h1>
           </Col>
         </Row>
-        <Row className='mb-2'>
-          <Col md={3}>
-            <Label>Mode of Payment</Label>
-            <ModeOfPaymentDropdown
-              value={modeOfPayment}
-              onChange={handleModeOfPayment}
+        <Row>
+          <Col>
+            <DataTable
+              title='Deposit'
+              columns={columns}
+              rows={toAddTable(rows)}
+              format={{ 6: (value) => numberToCurrency(value) }}
+              withAction
             />
           </Col>
-
-          {[modeOfPaymentValues.Check, modeOfPaymentValues.Online].includes(
-            modeOfPayment
-          ) && (
-            <Col md={3}>
-              <Label>Bank</Label>
-              <BankDropdown value={bankId} onChange={setBankId} />
-            </Col>
-          )}
-
-          {modeOfPaymentValues.Check === modeOfPayment && (
-            <>
-              <Col md={3}>
-                <Label>Check Number</Label>
-                <Input
-                  value={checkNumber}
-                  placeholder='Check Number'
-                  invalid={!checkNumber && submitted}
-                  onChange={(e) => setCheckNumber(e.target.value)}
-                />
-              </Col>
-              <Col md={3}>
-                <Label>Check Date</Label>
-                <Input
-                  type='date'
-                  value={checkDate}
-                  placeholder='Check Date'
-                  invalid={!checkDate && submitted}
-                  onChange={(e) => setCheckDate(e.target.value)}
-                />
-              </Col>
-            </>
-          )}
         </Row>
       </ModalBody>
       <ModalFooter className='p-4 justify-content-end'>
         <Button color='info' onClick={handleUpdate} className='mr-2'>
           Update
         </Button>
-        <Button color='default' onClick={toggle}>
+        <Button color='default' onClick={toggleModal}>
           Cancel
         </Button>
       </ModalFooter>
