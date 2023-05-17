@@ -21,12 +21,11 @@ import defaultAlert from 'constants/defaultAlert';
 import { modeOfPaymentValues } from 'constants/modeOfPayments';
 
 import { addDeposit } from 'api/deposit';
+import useAlert from 'helper/useAlert';
 
 const Add = ({ onChange = () => {}, notify = () => {} }) => {
   const [alert, setAlert] = useState(defaultAlert);
-  const onDismiss = () => setAlert(defaultAlert);
-  const alertDanger = (message) =>
-    setAlert({ color: 'danger', message, visible: true });
+  const alertFn = useAlert(setAlert);
 
   const [inputs, setInputs] = useState({});
   const [isDirty, setIsDirty] = useState(false);
@@ -41,14 +40,14 @@ const Add = ({ onChange = () => {}, notify = () => {} }) => {
     setIsOpen((currState) => !currState);
     setInputs({});
     setIsDirty(false);
-    setSubmitted(false)
-    onDismiss()
-  }
+    setSubmitted(false);
+    alertFn.dismiss();
+  };
   const toggleModal = () => {
     if (!confirmOnClose(isDirty)) {
       return;
     }
-    cleanAndClose()
+    cleanAndClose();
   };
 
   const CheckContent = () => {
@@ -80,7 +79,7 @@ const Add = ({ onChange = () => {}, notify = () => {} }) => {
     setSubmitted(true);
 
     if (CheckContent()) {
-      alertDanger('Complete all required fields');
+      alertFn.danger('Complete all required fields');
       return;
     }
 
@@ -88,12 +87,12 @@ const Add = ({ onChange = () => {}, notify = () => {} }) => {
     try {
       result = await addDeposit(inputs);
     } catch (error) {
-      alertDanger(error);
+      alertFn.danger(error);
       return;
     }
 
     if (!result.success) {
-      alertDanger(result.message);
+      alertFn.danger(result.message);
       return;
     }
 
@@ -133,7 +132,10 @@ const Add = ({ onChange = () => {}, notify = () => {} }) => {
       <Modal isOpen={isOpen} toggle={toggleModal} size='xl'>
         <ModalHeader toggle={toggleModal}>Add Deposit</ModalHeader>
         <ModalBody>
-          <Alert color={alert.color} isOpen={alert.visible} toggle={onDismiss}>
+          <Alert
+            color={alert.color}
+            isOpen={alert.visible}
+            toggle={alertFn.dismiss}>
             {alert.message}
           </Alert>
           <Row className='mb-2'>

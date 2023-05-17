@@ -14,28 +14,31 @@ import {
 } from 'reactstrap';
 
 import { getSupplier, updateSupplier } from 'api/supplier';
+import defaultAlert from 'constants/defaultAlert';
+import useAlert from 'helper/useAlert';
+import confirmOnClose from 'helper/confirmOnClose';
 
 const Update = ({ id, isOpen, toggle, notify }) => {
-  const [name, setName] = useState('');
-  const [address, setAddress] = useState('');
-  const [tin, setTin] = useState('');
-  const [contactNumber, setContactNumber] = useState('');
-  const [checkPayee, setCheckPayee] = useState('');
+  const [alert, setAlert] = useState(defaultAlert);
+  const alertFn = useAlert(setAlert);
 
   const [submitted, setSubmitted] = useState(false);
+  const [isDirty, setIsDirty] = useState(false);
+  const [inputs, setInputs] = useState({});
+  const handleInput = (name, value) => {
+    setIsDirty(true);
+    setInputs((prev) => ({ ...prev, [name]: value }));
+  };
 
-  // Notification
-  const [alert, setAlert] = useState({
-    color: 'primary',
-    message: '',
-    visible: false
-  });
-  const onDismiss = () =>
-    setAlert({
-      color: 'primary',
-      message: '',
-      visible: false
-    });
+  const toggleModal = () => {
+    if (!confirmOnClose(isDirty)) {
+      return;
+    }
+
+    setInputs({});
+    setIsDirty(false);
+    toggle();
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -50,11 +53,7 @@ const Update = ({ id, isOpen, toggle, notify }) => {
         });
       }
 
-      setName(data.name);
-      setAddress(data.address);
-      setTin(data.tin);
-      setContactNumber(data.contactNumber);
-      setCheckPayee(data.checkPayee);
+      setInputs(data);
     };
 
     if (id) {
@@ -62,48 +61,28 @@ const Update = ({ id, isOpen, toggle, notify }) => {
     }
   }, [id]);
 
-  const CheckContent = () => {
-    return !name || !tin || !checkPayee;
-  };
+  const CheckContent = () => !inputs.name || !inputs.tin || !inputs.checkPayee;
 
   const handleUpdate = async () => {
     setSubmitted(true);
 
     if (CheckContent()) {
-      setAlert({
-        color: 'danger',
-        message: 'Complete all required fields',
-        visible: true
-      });
+      alertFn.danger('Complete all required fields');
       return;
     }
 
-    const data = {
-      name,
-      address,
-      tin,
-      contactNumber,
-      checkPayee
-    };
-
     let result;
     try {
-      result = await updateSupplier(id, data);
+      result = await updateSupplier(id, inputs);
     } catch (error) {
-      setAlert({
-        color: 'danger',
-        message: error,
-        visible: true
-      });
+      alertFn.danger(`Error occurred while updating supplier: ${error}`);
       return;
     }
 
     if (!result.success) {
-      setAlert({
-        color: 'danger',
-        message: result.message,
-        visible: true
-      });
+      alertFn.danger(
+        `Error occurred while updating supplier: ${result.message}`
+      );
       return;
     }
 
@@ -117,49 +96,52 @@ const Update = ({ id, isOpen, toggle, notify }) => {
   };
 
   return (
-    <Modal isOpen={isOpen} toggle={toggle} size='xl'>
-      <ModalHeader toggle={toggle}>Update Supplier</ModalHeader>
+    <Modal isOpen={isOpen} toggle={toggleModal} size='xl'>
+      <ModalHeader toggle={toggleModal}>Update Supplier</ModalHeader>
       <ModalBody>
-        <Alert color={alert.color} isOpen={alert.visible} toggle={onDismiss}>
+        <Alert
+          color={alert.color}
+          isOpen={alert.visible}
+          toggle={alertFn.dismiss}>
           {alert.message}
         </Alert>
         <Row className='mb-2'>
           <Col md='4'>
             <Label>Name</Label>
             <Input
-              value={name}
+              value={inputs.name}
               placeholder='Name'
-              invalid={!name && submitted}
-              onChange={(e) => setName(e.target.value)}
+              invalid={!inputs.name && submitted}
+              onChange={(e) => handleInput('name', e.target.value)}
             />
           </Col>
           <Col md='4'>
             <Label>TIN</Label>
             <Input
-              defaultValue={tin}
+              value={inputs.tin}
               placeholder='TIN'
-              invalid={!tin && submitted}
-              onChange={(e) => setTin(e.target.value)}
+              invalid={!inputs.tin && submitted}
+              onChange={(e) => handleInput('tin', e.target.value)}
             />
           </Col>
           <Col md='4'>
             <Label>Contact Number</Label>
             <Input
-              defaultValue={contactNumber}
+              value={inputs.contactNumber}
               placeholder='(+639) 12345 6789'
-              onChange={(e) => setContactNumber(e.target.value)}
+              onChange={(e) => handleInput('contactNumber', e.target.value)}
             />
           </Col>
         </Row>
-        <Row>
+        <Row className='mb-2'>
           <Col>
             <Label>Address</Label>
             <Input
               className='pl-2'
               type='textarea'
-              defaultValue={address}
+              value={inputs.address}
               placeholder='Address'
-              onChange={(e) => setAddress(e.target.value)}
+              onChange={(e) => handleInput('address', e.target.value)}
             />
           </Col>
         </Row>
@@ -172,10 +154,10 @@ const Update = ({ id, isOpen, toggle, notify }) => {
           <Col md='4'>
             <Label>Check Payee</Label>
             <Input
-              value={checkPayee}
+              value={inputs.checkPayee}
               placeholder='Check Payee'
-              invalid={!checkPayee && submitted}
-              onChange={(e) => setCheckPayee(e.target.value)}
+              invalid={!inputs.checkPayee && submitted}
+              onChange={(e) => handleInput('checkPayee', e.target.value)}
             />
           </Col>
         </Row>
@@ -184,7 +166,7 @@ const Update = ({ id, isOpen, toggle, notify }) => {
         <Button color='info' onClick={handleUpdate} className='mr-2'>
           Update
         </Button>
-        <Button color='default' onClick={toggle}>
+        <Button color='default' onClick={toggleModal}>
           Cancel
         </Button>
       </ModalFooter>
