@@ -12,134 +12,108 @@ import {
   Alert
 } from 'reactstrap';
 
-import { addDeposit } from 'api/deposit';
-import BankAccountDropdown from 'components/Dropdown/BankAccountDropdown';
 import BankDropdown from 'components/Dropdown/BankDropdown';
+import BankAccountDropdown from 'components/Dropdown/BankAccountDropdown';
 import ModeOfPaymentDropdown from 'components/Dropdown/Disbursement/ModeOfPaymentDropdown';
+
+import confirmOnClose from 'helper/confirmOnClose';
+import defaultAlert from 'constants/defaultAlert';
 import { modeOfPaymentValues } from 'constants/modeOfPayments';
 
+import { addDeposit } from 'api/deposit';
+
 const Add = ({ onChange = () => {}, notify = () => {} }) => {
-  const [submitted, setSubmitted] = useState(false);
-  const [isOpen, setIsOpen] = useState(false);
-  const toggleModal = () => {
-    setBankAccountId('');
-    setPayee('');
-    setParticular('');
-    setDepositDate('');
-    setBankId('');
-    setModeOfPayment('');
-    setAmount('');
-    setCheckNumber('');
-    setCheckDate('');
-    onDismiss();
-    setSubmitted(false);
-    setIsOpen((currState) => !currState);
+  const [alert, setAlert] = useState(defaultAlert);
+  const onDismiss = () => setAlert(defaultAlert);
+  const alertDanger = (message) =>
+    setAlert({ color: 'danger', message, visible: true });
+
+  const [inputs, setInputs] = useState({});
+  const [isDirty, setIsDirty] = useState(false);
+  const handleInput = (name, value) => {
+    setIsDirty(true);
+    setInputs((prev) => ({ ...prev, [name]: value }));
   };
 
-  const [bankAccountId, setBankAccountId] = useState();
-  const [payee, setPayee] = useState();
-  const [particular, setParticular] = useState();
-  const [depositDate, setDepositDate] = useState();
-  const [amount, setAmount] = useState();
-  const [modeOfPayment, setModeOfPayment] = useState();
-  const [bankId, setBankId] = useState();
-  const [checkNumber, setCheckNumber] = useState();
-  const [checkDate, setCheckDate] = useState();
-
-  // Notification
-  const [alert, setAlert] = useState({
-    color: 'primary',
-    message: '',
-    visible: false
-  });
-
-  const onDismiss = () =>
-    setAlert({
-      color: 'primary',
-      message: '',
-      visible: false
-    });
+  const [submitted, setSubmitted] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const cleanAndClose = () => {
+    setIsOpen((currState) => !currState);
+    setInputs({});
+    setIsDirty(false);
+    setSubmitted(false)
+    onDismiss()
+  }
+  const toggleModal = () => {
+    if (!confirmOnClose(isDirty)) {
+      return;
+    }
+    cleanAndClose()
+  };
 
   const CheckContent = () => {
-    switch (modeOfPayment) {
+    switch (inputs.modeOfPayment) {
       case modeOfPaymentValues.Cash:
         break;
       case modeOfPaymentValues.Check:
-        if (!bankId || !checkNumber || !checkDate) return true;
+        if (!inputs.bankId || !inputs.checkNumber || !inputs.checkDate)
+          return true;
         break;
       case modeOfPaymentValues.Online:
-        if (!bankId) return true;
+        if (!inputs.bankId) return true;
         break;
 
       default:
         return true;
     }
 
-    return !bankAccountId || !payee || !particular || !depositDate || !amount;
+    return (
+      !inputs.bankAccountId ||
+      !inputs.payee ||
+      !inputs.particular ||
+      !inputs.depositDate ||
+      !inputs.amount
+    );
   };
 
   const handleAdd = async () => {
     setSubmitted(true);
 
     if (CheckContent()) {
-      setAlert({
-        color: 'danger',
-        message: 'Complete all required fields',
-        visible: true
-      });
+      alertDanger('Complete all required fields');
       return;
     }
 
-    const data = {
-      bankAccountId,
-      payee,
-      particular,
-      depositDate,
-      amount,
-      modeOfPayment,
-      bankId,
-      checkNumber,
-      checkDate
-    };
-
     let result;
     try {
-      result = await addDeposit(data);
+      result = await addDeposit(inputs);
     } catch (error) {
-      setAlert({
-        color: 'danger',
-        message: error,
-        visible: true
-      });
+      alertDanger(error);
       return;
     }
 
     if (!result.success) {
-      setAlert({
-        color: 'danger',
-        message: result.message,
-        visible: true
-      });
+      alertDanger(result.message);
       return;
     }
 
     onChange();
     notify('success', 'Successfully added deposit.', 'tim-icons icon-check-2');
-    toggleModal();
+    cleanAndClose();
   };
 
   const handleModeOfPayment = (mop) => {
-    setModeOfPayment(mop);
+    handleInput('modeOfPayment', mop);
 
     switch (mop) {
       case modeOfPaymentValues.Cash:
-        setBankId('');
-        setCheckNumber('');
-        setCheckDate('');
+        handleInput('bankId', '');
+        handleInput('checkNumber', '');
+        handleInput('checkDate', '');
         break;
       case modeOfPaymentValues.Online:
-        setCheckNumber('');
-        setCheckDate('');
+        handleInput('checkNumber', '');
+        handleInput('checkDate', '');
         break;
       default:
         break;
@@ -166,39 +140,37 @@ const Add = ({ onChange = () => {}, notify = () => {} }) => {
             <Col>
               <Label>Bank Account</Label>
               <BankAccountDropdown
-                value={bankAccountId}
-                onChange={(e) => {
-                  setBankAccountId(e);
-                }}
+                value={inputs.bankAccountId}
+                onChange={(e) => handleInput('bankAccountId', e)}
               />
             </Col>
             <Col>
               <Label>Payee</Label>
               <Input
-                value={payee}
+                value={inputs.payee}
                 placeholder='Payee'
-                invalid={!payee && submitted}
-                onChange={(e) => setPayee(e.target.value)}
+                invalid={!inputs.payee && submitted}
+                onChange={(e) => handleInput('payee', e.target.value)}
               />
             </Col>
             <Col>
               <Label>Deposit Date</Label>
               <Input
                 type='date'
-                value={depositDate}
+                value={inputs.depositDate}
                 placeholder='Deposit Date'
-                invalid={!depositDate && submitted}
-                onChange={(e) => setDepositDate(e.target.value)}
+                invalid={!inputs.depositDate && submitted}
+                onChange={(e) => handleInput('depositDate', e.target.value)}
               />
             </Col>
             <Col>
               <Label>Amount</Label>
               <Input
                 type='number'
-                value={amount}
+                value={inputs.amount}
                 placeholder='Amount'
-                invalid={!amount && submitted}
-                onChange={(e) => setAmount(e.target.value)}
+                invalid={!inputs.amount && submitted}
+                onChange={(e) => handleInput('amount', e.target.value)}
               />
             </Col>
           </Row>
@@ -207,10 +179,10 @@ const Add = ({ onChange = () => {}, notify = () => {} }) => {
               <Label>Particular</Label>
               <Input
                 type='textarea'
-                value={particular}
+                value={inputs.particular}
                 placeholder='Particular'
-                invalid={!particular && submitted}
-                onChange={(e) => setParticular(e.target.value)}
+                invalid={!inputs.particular && submitted}
+                onChange={(e) => handleInput('particular', e.target.value)}
               />
             </Col>
           </Row>
@@ -218,39 +190,42 @@ const Add = ({ onChange = () => {}, notify = () => {} }) => {
             <Col md={3}>
               <Label>Mode of Payment</Label>
               <ModeOfPaymentDropdown
-                value={modeOfPayment}
+                value={inputs.modeOfPayment}
                 onChange={handleModeOfPayment}
               />
             </Col>
 
             {[modeOfPaymentValues.Check, modeOfPaymentValues.Online].includes(
-              modeOfPayment
+              inputs.modeOfPayment
             ) && (
               <Col md={3}>
                 <Label>Bank</Label>
-                <BankDropdown value={bankId} onChange={setBankId} />
+                <BankDropdown
+                  value={inputs.bankId}
+                  onChange={(e) => handleInput('bankId', e)}
+                />
               </Col>
             )}
 
-            {modeOfPaymentValues.Check === modeOfPayment && (
+            {modeOfPaymentValues.Check === inputs.modeOfPayment && (
               <>
                 <Col md={3}>
                   <Label>Check Number</Label>
                   <Input
-                    value={checkNumber}
                     placeholder='Check Number'
-                    invalid={!checkNumber && submitted}
-                    onChange={(e) => setCheckNumber(e.target.value)}
+                    value={inputs.checkNumber}
+                    invalid={!inputs.checkNumber && submitted}
+                    onChange={(e) => handleInput('checkNumber', e.target.value)}
                   />
                 </Col>
                 <Col md={3}>
                   <Label>Check Date</Label>
                   <Input
                     type='date'
-                    value={checkDate}
                     placeholder='Check Date'
-                    invalid={!checkDate && submitted}
-                    onChange={(e) => setCheckDate(e.target.value)}
+                    value={inputs.checkDate}
+                    invalid={!inputs.checkDate && submitted}
+                    onChange={(e) => handleInput('checkDate', e.target.value)}
                   />
                 </Col>
               </>

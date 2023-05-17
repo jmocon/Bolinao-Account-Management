@@ -12,19 +12,20 @@ import {
   Alert
 } from 'reactstrap';
 
+import EWTDropdown from 'components/Dropdown/EWTDropdown';
 import CompanyDropdown from 'components/Dropdown/CompanyDropdown';
 import SupplierDropdown from 'components/Dropdown/SupplierDropdown';
-import EWTDropdown from 'components/Dropdown/EWTDropdown';
+import ItemCodeDropdown from 'components/Dropdown/ItemCodeDropdown';
+import ModeOfPaymentDropdown from 'components/Dropdown/Disbursement/ModeOfPaymentDropdown';
 import ExpenseCategoryDropdown from 'components/Dropdown/Disbursement/ExpenseCategoryDropdown';
 
+import confirmOnClose from 'helper/confirmOnClose';
 import numberToCurrency from 'helper/numberToCurrency';
+import computeDisbursement from 'helper/computeDisbursement';
+import defaultAlert from 'constants/defaultAlert';
 
 import { getEWT } from 'api/ewt';
-import ItemCodeDropdown from 'components/Dropdown/ItemCodeDropdown';
-import computeDisbursement from 'helper/computeDisbursement';
 import { addExpense } from 'api/expense';
-import ModeOfPaymentDropdown from 'components/Dropdown/Disbursement/ModeOfPaymentDropdown';
-import defaultAlert from 'constants/defaultAlert';
 
 const Add = ({ onChange, notify }) => {
   const [alert, setAlert] = useState(defaultAlert);
@@ -32,14 +33,8 @@ const Add = ({ onChange, notify }) => {
 
   const [isOpen, setIsOpen] = useState(false);
   const toggleModal = () => {
-    if (Object.keys(inputs).length !== 0 || isDirty) {
-      const response = window.confirm(
-        'There have been changes made. Are you sure you want to close the window?'
-      );
-
-      if (!response) {
-        return;
-      }
+    if (!confirmOnClose(isDirty)) {
+      return;
     }
     setIsOpen((currState) => !currState);
     setInputs({});

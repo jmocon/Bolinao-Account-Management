@@ -25,6 +25,7 @@ import defaultAlert from 'constants/defaultAlert';
 import { getEWT } from 'api/ewt';
 import { getExpense, updateExpense } from 'api/expense';
 import ModeOfPaymentDropdown from 'components/Dropdown/Disbursement/ModeOfPaymentDropdown';
+import confirmOnClose from 'helper/confirmOnClose';
 
 const Update = ({ id, isOpen, toggle, notify }) => {
   const [alert, setAlert] = useState(defaultAlert);
@@ -32,21 +33,14 @@ const Update = ({ id, isOpen, toggle, notify }) => {
 
   const [inputs, setInputs] = useState({});
   const [isDirty, setIsDirty] = useState(false);
-
   const handleInput = (name, value) => {
     setIsDirty(true);
     setInputs((prev) => ({ ...prev, [name]: value }));
   };
 
   const toggleModal = () => {
-    if (isDirty) {
-      const response = window.confirm(
-        'There have been changes made. Are you sure you want to close the window?'
-      );
-
-      if (!response) {
-        return;
-      }
+    if (!confirmOnClose(isDirty)) {
+      return;
     }
 
     setInputs({});
