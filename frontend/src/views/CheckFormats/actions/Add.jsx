@@ -26,7 +26,7 @@ const DEFAULT_POSITION = {
   voucherCode: { x: 0, y: 0 }
 };
 
-const Add = ({ onChange = () => {}, notify = () => {} }) => {
+const Add = ({ onChange, notify }) => {
   const [submitted, setSubmitted] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const toggleModal = () => {

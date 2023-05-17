@@ -14,26 +14,31 @@ import {
 
 import { getUser, updateUser } from 'api/user';
 import RoleDropdown from 'components/Dropdown/RoleDropdown';
+import defaultAlert from 'constants/defaultAlert';
+import useAlert from 'helper/useAlert';
+import confirmOnClose from 'helper/confirmOnClose';
 
 const Update = ({ id, isOpen, toggle, notify }) => {
-  // Notification
-  const defaultAlert = {
-    color: 'primary',
-    message: '',
-    visible: false
-  };
   const [alert, setAlert] = useState(defaultAlert);
-  const onDismiss = () => setAlert(defaultAlert);
+  const alertFn = useAlert(setAlert);
 
   const [submitted, setSubmitted] = useState(false);
+  const [isDirty, setIsDirty] = useState(false);
   const [inputs, setInputs] = useState({});
-
   const handleInput = (name, value) => {
+    setIsDirty(true);
     setInputs((prev) => ({ ...prev, [name]: value }));
   };
 
-  const CheckContent = () =>
-    !inputs.firstName || !inputs.emailAddress || !inputs.username;
+  const toggleModal = () => {
+    if (!confirmOnClose(isDirty)) {
+      return;
+    }
+
+    setInputs({});
+    setIsDirty(false);
+    toggle();
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -56,15 +61,14 @@ const Update = ({ id, isOpen, toggle, notify }) => {
     }
   }, [id]);
 
+  const CheckContent = () =>
+    !inputs.firstName || !inputs.emailAddress || !inputs.username;
+
   const handleUpdate = async () => {
     setSubmitted(true);
 
     if (CheckContent()) {
-      setAlert({
-        color: 'danger',
-        message: 'Complete all required fields',
-        visible: true
-      });
+      alertFn.danger('Complete all required fields');
       return;
     }
 
@@ -72,33 +76,27 @@ const Update = ({ id, isOpen, toggle, notify }) => {
     try {
       result = await updateUser(id, inputs);
     } catch (error) {
-      setAlert({
-        color: 'danger',
-        message: error,
-        visible: true
-      });
+      alertFn.danger(`Error occurred while updating user: ${error}`);
       return;
     }
 
     if (!result.success) {
-      setAlert({
-        color: 'danger',
-        message: result.message,
-        visible: true
-      });
+      alertFn.danger(`Error occurred while updating user: ${result.message}`);
       return;
     }
 
     notify('success', 'Successfully updated user.', 'tim-icons icon-check-2');
-
     toggle();
   };
 
   return (
-    <Modal isOpen={isOpen} toggle={toggle} size='xl'>
-      <ModalHeader toggle={toggle}>Update User</ModalHeader>
+    <Modal isOpen={isOpen} toggle={toggleModal} size='xl'>
+      <ModalHeader toggle={toggleModal}>Update User</ModalHeader>
       <ModalBody>
-        <Alert color={alert.color} isOpen={alert.visible} toggle={onDismiss}>
+        <Alert
+          color={alert.color}
+          isOpen={alert.visible}
+          toggle={alertFn.dismiss}>
           {alert.message}
         </Alert>
         <Row>
@@ -210,7 +208,7 @@ const Update = ({ id, isOpen, toggle, notify }) => {
         <Button color='info' onClick={handleUpdate} className='mr-2'>
           Update
         </Button>
-        <Button color='default' onClick={toggle}>
+        <Button color='default' onClick={toggleModal}>
           Cancel
         </Button>
       </ModalFooter>

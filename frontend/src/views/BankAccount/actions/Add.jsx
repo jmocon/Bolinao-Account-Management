@@ -15,7 +15,7 @@ import {
 import { addBankAccount } from 'api/bankAccount';
 import BankDropdown from 'components/Dropdown/BankDropdown';
 
-const Add = ({ onChange = () => {}, notify = () => {} }) => {
+const Add = ({ onChange, notify }) => {
   const [submitted, setSubmitted] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const toggleModal = () => {

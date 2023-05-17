@@ -14,7 +14,7 @@ import {
 
 import { addItemCode } from 'api/itemCode';
 
-const Add = ({ onChange = () => {}, notify = () => {} }) => {
+const Add = ({ onChange, notify }) => {
   const [submitted, setSubmitted] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const toggleModal = () => {

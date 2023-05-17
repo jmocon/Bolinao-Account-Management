@@ -17,7 +17,7 @@ import defaultAlert from 'constants/defaultAlert';
 import useAlert from 'helper/useAlert';
 import confirmOnClose from 'helper/confirmOnClose';
 
-const Add = ({ onChange = () => {}, notify = () => {} }) => {
+const Add = ({ onChange, notify }) => {
   const [alert, setAlert] = useState(defaultAlert);
   const alertFn = useAlert(setAlert);
 

@@ -15,33 +15,37 @@ import {
 import RoleDropdown from 'components/Dropdown/RoleDropdown';
 import { addUser } from 'api/user';
 import ShowTemporaryPassword from 'views/Deposits/components/ShowTemporaryPassword';
+import defaultAlert from 'constants/defaultAlert';
+import useAlert from 'helper/useAlert';
+import confirmOnClose from 'helper/confirmOnClose';
 
 const Add = ({ onChange, notify }) => {
-  // Notification
-  const defaultAlert = {
-    color: 'primary',
-    message: '',
-    visible: false
-  };
   const [alert, setAlert] = useState(defaultAlert);
-  const onDismiss = () => setAlert(defaultAlert);
+  const alertFn = useAlert(setAlert);
 
-  const [submitted, setSubmitted] = useState(false);
-  const [isOpen, setIsOpen] = useState(false);
   const [inputs, setInputs] = useState({});
-  const [tempPass, setTempPass] = useState('');
-  const [isShowPassOpen, setIsShowPassOpen] = useState(false);
-
+  const [isDirty, setIsDirty] = useState(false);
   const handleInput = (name, value) => {
+    setIsDirty(true);
     setInputs((prev) => ({ ...prev, [name]: value }));
   };
 
-  const toggleModal = () => {
-    setInputs({});
-    setSubmitted(false);
-    onDismiss();
+  const [submitted, setSubmitted] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const cleanAndToggle = () => {
     setIsOpen((currState) => !currState);
+    setInputs({});
+    setIsDirty(false);
+    setSubmitted(false);
+    alertFn.dismiss();
   };
+  const toggleModal = () => {
+    if (!confirmOnClose(isDirty)) return;
+    cleanAndToggle();
+  };
+
+  const [tempPass, setTempPass] = useState('');
+  const [isShowPassOpen, setIsShowPassOpen] = useState(false);
 
   const CheckContent = () => {
     setSubmitted(true);
@@ -50,11 +54,7 @@ const Add = ({ onChange, notify }) => {
 
   const handleAdd = async () => {
     if (CheckContent()) {
-      setAlert({
-        color: 'danger',
-        message: 'Complete all required fields',
-        visible: true
-      });
+      alertFn.danger('Complete all required fields');
       return;
     }
 
@@ -62,20 +62,12 @@ const Add = ({ onChange, notify }) => {
     try {
       result = await addUser(inputs);
     } catch (error) {
-      setAlert({
-        color: 'danger',
-        message: error.message,
-        visible: true
-      });
+      alertFn.danger(`Error occurred while adding user: ${result.message}`);
       return;
     }
 
     if (!result.success) {
-      setAlert({
-        color: 'danger',
-        message: result.message,
-        visible: true
-      });
+      alertFn.danger(`Error occurred while adding supplier: ${result.message}`);
       return;
     }
     setTempPass(result.temporaryPassword);
@@ -84,7 +76,7 @@ const Add = ({ onChange, notify }) => {
   const togglePass = () => {
     setIsShowPassOpen(false);
     onChange();
-    toggleModal();
+    cleanAndToggle();
     notify('success', 'Successfully added user.', 'tim-icons icon-check-2');
   };
 
@@ -101,7 +93,10 @@ const Add = ({ onChange, notify }) => {
       <Modal isOpen={isOpen} toggle={toggleModal} size='xl'>
         <ModalHeader toggle={toggleModal}>Add User</ModalHeader>
         <ModalBody>
-          <Alert color={alert.color} isOpen={alert.visible} toggle={onDismiss}>
+          <Alert
+            color={alert.color}
+            isOpen={alert.visible}
+            toggle={alertFn.dismiss}>
             {alert.message}
           </Alert>
           <Row>
@@ -218,7 +213,6 @@ const Add = ({ onChange, notify }) => {
           </Button>
         </ModalFooter>
       </Modal>
-      {tempPass}
       <ShowTemporaryPassword
         isOpen={isShowPassOpen}
         toggle={togglePass}

@@ -23,7 +23,7 @@ import { modeOfPaymentValues } from 'constants/modeOfPayments';
 import { addDeposit } from 'api/deposit';
 import useAlert from 'helper/useAlert';
 
-const Add = ({ onChange = () => {}, notify = () => {} }) => {
+const Add = ({ onChange, notify }) => {
   const [alert, setAlert] = useState(defaultAlert);
   const alertFn = useAlert(setAlert);
 

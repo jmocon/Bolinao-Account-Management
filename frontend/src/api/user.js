@@ -28,8 +28,6 @@ export const getUser = async (id) => {
     throw new Error(`Error occurred while getting user: ${error}`);
   }
 
-  console.log(mapData(response.data.user))
-
   return mapData(response.data.user);
 };
 

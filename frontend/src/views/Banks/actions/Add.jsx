@@ -14,7 +14,7 @@ import {
 
 import { addBank } from 'api/bank';
 
-const Add = ({ onChange = () => {}, notify = () => {} }) => {
+const Add = ({ onChange, notify }) => {
   const [submitted, setSubmitted] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const toggleModal = () => {

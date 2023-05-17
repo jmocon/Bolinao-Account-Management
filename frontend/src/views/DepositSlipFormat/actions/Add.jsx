@@ -18,7 +18,7 @@ import InputFormat from '../components/InputFormat';
 import InputFormatXY from '../components/InputFormatXY';
 import depositSlipPlaceHolder from '../constant/depositSlipPlaceholder';
 
-const Add = ({ onChange = () => {}, notify = () => {} }) => {
+const Add = ({ onChange, notify }) => {
   const [submitted, setSubmitted] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const toggleModal = () => {

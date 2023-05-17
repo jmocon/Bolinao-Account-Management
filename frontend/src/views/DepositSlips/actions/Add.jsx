@@ -17,7 +17,7 @@ import { addDepositSlip } from 'api/depositSlip';
 import modeOfPayments, { modeOfPaymentValues } from 'constants/modeOfPayments';
 import defaultAlert from 'constants/defaultAlert';
 
-const Add = ({ onChange = () => {}, notify = () => {} }) => {
+const Add = ({ onChange, notify }) => {
   const [alert, setAlert] = useState(defaultAlert);
   const onDismiss = () => setAlert(defaultAlert);
   const alertDanger = (message) =>

@@ -48,7 +48,7 @@ const Update = ({ id, isOpen, toggle, notify }) => {
       } catch (error) {
         setAlert({
           color: 'danger',
-          message: `Error while fetching Bank: ${error}`,
+          message: `Error while fetching Supplier: ${error}`,
           visible: true
         });
       }
@@ -91,7 +91,6 @@ const Update = ({ id, isOpen, toggle, notify }) => {
       'Successfully updated supplier.',
       'tim-icons icon-check-2'
     );
-
     toggle();
   };
 
