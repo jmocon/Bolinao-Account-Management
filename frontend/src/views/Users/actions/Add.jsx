@@ -67,7 +67,7 @@ const Add = ({ onChange, notify }) => {
     }
 
     if (!result.success) {
-      alertFn.danger(`Error occurred while adding supplier: ${result.message}`);
+      alertFn.danger(`Error occurred while adding user: ${result.message}`);
       return;
     }
     setTempPass(result.temporaryPassword);

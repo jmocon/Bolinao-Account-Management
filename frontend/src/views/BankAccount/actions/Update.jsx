@@ -14,49 +14,52 @@ import {
 
 import { getBankAccount, updateBankAccount } from 'api/bankAccount';
 import BankDropdown from 'components/Dropdown/BankDropdown';
+import confirmOnClose from 'helper/confirmOnClose';
+import useAlert from 'helper/useAlert';
+import defaultAlert from 'constants/defaultAlert';
 
 const Update = ({ id, isOpen, toggle, notify }) => {
-  const [name, setName] = useState('');
-  const [bankId, setBankId] = useState(0);
-  const [accountNumber, setAccountNumber] = useState('');
-  const [accountName, setAccountName] = useState('');
+  const [alert, setAlert] = useState(defaultAlert);
+  const alertFn = useAlert(setAlert);
 
   const [submitted, setSubmitted] = useState(false);
-
-  // Notification
-  const [alert, setAlert] = useState({
-    color: 'primary',
-    message: '',
-    visible: false
-  });
-  const onDismiss = () =>
-    setAlert({
-      color: 'primary',
-      message: '',
-      visible: false
-    });
-
-  const CheckContent = () => {
-    return !name || !bankId || !accountNumber || !accountName;
+  const [isDirty, setIsDirty] = useState(false);
+  const [inputs, setInputs] = useState({});
+  const handleInput = (name, value) => {
+    setIsDirty(true);
+    setInputs((prev) => ({ ...prev, [name]: value }));
   };
+
+  const toggleModal = () => {
+    if (!confirmOnClose(isDirty)) {
+      return;
+    }
+
+    setInputs({});
+    setIsDirty(false);
+    toggle();
+  };
+
+  const CheckContent = () =>
+    !inputs.name ||
+    !inputs.bankId ||
+    !inputs.accountNumber ||
+    !inputs.accountName;
 
   useEffect(() => {
     const fetchData = async () => {
-      let bankAccount = {};
+      let result = {};
       try {
-        bankAccount = await getBankAccount(id);
+        result = await getBankAccount(id);
       } catch (error) {
         setAlert({
           color: 'danger',
-          message: `Error while fetching BankAccount: ${error}`,
+          message: `Error while fetching Bank account: ${error}`,
           visible: true
         });
       }
 
-      setName(bankAccount.name);
-      setBankId(bankAccount.bankId);
-      setAccountNumber(bankAccount.accountNumber);
-      setAccountName(bankAccount.accountName);
+      setInputs(result);
     };
 
     if (id) {
@@ -68,39 +71,22 @@ const Update = ({ id, isOpen, toggle, notify }) => {
     setSubmitted(true);
 
     if (CheckContent()) {
-      setAlert({
-        color: 'danger',
-        message: 'Complete all required fields',
-        visible: true
-      });
+      alertFn.danger('Complete all required fields');
       return;
     }
 
-    const data = {
-      name,
-      bankId,
-      accountNumber,
-      accountName
-    };
-
     let result;
     try {
-      result = await updateBankAccount(id, data);
+      result = await updateBankAccount(id, inputs);
     } catch (error) {
-      setAlert({
-        color: 'danger',
-        message: error,
-        visible: true
-      });
+      alertFn.danger(`Error occurred while updating bank account: ${error}`);
       return;
     }
 
     if (!result.success) {
-      setAlert({
-        color: 'danger',
-        message: result.message,
-        visible: true
-      });
+      alertFn.danger(
+        `Error occurred while updating bank account: ${result.message}`
+      );
       return;
     }
 
@@ -114,53 +100,57 @@ const Update = ({ id, isOpen, toggle, notify }) => {
   };
 
   return (
-    <Modal isOpen={isOpen} toggle={toggle} size='xl'>
-      <ModalHeader toggle={toggle}>Update Bank Account</ModalHeader>
+    <Modal isOpen={isOpen} toggle={toggleModal} size='xl'>
+      <ModalHeader toggle={toggleModal}>Update Bank Account</ModalHeader>
       <ModalBody>
-        <Alert color={alert.color} isOpen={alert.visible} toggle={onDismiss}>
+        <Alert color={alert.color} isOpen={alert.visible} toggle={alertFn.dismiss}>
           {alert.message}
         </Alert>
         <Row>
-          <Col>
-            <Label>Name</Label>
-            <Input
-              value={name}
-              placeholder='Name'
-              invalid={!name && submitted}
-              onChange={(e) => setName(e.target.value)}
-            />
-          </Col>
-          <Col>
-            <Label>Bank</Label>
-            <BankDropdown label='Bank' onChange={setBankId} value={bankId} />
-          </Col>
-        </Row>
-        <Row>
-          <Col>
-            <Label>Account Number</Label>
-            <Input
-              value={accountNumber}
-              placeholder='Account Number'
-              invalid={!accountNumber && submitted}
-              onChange={(e) => setAccountNumber(e.target.value)}
-            />
-          </Col>
-          <Col>
-            <Label>Account Name</Label>
-            <Input
-              value={accountName}
-              placeholder='Account Name'
-              invalid={!accountName && submitted}
-              onChange={(e) => setAccountName(e.target.value)}
-            />
-          </Col>
-        </Row>
+            <Col>
+              <Label>Name</Label>
+              <Input
+                placeholder='Name'
+                value={inputs.name}
+                invalid={!inputs.name && submitted}
+                onChange={(e) => handleInput('name', e.target.value)}
+              />
+            </Col>
+            <Col>
+              <Label>Bank</Label>
+              <BankDropdown
+                label='Bank'
+                value={inputs.bankId}
+                onChange={(e) => handleInput('bankId', e)}
+              />
+            </Col>
+          </Row>
+          <Row>
+            <Col>
+              <Label>Account Number</Label>
+              <Input
+                placeholder='Account Number'
+                value={inputs.accountNumber}
+                invalid={!inputs.accountNumber && submitted}
+                onChange={(e) => handleInput('accountNumber', e.target.value)}
+              />
+            </Col>
+            <Col>
+              <Label>Account Name</Label>
+              <Input
+                placeholder='Account Name'
+                value={inputs.accountName}
+                invalid={!inputs.accountName && submitted}
+                onChange={(e) => handleInput('accountName', e.target.value)}
+              />
+            </Col>
+          </Row>
       </ModalBody>
       <ModalFooter className='p-4 justify-content-end'>
         <Button color='info' onClick={handleUpdate} className='mr-2'>
           Update
         </Button>
-        <Button color='default' onClick={toggle}>
+        <Button color='default' onClick={toggleModal}>
           Cancel
         </Button>
       </ModalFooter>
