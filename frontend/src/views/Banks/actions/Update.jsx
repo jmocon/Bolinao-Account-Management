@@ -12,31 +12,37 @@ import {
   Alert
 } from 'reactstrap';
 import { getBank, updateBank } from 'api/bank';
+import defaultAlert from 'constants/defaultAlert';
+import useAlert from 'helper/useAlert';
+import confirmOnClose from 'helper/confirmOnClose';
 
 const Update = ({ id, isOpen, toggle, notify }) => {
-  const [name, setName] = useState('');
-  const [abbr, setAbbr] = useState('');
+  const [alert, setAlert] = useState(defaultAlert);
+  const alertFn = useAlert(setAlert);
 
   const [submitted, setSubmitted] = useState(false);
+  const [isDirty, setIsDirty] = useState(false);
+  const [inputs, setInputs] = useState({});
+  const handleInput = (name, value) => {
+    setIsDirty(true);
+    setInputs((prev) => ({ ...prev, [name]: value }));
+  };
 
-  // Notification
-  const [alert, setAlert] = useState({
-    color: 'primary',
-    message: '',
-    visible: false
-  });
-  const onDismiss = () =>
-    setAlert({
-      color: 'primary',
-      message: '',
-      visible: false
-    });
+  const toggleModal = () => {
+    if (!confirmOnClose(isDirty)) {
+      return;
+    }
+
+    setInputs({});
+    setIsDirty(false);
+    toggle();
+  };
 
   useEffect(() => {
     const fetchData = async () => {
-      let bank = {};
+      let result = {};
       try {
-        bank = await getBank(id);
+        result = await getBank(id);
       } catch (error) {
         setAlert({
           color: 'danger',
@@ -45,8 +51,7 @@ const Update = ({ id, isOpen, toggle, notify }) => {
         });
       }
 
-      setName(bank.name);
-      setAbbr(bank.abbr);
+      setInputs(result);
     };
 
     if (id) {
@@ -54,80 +59,60 @@ const Update = ({ id, isOpen, toggle, notify }) => {
     }
   }, [id]);
 
-  const CheckContent = () => {
-    return !name || !abbr;
-  };
+  const CheckContent = () => !inputs.name || !inputs.abbr;
 
   const handleUpdate = async () => {
     setSubmitted(true);
 
     if (CheckContent()) {
-      setAlert({
-        color: 'danger',
-        message: 'Complete all required fields',
-        visible: true
-      });
+      alertFn.danger('Complete all required fields');
       return;
     }
 
-    const data = {
-      name,
-      abbr
-    };
-
     let result;
     try {
-      result = await updateBank(id, data);
+      result = await updateBank(id, inputs);
     } catch (error) {
-      setAlert({
-        color: 'danger',
-        message: error,
-        visible: true
-      });
+      alertFn.danger(`Error occurred while updating bank: ${result.message}`);
       return;
     }
 
     if (!result.success) {
-      setAlert({
-        color: 'danger',
-        message: result.message,
-        visible: true
-      });
+      alertFn.danger(`Error occurred while updating bank: ${result.message}`);
       return;
     }
 
-    notify(
-      'success',
-      'Successfully updated bank.',
-      'tim-icons icon-check-2'
-    );
-
+    notify('success', 'Successfully updated bank.', 'tim-icons icon-check-2');
     toggle();
   };
 
   return (
-    <Modal isOpen={isOpen} toggle={toggle} size='xl'>
-      <ModalHeader toggle={toggle}>Update Bank</ModalHeader>
+    <Modal isOpen={isOpen} toggle={toggleModal} size='xl'>
+      <ModalHeader toggle={toggleModal}>Update Bank</ModalHeader>
       <ModalBody>
-        <Alert color={alert.color} isOpen={alert.visible} toggle={onDismiss}>
+        <Alert
+          color={alert.color}
+          isOpen={alert.visible}
+          toggle={alertFn.dismiss}>
           {alert.message}
         </Alert>
         <Row>
           <Col>
             <Label>Name</Label>
             <Input
-              value={name}
               placeholder='Name'
-              invalid={!name && submitted}
-              onChange={(e) => setName(e.target.value)}
+              value={inputs.name}
+              invalid={!inputs.name && submitted}
+              onChange={(e) => handleInput('name', e.target.value)}
             />
           </Col>
           <Col>
             <Label>Abbreviation</Label>
             <Input
-              value={abbr}
               placeholder='Abbreviation'
-              onChange={(e) => setAbbr(e.target.value)}
+              value={inputs.abbr}
+              invalid={!inputs.abbr && submitted}
+              onChange={(e) => handleInput('abbr', e.target.value)}
             />
           </Col>
         </Row>
@@ -136,7 +121,7 @@ const Update = ({ id, isOpen, toggle, notify }) => {
         <Button color='info' onClick={handleUpdate} className='mr-2'>
           Update
         </Button>
-        <Button color='default' onClick={toggle}>
+        <Button color='default' onClick={toggleModal}>
           Cancel
         </Button>
       </ModalFooter>

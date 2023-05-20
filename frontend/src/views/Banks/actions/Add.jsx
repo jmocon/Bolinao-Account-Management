@@ -13,77 +13,61 @@ import {
 } from 'reactstrap';
 
 import { addBank } from 'api/bank';
+import defaultAlert from 'constants/defaultAlert';
+import useAlert from 'helper/useAlert';
+import confirmOnClose from 'helper/confirmOnClose';
 
 const Add = ({ onChange, notify }) => {
+  const [alert, setAlert] = useState(defaultAlert);
+  const alertFn = useAlert(setAlert);
+
+  const [inputs, setInputs] = useState({});
+  const [isDirty, setIsDirty] = useState(false);
+  const handleInput = (name, value) => {
+    setIsDirty(true);
+    setInputs((prev) => ({ ...prev, [name]: value }));
+  };
+
   const [submitted, setSubmitted] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
-  const toggleModal = () => {
-    setName('');
-    setAbbr('');
-    onDismiss();
-    setSubmitted(false);
+  const cleanAndToggle = () => {
     setIsOpen((currState) => !currState);
+    setInputs({});
+    setIsDirty(false);
+    setSubmitted(false);
+    alertFn.dismiss();
+  };
+  const toggleModal = () => {
+    if (!confirmOnClose(isDirty)) return;
+    cleanAndToggle();
   };
 
-  const [name, setName] = useState();
-  const [abbr, setAbbr] = useState();
-
-  // Notification
-  const [alert, setAlert] = useState({
-    color: 'primary',
-    message: '',
-    visible: false
-  });
-
-  const onDismiss = () =>
-    setAlert({
-      color: 'primary',
-      message: '',
-      visible: false
-    });
-
-  const CheckContent = () => {
-    return !name || !abbr;
-  };
+  const CheckContent = () => !inputs.name || !inputs.abbr;
 
   const handleAdd = async () => {
     setSubmitted(true);
 
     if (CheckContent()) {
-      setAlert({
-        color: 'danger',
-        message: 'Complete all required fields',
-        visible: true
-      });
+      alertFn.danger('Complete all required fields');
       return;
     }
 
-    const data = { name, abbr };
-
     let result;
     try {
-      result = await addBank(data);
+      result = await addBank(inputs);
     } catch (error) {
-      setAlert({
-        color: 'danger',
-        message: error,
-        visible: true
-      });
+      alertFn.danger(`Error occurred while adding bank: ${result.message}`);
       return;
     }
 
     if (!result.success) {
-      setAlert({
-        color: 'danger',
-        message: result.message,
-        visible: true
-      });
+      alertFn.danger(`Error occurred while adding bank: ${result.message}`);
       return;
     }
 
     onChange();
     notify('success', 'Successfully added bank.', 'tim-icons icon-check-2');
-    toggleModal();
+    cleanAndToggle();
   };
 
   return (
@@ -99,26 +83,29 @@ const Add = ({ onChange, notify }) => {
       <Modal isOpen={isOpen} toggle={toggleModal} size='xl'>
         <ModalHeader toggle={toggleModal}>Add Bank</ModalHeader>
         <ModalBody>
-          <Alert color={alert.color} isOpen={alert.visible} toggle={onDismiss}>
+          <Alert
+            color={alert.color}
+            isOpen={alert.visible}
+            toggle={alertFn.dismiss}>
             {alert.message}
           </Alert>
           <Row>
             <Col>
               <Label>Name</Label>
               <Input
-                value={name}
                 placeholder='Name'
-                invalid={!name && submitted}
-                onChange={(e) => setName(e.target.value)}
+                value={inputs.name}
+                invalid={!inputs.name && submitted}
+                onChange={(e) => handleInput('name', e.target.value)}
               />
             </Col>
             <Col>
               <Label>Abbreviation</Label>
               <Input
-                value={abbr}
                 placeholder='Abbreviation'
-                invalid={!abbr && submitted}
-                onChange={(e) => setAbbr(e.target.value)}
+                value={inputs.abbr}
+                invalid={!inputs.abbr && submitted}
+                onChange={(e) => handleInput('abbr', e.target.value)}
               />
             </Col>
           </Row>
