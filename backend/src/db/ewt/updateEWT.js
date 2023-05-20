@@ -1,31 +1,35 @@
-const updateEWT = (dbPool, res, req) => {
+import dbQueryError from '../../error/dbQueryError';
+import dbQuery from '../../helper/dbQuery';
+import { numberInput, stringInput } from '../../helper/emptyToNull';
+
+const updateEWT = async (dbPool, res, req) => {
   if (!req?.params?.id) {
     res.send(
       JSON.stringify({ success: false, message: 'EWT id is not present' })
     );
-    return
+    return;
   }
 
   const data = req.body;
   const query = `
   UPDATE ewt
   SET
-    tax_type = "${data.taxType}",
-    description = "${data.description}",
-    tax_rate = ${data.taxRate},
-    atc = "${data.atc}"
+    tax_type = ${stringInput(data.taxType)},
+    description = ${stringInput(data.description)},
+    tax_rate = ${numberInput(data.taxRate)},
+    atc = ${stringInput(data.atc)}
   WHERE id = "${req.params.id}"
   `;
 
-  dbPool.query(query, (err, result) => {
-    if (err) {
-      const message = err?.sqlMessage || err;
-      console.error({ message, query });
-      res.send(JSON.stringify({ success: false, message }));
-    }
+  let result;
+  try {
+    result = await dbQuery(dbPool, query);
+  } catch (error) {
+    dbQueryError(res, error, query);
+    return;
+  }
 
-    res.send(JSON.stringify({ success: true, data: result }));
-  });
+  res.send(JSON.stringify({ success: true, result }));
 };
 
 export default updateEWT;

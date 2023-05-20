@@ -13,90 +13,66 @@ import {
 } from 'reactstrap';
 
 import { addEWT } from 'api/ewt';
+import defaultAlert from 'constants/defaultAlert';
+import useAlert from 'helper/useAlert';
+import confirmOnClose from 'helper/confirmOnClose';
 
-const Add = ({ onChange = () => {} }) => {
+const Add = ({ onChange, notify }) => {
+  const [alert, setAlert] = useState(defaultAlert);
+  const alertFn = useAlert(setAlert);
+
+  const [inputs, setInputs] = useState({});
+  const [isDirty, setIsDirty] = useState(false);
+  const handleInput = (name, value) => {
+    setIsDirty(true);
+    setInputs((prev) => ({ ...prev, [name]: value }));
+  };
+
   const [submitted, setSubmitted] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
-  const toggleModal = () => {
-    setTaxType(null);
-    setDescription(null);
-    setTaxRate(null);
-    setAtc(null);
-    onDismiss();
-    setSubmitted(false);
+  const cleanAndToggle = () => {
     setIsOpen((currState) => !currState);
+    setInputs({});
+    setIsDirty(false);
+    setSubmitted(false);
+    alertFn.dismiss();
+  };
+  const toggleModal = () => {
+    if (!confirmOnClose(isDirty)) return;
+    cleanAndToggle();
   };
 
-  const [taxType, setTaxType] = useState();
-  const [description, setDescription] = useState();
-  const [taxRate, setTaxRate] = useState();
-  const [atc, setAtc] = useState();
-
-  // Notification
-  const [notif, setNotif] = useState({
-    color: 'primary',
-    message: '',
-    visible: false
-  });
-
-  const onDismiss = () =>
-    setNotif({
-      color: 'primary',
-      message: '',
-      visible: false
-    });
-
-  const CheckContent = () => {
-    if (!taxType || !description || !atc) {
-      return true;
-    }
-
-    return false;
-  };
+  const CheckContent = () =>
+    !inputs.taxType || !inputs.description || !inputs.taxRate || !inputs.atc;
 
   const handleAdd = async () => {
     setSubmitted(true);
 
     if (CheckContent()) {
-      setNotif({
-        color: 'danger',
-        message: 'Complete all required fields',
-        visible: true
-      });
+      alertFn.danger('Complete all required fields');
       return;
     }
 
-    const data = {
-      taxType,
-      description,
-      taxRate: taxRate || 0,
-      atc
-    };
-
     let result;
     try {
-      result = await addEWT(data);
+      result = await addEWT(inputs);
     } catch (error) {
-      setNotif({
-        color: 'danger',
-        message: error,
-        visible: true
-      });
+      alertFn.danger(`Error occurred while adding ewt: ${result.message}`);
       return;
     }
 
     if (!result.success) {
-      setNotif({
-        color: 'danger',
-        message: result.message,
-        visible: true
-      });
+      alertFn.danger(`Error occurred while adding ewt: ${result.message}`);
       return;
     }
 
     onChange();
-
-    toggleModal();
+    notify(
+      'success',
+      'Successfully added bank account.',
+      'tim-icons icon-check-2'
+    );
+    cleanAndToggle();
   };
 
   return (
@@ -112,35 +88,39 @@ const Add = ({ onChange = () => {} }) => {
       <Modal isOpen={isOpen} toggle={toggleModal} size='xl'>
         <ModalHeader toggle={toggleModal}>Add EWT</ModalHeader>
         <ModalBody>
-          <Alert color={notif.color} isOpen={notif.visible} toggle={onDismiss}>
-            {notif.message}
+          <Alert
+            color={alert.color}
+            isOpen={alert.visible}
+            toggle={alertFn.dismiss}>
+            {alert.message}
           </Alert>
           <Row>
             <Col lg='4'>
               <Label>Tax Type</Label>
               <Input
-                value={taxType}
                 placeholder='Tax Type'
-                invalid={!taxType && submitted}
-                onChange={(e) => setTaxType(e.target.value)}
+                value={inputs.taxType}
+                invalid={!inputs.taxType && submitted}
+                onChange={(e) => handleInput('taxType', e.target.value)}
               />
             </Col>
             <Col lg='4'>
               <Label>Tax Rate (%)</Label>
               <Input
                 type='number'
-                defaultValue={taxRate}
                 placeholder='Tax Rate'
-                onChange={(e) => setTaxRate(e.target.value)}
+                value={inputs.taxRate}
+                invalid={!inputs.taxRate && submitted}
+                onChange={(e) => handleInput('taxRate', e.target.value)}
               />
             </Col>
             <Col lg='4'>
               <Label>Alphanumeric Tax Code</Label>
               <Input
-                defaultValue={atc}
                 placeholder='Alphanumeric Tax Code'
-                invalid={!atc && submitted}
-                onChange={(e) => setAtc(e.target.value)}
+                value={inputs.atc}
+                invalid={!inputs.atc && submitted}
+                onChange={(e) => handleInput('atc', e.target.value)}
               />
             </Col>
           </Row>
@@ -149,10 +129,10 @@ const Add = ({ onChange = () => {} }) => {
               <Label>Description</Label>
               <Input
                 type='textarea'
-                defaultValue={description}
                 placeholder='Description'
-                invalid={!description && submitted}
-                onChange={(e) => setDescription(e.target.value)}
+                value={inputs.description}
+                invalid={!inputs.description && submitted}
+                onChange={(e) => handleInput('description', e.target.value)}
               />
             </Col>
           </Row>

@@ -1,4 +1,8 @@
-const addEWT = (dbPool, res, req) => {
+import dbQueryError from '../../error/dbQueryError';
+import dbQuery from '../../helper/dbQuery';
+import { numberInput, stringInput } from '../../helper/emptyToNull';
+
+const addEWT = async (dbPool, res, req) => {
   const data = req.body;
   const query = `
   INSERT INTO ewt
@@ -7,24 +11,22 @@ const addEWT = (dbPool, res, req) => {
     description,
     tax_rate,
     atc
-    )
-    VALUES
-    (
-    "${data.taxType}",
-    "${data.description}",
-    ${data.taxRate},
-    "${data.atc}"
-    )`;
+    ) VALUES (
+    ${stringInput(data.taxType)},
+    ${stringInput(data.description)},
+    ${numberInput(data.taxRate)},
+    ${stringInput(data.atc)}
+  )`;
 
-  dbPool.query(query, (err, result) => {
-    if (err) {
-      const message = err?.sqlMessage || err;
-      console.error({ message, query });
-      res.send(JSON.stringify({ success: false, message }));
-    }
+  let result;
+  try {
+    result = await dbQuery(dbPool, query);
+  } catch (error) {
+    dbQueryError(res, error, query);
+    return;
+  }
 
-    res.send(JSON.stringify({ success: true, data: result }));
-  });
+  res.send(JSON.stringify({ success: true, result }));
 };
 
 export default addEWT;

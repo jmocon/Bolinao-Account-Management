@@ -19,13 +19,24 @@ import Add from './actions/Add';
 import View from './actions/View';
 import Update from './actions/Update';
 import Delete from './actions/Delete';
+import ReactNotificationAlert from 'react-notification-alert';
 
 const EWTs = () => {
   // DataTable
   const [rows, setRows] = useState([]);
   const columns = ['Tax Type', 'Description', 'Tax Rate', 'ATC', 'Actions'];
 
-  const handleNotify = () => {};
+  const notifyRef = React.useRef(null);
+  const handleNotify = (type, message, icon = 'tim-icons icon-bell-55') => {
+    const options = {
+      place: 'bc',
+      message,
+      type,
+      icon,
+      autoDismiss: 5
+    };
+    notifyRef.current.notificationAlert(options);
+  };
 
   // Modal
   const [itemId, setItemId] = useState();
@@ -59,7 +70,7 @@ const EWTs = () => {
               id={itemId}
               toggle={toggleModal}
               isOpen={modalState}
-              notif={handleNotify}
+              notify={handleNotify}
             />
           );
         case 'delete':
@@ -129,6 +140,7 @@ const EWTs = () => {
 
   return (
     <div className='content'>
+      <ReactNotificationAlert ref={notifyRef} />
       <Row>
         <Col md='12'>
           <Card>
@@ -138,7 +150,7 @@ const EWTs = () => {
                   <CardTitle tag='h4'>Expanded Withholding Tax</CardTitle>
                 </Col>
                 <Col className='text-right'>
-                  <Add onChange={fetchEWTs} />
+                  <Add onChange={fetchEWTs} notify={handleNotify} />
                 </Col>
               </Row>
             </CardHeader>
