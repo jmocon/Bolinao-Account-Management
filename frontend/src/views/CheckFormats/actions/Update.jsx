@@ -143,7 +143,7 @@ const Update = ({ id, isOpen, toggle, notify }) => {
             <Label>Name</Label>
             <Input
               placeholder='Name'
-              value={inputs.name}
+              value={inputs.name ?? ''}
               invalid={!inputs.name && submitted}
               onChange={(e) => handleInput('name', e.target.value)}
             />

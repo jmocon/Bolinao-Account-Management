@@ -105,7 +105,7 @@ const Add = ({ onChange, notify }) => {
               <Label>Name</Label>
               <Input
                 placeholder='Name'
-                value={inputs.name}
+                value={inputs.name ?? ''}
                 invalid={!inputs.name && submitted}
                 onChange={(e) => handleInput('name', e.target.value)}
               />
@@ -114,7 +114,7 @@ const Add = ({ onChange, notify }) => {
               <Label>Bank</Label>
               <BankDropdown
                 label='Bank'
-                value={inputs.bankId}
+                value={inputs.bankId ?? ''}
                 onChange={(e) => handleInput('bankId', e)}
               />
             </Col>
@@ -124,7 +124,7 @@ const Add = ({ onChange, notify }) => {
               <Label>Account Number</Label>
               <Input
                 placeholder='Account Number'
-                value={inputs.accountNumber}
+                value={inputs.accountNumber ?? ''}
                 invalid={!inputs.accountNumber && submitted}
                 onChange={(e) => handleInput('accountNumber', e.target.value)}
               />
@@ -133,7 +133,7 @@ const Add = ({ onChange, notify }) => {
               <Label>Account Name</Label>
               <Input
                 placeholder='Account Name'
-                value={inputs.accountName}
+                value={inputs.accountName ?? ''}
                 invalid={!inputs.accountName && submitted}
                 onChange={(e) => handleInput('accountName', e.target.value)}
               />

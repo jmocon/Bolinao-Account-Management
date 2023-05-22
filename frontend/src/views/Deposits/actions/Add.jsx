@@ -149,7 +149,7 @@ const Add = ({ onChange, notify }) => {
             <Col>
               <Label>Payee</Label>
               <Input
-                value={inputs.payee}
+                value={inputs.payee ?? ''}
                 placeholder='Payee'
                 invalid={!inputs.payee && submitted}
                 onChange={(e) => handleInput('payee', e.target.value)}
@@ -159,7 +159,7 @@ const Add = ({ onChange, notify }) => {
               <Label>Deposit Date</Label>
               <Input
                 type='date'
-                value={inputs.depositDate}
+                value={inputs.depositDate ?? ''}
                 placeholder='Deposit Date'
                 invalid={!inputs.depositDate && submitted}
                 onChange={(e) => handleInput('depositDate', e.target.value)}
@@ -169,7 +169,7 @@ const Add = ({ onChange, notify }) => {
               <Label>Amount</Label>
               <Input
                 type='number'
-                value={inputs.amount}
+                value={inputs.amount ?? ''}
                 placeholder='Amount'
                 invalid={!inputs.amount && submitted}
                 onChange={(e) => handleInput('amount', e.target.value)}
@@ -181,7 +181,7 @@ const Add = ({ onChange, notify }) => {
               <Label>Particular</Label>
               <Input
                 type='textarea'
-                value={inputs.particular}
+                value={inputs.particular ?? ''}
                 placeholder='Particular'
                 invalid={!inputs.particular && submitted}
                 onChange={(e) => handleInput('particular', e.target.value)}
@@ -215,7 +215,7 @@ const Add = ({ onChange, notify }) => {
                   <Label>Check Number</Label>
                   <Input
                     placeholder='Check Number'
-                    value={inputs.checkNumber}
+                    value={inputs.checkNumber ?? ''}
                     invalid={!inputs.checkNumber && submitted}
                     onChange={(e) => handleInput('checkNumber', e.target.value)}
                   />
@@ -225,7 +225,7 @@ const Add = ({ onChange, notify }) => {
                   <Input
                     type='date'
                     placeholder='Check Date'
-                    value={inputs.checkDate}
+                    value={inputs.checkDate ?? ''}
                     invalid={!inputs.checkDate && submitted}
                     onChange={(e) => handleInput('checkDate', e.target.value)}
                   />

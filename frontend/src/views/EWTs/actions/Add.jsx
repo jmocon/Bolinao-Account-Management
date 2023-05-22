@@ -99,7 +99,7 @@ const Add = ({ onChange, notify }) => {
               <Label>Tax Type</Label>
               <Input
                 placeholder='Tax Type'
-                value={inputs.taxType}
+                value={inputs.taxType ?? ''}
                 invalid={!inputs.taxType && submitted}
                 onChange={(e) => handleInput('taxType', e.target.value)}
               />
@@ -109,7 +109,7 @@ const Add = ({ onChange, notify }) => {
               <Input
                 type='number'
                 placeholder='Tax Rate'
-                value={inputs.taxRate}
+                value={inputs.taxRate ?? ''}
                 invalid={!inputs.taxRate && submitted}
                 onChange={(e) => handleInput('taxRate', e.target.value)}
               />
@@ -118,7 +118,7 @@ const Add = ({ onChange, notify }) => {
               <Label>Alphanumeric Tax Code</Label>
               <Input
                 placeholder='Alphanumeric Tax Code'
-                value={inputs.atc}
+                value={inputs.atc ?? ''}
                 invalid={!inputs.atc && submitted}
                 onChange={(e) => handleInput('atc', e.target.value)}
               />
@@ -130,7 +130,7 @@ const Add = ({ onChange, notify }) => {
               <Input
                 type='textarea'
                 placeholder='Description'
-                value={inputs.description}
+                value={inputs.description ?? ''}
                 invalid={!inputs.description && submitted}
                 onChange={(e) => handleInput('description', e.target.value)}
               />

@@ -109,7 +109,7 @@ const Update = ({ id, isOpen, toggle, notify }) => {
             <Label>Code</Label>
             <Input
               placeholder='Code'
-              value={inputs.code}
+              value={inputs.code ?? ''}
               invalid={!inputs.code && submitted}
               onChange={(e) => handleInput('code', e.target.value)}
             />
@@ -118,7 +118,7 @@ const Update = ({ id, isOpen, toggle, notify }) => {
             <Label>Name</Label>
             <Input
               placeholder='Name'
-              value={inputs.name}
+              value={inputs.name ?? ''}
               invalid={!inputs.name && submitted}
               onChange={(e) => handleInput('name', e.target.value)}
             />
@@ -127,7 +127,7 @@ const Update = ({ id, isOpen, toggle, notify }) => {
             <Label>TIN</Label>
             <Input
               placeholder='TIN'
-              value={inputs.tin}
+              value={inputs.tin ?? ''}
               invalid={!inputs.tin && submitted}
               onChange={(e) => handleInput('tin', e.target.value)}
             />
@@ -139,7 +139,7 @@ const Update = ({ id, isOpen, toggle, notify }) => {
             <Input
               type='textarea'
               placeholder='Address'
-              value={inputs.address}
+              value={inputs.address ?? ''}
               invalid={!inputs.address && submitted}
               onChange={(e) => handleInput('address', e.target.value)}
             />

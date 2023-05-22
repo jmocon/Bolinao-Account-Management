@@ -101,7 +101,7 @@ const Update = ({ id, isOpen, toggle, notify }) => {
             <Label>Name</Label>
             <Input
               placeholder='Name'
-              value={inputs.name}
+              value={inputs.name ?? ''}
               invalid={!inputs.name && submitted}
               onChange={(e) => handleInput('name', e.target.value)}
             />
@@ -110,7 +110,7 @@ const Update = ({ id, isOpen, toggle, notify }) => {
             <Label>Abbreviation</Label>
             <Input
               placeholder='Abbreviation'
-              value={inputs.abbr}
+              value={inputs.abbr ?? ''}
               invalid={!inputs.abbr && submitted}
               onChange={(e) => handleInput('abbr', e.target.value)}
             />
