@@ -13,36 +13,36 @@ import {
 } from 'reactstrap';
 
 import { addItemCode } from 'api/itemCode';
+import defaultAlert from 'constants/defaultAlert';
+import useAlert from 'helper/useAlert';
+import confirmOnClose from 'helper/confirmOnClose';
 
 const Add = ({ onChange, notify }) => {
+  const [alert, setAlert] = useState(defaultAlert);
+  const alertFn = useAlert(setAlert);
+
+  const [inputs, setInputs] = useState({});
+  const [isDirty, setIsDirty] = useState(false);
+  const handleInput = (name, value) => {
+    setIsDirty(true);
+    setInputs((prev) => ({ ...prev, [name]: value }));
+  };
+
   const [submitted, setSubmitted] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
-  const toggleModal = () => {
-    setName('');
-    onDismiss();
-    setSubmitted(false);
+  const cleanAndToggle = () => {
     setIsOpen((currState) => !currState);
+    setInputs({});
+    setIsDirty(false);
+    setSubmitted(false);
+    alertFn.dismiss();
+  };
+  const toggleModal = () => {
+    if (!confirmOnClose(isDirty)) return;
+    cleanAndToggle();
   };
 
-  const [name, setName] = useState();
-
-  // Notification
-  const [alert, setAlert] = useState({
-    color: 'primary',
-    message: '',
-    visible: false
-  });
-
-  const onDismiss = () =>
-    setAlert({
-      color: 'primary',
-      message: '',
-      visible: false
-    });
-
-  const CheckContent = () => {
-    return !name;
-  };
+  const CheckContent = () => !inputs.name;
 
   const handleAdd = async () => {
     setSubmitted(true);
@@ -56,32 +56,30 @@ const Add = ({ onChange, notify }) => {
       return;
     }
 
-    const data = { name };
-
     let result;
     try {
-      result = await addItemCode(data);
+      result = await addItemCode(inputs);
     } catch (error) {
-      setAlert({
-        color: 'danger',
-        message: error,
-        visible: true
-      });
+      alertFn.danger(
+        `Error occurred while adding item code: ${result.message}`
+      );
       return;
     }
 
     if (!result.success) {
-      setAlert({
-        color: 'danger',
-        message: result.message,
-        visible: true
-      });
+      alertFn.danger(
+        `Error occurred while adding item code: ${result.message}`
+      );
       return;
     }
 
     onChange();
-    notify('success', 'Successfully added itemCode.', 'tim-icons icon-check-2');
-    toggleModal();
+    notify(
+      'success',
+      'Successfully added item code.',
+      'tim-icons icon-check-2'
+    );
+    cleanAndToggle();
   };
 
   return (
@@ -97,17 +95,20 @@ const Add = ({ onChange, notify }) => {
       <Modal isOpen={isOpen} toggle={toggleModal} size='xl'>
         <ModalHeader toggle={toggleModal}>Add Item Code</ModalHeader>
         <ModalBody>
-          <Alert color={alert.color} isOpen={alert.visible} toggle={onDismiss}>
+          <Alert
+            color={alert.color}
+            isOpen={alert.visible}
+            toggle={alertFn.dismiss}>
             {alert.message}
           </Alert>
           <Row>
             <Col>
               <Label>Name</Label>
               <Input
-                value={name}
                 placeholder='Name'
-                invalid={!name && submitted}
-                onChange={(e) => setName(e.target.value)}
+                value={inputs.name}
+                invalid={!inputs.name && submitted}
+                onChange={(e) => handleInput('name', e.target.value)}
               />
             </Col>
           </Row>

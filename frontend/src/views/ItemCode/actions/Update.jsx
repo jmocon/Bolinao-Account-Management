@@ -12,39 +12,46 @@ import {
   Alert
 } from 'reactstrap';
 import { getItemCode, updateItemCode } from 'api/itemCode';
+import defaultAlert from 'constants/defaultAlert';
+import useAlert from 'helper/useAlert';
+import confirmOnClose from 'helper/confirmOnClose';
 
 const Update = ({ id, isOpen, toggle, notify }) => {
-  const [name, setName] = useState('');
+  const [alert, setAlert] = useState(defaultAlert);
+  const alertFn = useAlert(setAlert);
 
   const [submitted, setSubmitted] = useState(false);
+  const [isDirty, setIsDirty] = useState(false);
+  const [inputs, setInputs] = useState({});
+  const handleInput = (name, value) => {
+    setIsDirty(true);
+    setInputs((prev) => ({ ...prev, [name]: value }));
+  };
 
-  // Notification
-  const [alert, setAlert] = useState({
-    color: 'primary',
-    message: '',
-    visible: false
-  });
-  const onDismiss = () =>
-    setAlert({
-      color: 'primary',
-      message: '',
-      visible: false
-    });
+  const toggleModal = () => {
+    if (!confirmOnClose(isDirty)) {
+      return;
+    }
+
+    setInputs({});
+    setIsDirty(false);
+    toggle();
+  };
 
   useEffect(() => {
     const fetchData = async () => {
-      let itemCode = {};
+      let result = {};
       try {
-        itemCode = await getItemCode(id);
+        result = await getItemCode(id);
       } catch (error) {
         setAlert({
           color: 'danger',
-          message: `Error while fetching ItemCode: ${error}`,
+          message: `Error while fetching item code: ${error}`,
           visible: true
         });
       }
 
-      setName(itemCode.name);
+      setInputs(result);
     };
 
     if (id) {
@@ -52,50 +59,34 @@ const Update = ({ id, isOpen, toggle, notify }) => {
     }
   }, [id]);
 
-  const CheckContent = () => {
-    return !name;
-  };
+  const CheckContent = () => !inputs.name;
 
   const handleUpdate = async () => {
     setSubmitted(true);
 
     if (CheckContent()) {
-      setAlert({
-        color: 'danger',
-        message: 'Complete all required fields',
-        visible: true
-      });
+      alertFn.danger('Complete all required fields');
       return;
     }
 
-    const data = {
-      name
-    };
-
     let result;
     try {
-      result = await updateItemCode(id, data);
+      result = await updateItemCode(id, inputs);
     } catch (error) {
-      setAlert({
-        color: 'danger',
-        message: error,
-        visible: true
-      });
+      alertFn.danger(`Error occurred while updating item code: ${error}`);
       return;
     }
 
     if (!result.success) {
-      setAlert({
-        color: 'danger',
-        message: result.message,
-        visible: true
-      });
+      alertFn.danger(
+        `Error occurred while updating item code: ${result.message}`
+      );
       return;
     }
 
     notify(
       'success',
-      'Successfully updated itemCode.',
+      'Successfully updated item code.',
       'tim-icons icon-check-2'
     );
 
@@ -103,20 +94,23 @@ const Update = ({ id, isOpen, toggle, notify }) => {
   };
 
   return (
-    <Modal isOpen={isOpen} toggle={toggle} size='xl'>
-      <ModalHeader toggle={toggle}>Update Item Code</ModalHeader>
+    <Modal isOpen={isOpen} toggle={toggleModal} size='xl'>
+      <ModalHeader toggle={toggleModal}>Update Item Code</ModalHeader>
       <ModalBody>
-        <Alert color={alert.color} isOpen={alert.visible} toggle={onDismiss}>
+        <Alert
+          color={alert.color}
+          isOpen={alert.visible}
+          toggle={alertFn.dismiss}>
           {alert.message}
         </Alert>
         <Row>
           <Col>
             <Label>Name</Label>
             <Input
-              value={name}
+              value={inputs.name}
               placeholder='Name'
-              invalid={!name && submitted}
-              onChange={(e) => setName(e.target.value)}
+              invalid={!inputs.name && submitted}
+              onChange={(e) => handleInput('name', e.target.value)}
             />
           </Col>
         </Row>
@@ -125,7 +119,7 @@ const Update = ({ id, isOpen, toggle, notify }) => {
         <Button color='info' onClick={handleUpdate} className='mr-2'>
           Update
         </Button>
-        <Button color='default' onClick={toggle}>
+        <Button color='default' onClick={toggleModal}>
           Cancel
         </Button>
       </ModalFooter>
