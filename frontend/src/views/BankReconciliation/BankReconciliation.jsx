@@ -21,9 +21,12 @@ const BankReconciliation = () => {
   const notifyRef = useRef(null);
   const [filter, setFilter] = useState({});
   const [data, setData] = useState({});
+  const [total, setTotal] = useState({ deposit: 0, withdrawal: 0 });
 
   useEffect(() => {
     const fetchData = async () => {
+      let deposit = 0;
+      let withdrawal = 0;
       let result;
       try {
         result = await getBankReconciliation(filter);
@@ -40,6 +43,7 @@ const BankReconciliation = () => {
 
         tempAgg[curr.clearedDate].deposit =
           tempAgg[curr.clearedDate].deposit + curr.amount;
+        deposit = deposit + curr.amount;
 
         return tempAgg;
       }, {});
@@ -59,11 +63,15 @@ const BankReconciliation = () => {
 
         tempAgg[curr.clearedDate].withdrawal =
           tempAgg[curr.clearedDate].withdrawal + net;
+          console.log(withdrawal)
+          console.log(net)
+        withdrawal = withdrawal + net;
 
         return tempAgg;
       }, formattedDeposit);
 
       setData(formatted);
+      setTotal({ deposit, withdrawal });
     };
 
     if (filter.startDate && filter.startDate && filter.bankAccountId) {
@@ -139,6 +147,13 @@ const BankReconciliation = () => {
                     </tr>
                   ))}
                 </tbody>
+                <thead>
+                  <tr>
+                    <td>Total</td>
+                    <td>{numberToCurrency(total.deposit)}</td>
+                    <td>{numberToCurrency(total.withdrawal)}</td>
+                  </tr>
+                </thead>
               </Table>
             </Col>
           </Row>
