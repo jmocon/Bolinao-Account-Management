@@ -17,6 +17,9 @@ import {
 import { addCheckFormat } from 'api/checkFormat';
 import BankDropdown from 'components/Dropdown/BankDropdown';
 import { checkFormatTypeLabel } from 'constants/checkFormatType';
+import confirmOnClose from 'helper/confirmOnClose';
+import useAlert from 'helper/useAlert';
+import defaultAlert from 'constants/defaultAlert';
 
 const DEFAULT_POSITION = {
   checkDate: { x: 0, y: 0 },
@@ -27,71 +30,54 @@ const DEFAULT_POSITION = {
 };
 
 const Add = ({ onChange, notify }) => {
+  const [alert, setAlert] = useState(defaultAlert);
+  const alertFn = useAlert(setAlert);
+
+  const [inputs, setInputs] = useState({});
+  const [position, setPosition] = useState(DEFAULT_POSITION);
+  const [isDirty, setIsDirty] = useState(false);
+  const handleInput = (name, value) => {
+    setIsDirty(true);
+    setInputs((prev) => ({ ...prev, [name]: value }));
+  };
+
   const [submitted, setSubmitted] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
-  const toggleModal = () => {
-    setName('');
-    setBankId('');
-    setPosition(DEFAULT_POSITION);
-    onDismiss();
-    setSubmitted(false);
+  const cleanAndToggle = () => {
     setIsOpen((currState) => !currState);
+    setInputs({});
+    setIsDirty(false);
+    setSubmitted(false);
+    setPosition(DEFAULT_POSITION);
+    alertFn.dismiss();
+  };
+  const toggleModal = () => {
+    if (!confirmOnClose(isDirty)) return;
+    cleanAndToggle();
   };
 
-  const [name, setName] = useState();
-  const [bankId, setBankId] = useState();
-  const [position, setPosition] = useState(DEFAULT_POSITION);
-
-  // Notification
-  const [alert, setAlert] = useState({
-    color: 'primary',
-    message: '',
-    visible: false
-  });
-
-  const onDismiss = () =>
-    setAlert({
-      color: 'primary',
-      message: '',
-      visible: false
-    });
-
-  const CheckContent = () => {
-    return !name || !bankId;
-  };
+  const CheckContent = () => !inputs.name || !inputs.bankId;
 
   const handleAdd = async () => {
     setSubmitted(true);
 
     if (CheckContent()) {
-      setAlert({
-        color: 'danger',
-        message: 'Complete all required fields',
-        visible: true
-      });
+      alertFn.danger('Complete all required fields');
       return;
     }
 
-    const data = { name, bankId, position };
-
     let result;
     try {
-      result = await addCheckFormat(data);
+      result = await addCheckFormat({ ...inputs, position });
     } catch (error) {
-      setAlert({
-        color: 'danger',
-        message: error.message,
-        visible: true
-      });
+      alertFn.danger(`Error occurred while adding check format: ${error}`);
       return;
     }
 
     if (!result.success) {
-      setAlert({
-        color: 'danger',
-        message: result.message,
-        visible: true
-      });
+      alertFn.danger(
+        `Error occurred while adding check format: ${result.message}`
+      );
       return;
     }
 
@@ -101,7 +87,7 @@ const Add = ({ onChange, notify }) => {
       'Successfully added check format.',
       'tim-icons icon-check-2'
     );
-    toggleModal();
+    cleanAndToggle();
   };
 
   const handlePosition = (type, direction, value) => {
@@ -124,26 +110,29 @@ const Add = ({ onChange, notify }) => {
       <Modal isOpen={isOpen} toggle={toggleModal} size='xl'>
         <ModalHeader toggle={toggleModal}>Add Check Format</ModalHeader>
         <ModalBody>
-          <Alert color={alert.color} isOpen={alert.visible} toggle={onDismiss}>
+          <Alert
+            color={alert.color}
+            isOpen={alert.visible}
+            toggle={alertFn.dismiss}>
             {alert.message}
           </Alert>
           <Row className='mb-2'>
             <Col>
               <Label>Bank</Label>
               <BankDropdown
-                value={bankId}
                 label='Bank'
-                invalid={!bankId && submitted}
-                onChange={setBankId}
+                value={inputs.bankId}
+                invalid={!inputs.bankId && submitted}
+                onChange={(e) => handleInput('bankId', e)}
               />
             </Col>
             <Col>
               <Label>Name</Label>
               <Input
-                value={name}
                 placeholder='Name'
-                invalid={!name && submitted}
-                onChange={(e) => setName(e.target.value)}
+                value={inputs.name}
+                invalid={!inputs.name && submitted}
+                onChange={(e) => handleInput('name', e.target.value)}
               />
             </Col>
           </Row>

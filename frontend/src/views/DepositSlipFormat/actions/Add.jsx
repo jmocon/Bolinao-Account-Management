@@ -17,73 +17,60 @@ import BankDropdown from 'components/Dropdown/BankDropdown';
 import InputFormat from '../components/InputFormat';
 import InputFormatXY from '../components/InputFormatXY';
 import depositSlipPlaceHolder from '../constant/depositSlipPlaceholder';
+import defaultAlert from 'constants/defaultAlert';
+import useAlert from 'helper/useAlert';
+import confirmOnClose from 'helper/confirmOnClose';
+
 
 const Add = ({ onChange, notify }) => {
+  const [alert, setAlert] = useState(defaultAlert);
+  const alertFn = useAlert(setAlert);
+
+  const [inputs, setInputs] = useState({});
+  const [position, setPosition] = useState({});
+  const [isDirty, setIsDirty] = useState(false);
+  const handleInput = (name, value) => {
+    setIsDirty(true);
+    setInputs((prev) => ({ ...prev, [name]: value }));
+  };
+
   const [submitted, setSubmitted] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
-  const toggleModal = () => {
-    setName('');
-    setBankId('');
-    setPosition({});
-    onDismiss();
-    setSubmitted(false);
+  const cleanAndToggle = () => {
     setIsOpen((currState) => !currState);
+    setInputs({});
+    setIsDirty(false);
+    setSubmitted(false);
+    setPosition({});
+    alertFn.dismiss();
+  };
+  const toggleModal = () => {
+    if (!confirmOnClose(isDirty)) return;
+    cleanAndToggle();
   };
 
-  const [name, setName] = useState();
-  const [bankId, setBankId] = useState();
-  const [position, setPosition] = useState({});
-
-  // Notification
-  const [alert, setAlert] = useState({
-    color: 'primary',
-    message: '',
-    visible: false
-  });
-
-  const onDismiss = () =>
-    setAlert({
-      color: 'primary',
-      message: '',
-      visible: false
-    });
-
-  const CheckContent = () => {
-    return !name || !bankId;
-  };
+  const CheckContent = () => !inputs.name || !inputs.bankId;
 
   const handleAdd = async () => {
     setSubmitted(true);
 
     if (CheckContent()) {
-      setAlert({
-        color: 'danger',
-        message: 'Complete all required fields',
-        visible: true
-      });
+      alertFn.danger('Complete all required fields');
       return;
     }
 
-    const data = { name, bankId, position };
-
     let result;
     try {
-      result = await addDepositSlipFormat(data);
+      result = await addDepositSlipFormat({ ...inputs, position });
     } catch (error) {
-      setAlert({
-        color: 'danger',
-        message: error.message,
-        visible: true
-      });
+      alertFn.danger(`Error occurred while adding deposit slip: ${error}`);
       return;
     }
 
     if (!result.success) {
-      setAlert({
-        color: 'danger',
-        message: result.message,
-        visible: true
-      });
+      alertFn.danger(
+        `Error occurred while adding deposit slip: ${result.message}`
+      );
       return;
     }
 
@@ -93,7 +80,7 @@ const Add = ({ onChange, notify }) => {
       'Successfully added deposit slip format.',
       'tim-icons icon-check-2'
     );
-    toggleModal();
+    cleanAndToggle();
   };
 
   const handlePosition = (type, direction, value) => {
@@ -116,26 +103,29 @@ const Add = ({ onChange, notify }) => {
       <Modal isOpen={isOpen} toggle={toggleModal} size='fullscreen'>
         <ModalHeader toggle={toggleModal}>Add Deposit Slip Format</ModalHeader>
         <ModalBody>
-          <Alert color={alert.color} isOpen={alert.visible} toggle={onDismiss}>
+          <Alert
+            color={alert.color}
+            isOpen={alert.visible}
+            toggle={alertFn.dismiss}>
             {alert.message}
           </Alert>
           <Row className='mb-2'>
             <Col>
               <Label>Bank</Label>
               <BankDropdown
-                value={bankId}
                 label='Bank'
-                invalid={!bankId && submitted}
-                onChange={setBankId}
+                value={inputs.bankId}
+                invalid={!inputs.bankId && submitted}
+                onChange={(e) => handleInput('bankId', e)}
               />
             </Col>
             <Col>
               <Label>Name</Label>
               <Input
-                value={name}
                 placeholder='Name'
-                invalid={!name && submitted}
-                onChange={(e) => setName(e.target.value)}
+                value={inputs.name}
+                invalid={!inputs.name && submitted}
+                onChange={(e) => handleInput('name', e.target.value)}
               />
             </Col>
           </Row>

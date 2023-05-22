@@ -48,11 +48,7 @@ const Add = ({ onChange, notify }) => {
     setSubmitted(true);
 
     if (CheckContent()) {
-      setAlert({
-        color: 'danger',
-        message: 'Complete all required fields',
-        visible: true
-      });
+      alertFn.danger('Complete all required fields');
       return;
     }
 

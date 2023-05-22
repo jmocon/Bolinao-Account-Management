@@ -16,32 +16,40 @@ import {
 import { getCheckFormat, updateCheckFormat } from 'api/checkFormat';
 import BankDropdown from 'components/Dropdown/BankDropdown';
 import { checkFormatTypeLabel } from 'constants/checkFormatType';
+import defaultAlert from 'constants/defaultAlert';
+import useAlert from 'helper/useAlert';
+import confirmOnClose from 'helper/confirmOnClose';
+
+const DEFAULT_POSITION = {
+  checkDate: { x: 0, y: 0 },
+  checkPayee: { x: 0, y: 0 },
+  amount: { x: 0, y: 0 },
+  amountInWords: { x: 0, y: 0 },
+  voucherCode: { x: 0, y: 0 }
+};
 
 const Update = ({ id, isOpen, toggle, notify }) => {
-  const [name, setName] = useState('');
-  const [bankId, setBankId] = useState();
-  const [position, setPosition] = useState({
-    checkDate: { x: 0, y: 0 },
-    checkPayee: { x: 0, y: 0 },
-    amount: { x: 0, y: 0 },
-    amountInWords: { x: 0, y: 0 },
-    voucherCode: { x: 0, y: 0 }
-  });
+  const [alert, setAlert] = useState(defaultAlert);
+  const alertFn = useAlert(setAlert);
 
   const [submitted, setSubmitted] = useState(false);
+  const [isDirty, setIsDirty] = useState(false);
+  const [position, setPosition] = useState(DEFAULT_POSITION);
+  const [inputs, setInputs] = useState({});
+  const handleInput = (name, value) => {
+    setIsDirty(true);
+    setInputs((prev) => ({ ...prev, [name]: value }));
+  };
 
-  // Notification
-  const [alert, setAlert] = useState({
-    color: 'primary',
-    message: '',
-    visible: false
-  });
-  const onDismiss = () =>
-    setAlert({
-      color: 'primary',
-      message: '',
-      visible: false
-    });
+  const toggleModal = () => {
+    if (!confirmOnClose(isDirty)) {
+      return;
+    }
+
+    setInputs({});
+    setIsDirty(false);
+    toggle();
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -56,8 +64,7 @@ const Update = ({ id, isOpen, toggle, notify }) => {
         });
       }
 
-      setName(result.check[0].name);
-      setBankId(result.check[0].bankId);
+      setInputs(result.check[0]);
       setPosition(
         result.checkFormat.reduce(
           (agg, curr) => ({ ...agg, [curr.type]: { x: curr.x, y: curr.y } }),
@@ -71,42 +78,28 @@ const Update = ({ id, isOpen, toggle, notify }) => {
     }
   }, [id]);
 
-  const CheckContent = () => {
-    return !name || !bankId;
-  };
+  const CheckContent = () => !inputs.name || !inputs.bankId;
 
   const handleUpdate = async () => {
     setSubmitted(true);
 
     if (CheckContent()) {
-      setAlert({
-        color: 'danger',
-        message: 'Complete all required fields',
-        visible: true
-      });
+      alertFn.danger('Complete all required fields');
       return;
     }
 
-    const data = { name, bankId, position };
-
     let result;
     try {
-      result = await updateCheckFormat(id, data);
+      result = await updateCheckFormat(id, { ...inputs, position });
     } catch (error) {
-      setAlert({
-        color: 'danger',
-        message: error.message,
-        visible: true
-      });
+      alertFn.danger(`Error occurred while updating check format: ${error}`);
       return;
     }
 
     if (!result.success) {
-      setAlert({
-        color: 'danger',
-        message: result.message,
-        visible: true
-      });
+      alertFn.danger(
+        `Error occurred while updating check format: ${result.message}`
+      );
       return;
     }
 
@@ -127,29 +120,32 @@ const Update = ({ id, isOpen, toggle, notify }) => {
   };
 
   return (
-    <Modal isOpen={isOpen} toggle={toggle} size='xl'>
-      <ModalHeader toggle={toggle}>Update Check Format</ModalHeader>
+    <Modal isOpen={isOpen} toggle={toggleModal} size='xl'>
+      <ModalHeader toggle={toggleModal}>Update Check Format</ModalHeader>
       <ModalBody>
-        <Alert color={alert.color} isOpen={alert.visible} toggle={onDismiss}>
+        <Alert
+          color={alert.color}
+          isOpen={alert.visible}
+          toggle={alertFn.dismiss}>
           {alert.message}
         </Alert>
         <Row>
           <Col>
             <Label>Bank</Label>
             <BankDropdown
-              value={bankId}
               label='Bank'
-              invalid={!bankId && submitted}
-              onChange={setBankId}
+              value={inputs.bankId}
+              invalid={!inputs.bankId && submitted}
+              onChange={(e) => handleInput('bankId', e)}
             />
           </Col>
           <Col>
             <Label>Name</Label>
             <Input
-              value={name}
               placeholder='Name'
-              invalid={!name && submitted}
-              onChange={(e) => setName(e.target.value)}
+              value={inputs.name}
+              invalid={!inputs.name && submitted}
+              onChange={(e) => handleInput('name', e.target.value)}
             />
           </Col>
         </Row>
@@ -300,7 +296,7 @@ const Update = ({ id, isOpen, toggle, notify }) => {
         <Button color='info' onClick={handleUpdate} className='mr-2'>
           Update
         </Button>
-        <Button color='default' onClick={toggle}>
+        <Button color='default' onClick={toggleModal}>
           Cancel
         </Button>
       </ModalFooter>
