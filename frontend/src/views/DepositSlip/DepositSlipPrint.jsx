@@ -84,17 +84,23 @@ const DepositSlipPrint = () => {
       const formatId = queryParams.get('depositSlipFormatId');
       const result = await getDepositSlipFormat(formatId);
 
-      const layout = result.layout.reduce(
+      const rLayout = result.layout.reduce(
         (agg, curr) => ({ ...agg, [curr.type]: curr }),
         {}
       );
 
-      setLayout(layout);
+      setLayout(rLayout);
     };
     fetchData();
   }, [searchParams]);
 
-  const currencyFormat = ['cashAmount', 'checkAmount'];
+  const currencyFormat = [
+    'cashAmount',
+    'cashTotal',
+    'checkAmount',
+    'checkTotal',
+    'grandTotal'
+  ];
 
   return (
     <div
@@ -127,10 +133,12 @@ const DepositSlipPrint = () => {
                       marginBottom: value?.margin && `${value?.margin}px`,
                       listStyleType: 'none'
                     }}>
-                    {currencyFormat.includes(key) ? numberToDecimal(ph) : ph}{console.log(ph,key)}
+                    {currencyFormat.includes(key) ? numberToDecimal(ph) : ph}
                   </li>
                 ))}
               </ul>
+            ) : currencyFormat.includes(key) ? (
+              numberToDecimal(details[key])
             ) : (
               details[key]
             )}
