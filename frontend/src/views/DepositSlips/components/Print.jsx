@@ -65,7 +65,7 @@ const Print = ({ depositSlipId, notify }) => {
         Print Deposit Slip
       </Button>
       <Modal isOpen={isOpen} toggle={toggleModal} size='xl'>
-        <ModalHeader toggle={toggleModal}>Add Deposit Slip</ModalHeader>
+        <ModalHeader toggle={toggleModal}>Print Deposit Slip</ModalHeader>
         <ModalBody>
           <Alert color={alert.color} isOpen={alert.visible} toggle={onDismiss}>
             {alert.message}

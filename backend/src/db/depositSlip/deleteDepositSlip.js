@@ -9,23 +9,27 @@ const deleteDepositSlip = async (dbPool, res, req) => {
     dsResult = await dbQuery(dbPool, dsQuery);
   } catch (error) {
     dbQueryError(res, error, dsQuery);
+    return
   }
 
   const dscQuery = `
   DELETE FROM deposit_slip_content 
   WHERE deposit_slips_id = ${req.params.id}`;
 
-  console.log(dsQuery)
-  console.log(dscQuery)
-
   let dscResult;
   try {
     dscResult = await dbQuery(dbPool, dscQuery);
   } catch (error) {
     dbQueryError(res, error, dscQuery);
+    return
   }
 
-  res.send(JSON.stringify({ success: true, data: dsResult }));
+  res.send(
+    JSON.stringify({
+      success: true,
+      data: { depositSlip: dsResult, depositSlipContent: dscResult }
+    })
+  );
 };
 
 export default deleteDepositSlip;

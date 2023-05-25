@@ -3,9 +3,10 @@ import dbQuery from '../../helper/dbQuery';
 
 const addDepositSlip = async (dbPool, res, req) => {
   const data = req.body;
+  const depositSlipsId = req.params.id
   const dsQuery = `
-    DELETE FROM deposit_slip_content 
-    WHERE deposit_id = ${req.params.id}
+    DELETE FROM deposit_slip_content
+    WHERE deposit_slips_id = ${depositSlipsId}
   `;
 
   let dsResult;
@@ -22,7 +23,7 @@ const addDepositSlip = async (dbPool, res, req) => {
       deposit_slips_id,
       deposit_id
     ) VALUES (
-      ${dsResult.insertId},
+      ${depositSlipsId},
       ${id}
     )`;
 

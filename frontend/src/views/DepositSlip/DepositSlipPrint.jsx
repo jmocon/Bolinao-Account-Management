@@ -5,6 +5,7 @@ import { useLocation, useParams } from 'react-router-dom';
 import depositSlipPlaceHolder from 'views/DepositSlipFormat/constant/depositSlipPlaceholder';
 import { getDepositSlipFormat } from 'api/depositSlipFormat';
 import { modeOfPaymentValues } from 'constants/modeOfPayments';
+import numberToDecimal from 'helper/numberToDecimal';
 
 const DepositSlipPrint = () => {
   const { depositSlipId } = useParams();
@@ -43,7 +44,7 @@ const DepositSlipPrint = () => {
       const formatted = deposits.reduce(
         (agg, curr) => {
           const temp = { ...agg };
-          temp.grandTotal = temp.grandTotal + curr.amount; 
+          temp.grandTotal = temp.grandTotal + curr.amount;
           temp.accountNumber = curr.bankAccountAccountNumber;
           temp.accountName = curr.bankAccountAccountName;
 
@@ -93,6 +94,8 @@ const DepositSlipPrint = () => {
     fetchData();
   }, [searchParams]);
 
+  const currencyFormat = ['cashAmount', 'checkAmount'];
+
   return (
     <div
       style={{
@@ -124,7 +127,7 @@ const DepositSlipPrint = () => {
                       marginBottom: value?.margin && `${value?.margin}px`,
                       listStyleType: 'none'
                     }}>
-                    {ph}
+                    {currencyFormat.includes(key) ? numberToDecimal(ph) : ph}{console.log(ph,key)}
                   </li>
                 ))}
               </ul>
