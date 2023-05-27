@@ -7,6 +7,7 @@ import getDepositSlips from '../db/depositSlip/getDepositSlips';
 import addDepositSlip from '../db/depositSlip/addDepositSlip';
 import updateDepositSlip from '../db/depositSlip/updateDepositSlip';
 import deleteDepositSlip from '../db/depositSlip/deleteDepositSlip';
+import updateDepositSlipPrintDate from '../db/depositSlip/updateDepositSlipPrintDate';
 
 const router = express.Router();
 const dbPool = getDbPool();
@@ -19,6 +20,9 @@ router.get('/', async (req, res) => {
 });
 router.post('/', async (req, res) => {
   await addDepositSlip(dbPool, res, req);
+});
+router.put('/print/:id', async (req, res) => {
+  await updateDepositSlipPrintDate(dbPool, res, req);
 });
 router.put('/:id', async (req, res) => {
   await updateDepositSlip(dbPool, res, req);

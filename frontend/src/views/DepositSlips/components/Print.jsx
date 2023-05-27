@@ -1,3 +1,4 @@
+import { updateDepositSlipPrintDate } from 'api/depositSlip';
 import DepositSlipFormatDropdown from 'components/Dropdown/DepositSlipFormatDropdown';
 import { useState } from 'react';
 import {
@@ -38,12 +39,13 @@ const Print = ({ depositSlipId, notify }) => {
 
   const handlePrint = async () => {
     try {
+      await updateDepositSlipPrintDate(depositSlipId);
     } catch (error) {
-      notify(
-        'danger',
-        'Error occurred while printing.',
-        'tim-icons icon-check-2'
-      );
+      setAlert({
+        color: 'danger',
+        message: error,
+        visible: false
+      });
 
       return;
     }

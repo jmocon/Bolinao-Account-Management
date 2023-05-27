@@ -27,6 +27,7 @@ const addDepositSlip = async (dbPool, res, req) => {
       dscResult = await dbQuery(dbPool, dscQuery);
     } catch (error) {
       dbQueryError(res, error, dscQuery);
+      return;
     }
   }
 

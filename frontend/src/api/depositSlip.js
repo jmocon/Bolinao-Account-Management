@@ -56,6 +56,17 @@ export const addDepositSlip = async (data) => {
   return response.data;
 };
 
+export const updateDepositSlipPrintDate = async (id) => {
+  let response;
+  try {
+    response = await axios.put(`${DEFAULT_ROUTE}/print/${id}`);
+  } catch (error) {
+    throw new Error(`Error occurred while updating deposit slip print date: ${error}`);
+  }
+
+  return response.data;
+};
+
 export const updateDepositSlip = async (id, data) => {
   let response;
   try {
