@@ -72,6 +72,28 @@ export const updateUser = async (id, data) => {
   return response.data;
 };
 
+export const resetPassword = async (id, data) => {
+  let response;
+  try {
+    response = await axios.put(`${DEFAULT_ROUTE}/resetpassword/${id}`, data);
+  } catch (error) {
+    throw new Error(`Error occurred while updating user: ${error}`);
+  }
+
+  return response.data;
+};
+
+export const updatePassword = async (id, data) => {
+  let response;
+  try {
+    response = await axios.put(`${DEFAULT_ROUTE}/updatePassword/${id}`, data);
+  } catch (error) {
+    throw new Error(`Error occurred while updating user: ${error}`);
+  }
+
+  return response.data;
+};
+
 export const deleteUser = async (id) => {
   let response;
   try {

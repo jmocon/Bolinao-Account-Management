@@ -17,8 +17,8 @@ import {
 } from 'reactstrap';
 
 function AdminNavbar(props) {
-  const [collapseOpen, setcollapseOpen] = React.useState(false);
-  const [color, setcolor] = React.useState('navbar-transparent');
+  const [collapseOpen, setCollapseOpen] = React.useState(false);
+  const [color, setColor] = React.useState('navbar-transparent');
   React.useEffect(() => {
     window.addEventListener('resize', updateColor);
     // Specify how to clean up after this effect:
@@ -29,19 +29,19 @@ function AdminNavbar(props) {
   // function that adds color white/transparent to the navbar on resize (this is for the collapse)
   const updateColor = () => {
     if (window.innerWidth < 993 && collapseOpen) {
-      setcolor('bg-white');
+      setColor('bg-white');
     } else {
-      setcolor('navbar-transparent');
+      setColor('navbar-transparent');
     }
   };
   // this function opens and closes the collapse on small devices
   const toggleCollapse = () => {
     if (collapseOpen) {
-      setcolor('navbar-transparent');
+      setColor('navbar-transparent');
     } else {
-      setcolor('bg-white');
+      setColor('bg-white');
     }
-    setcollapseOpen(!collapseOpen);
+    setCollapseOpen(!collapseOpen);
   };
 
   return (
@@ -122,7 +122,9 @@ function AdminNavbar(props) {
                 </DropdownToggle>
                 <DropdownMenu className='dropdown-navbar' right tag='ul'>
                   <NavLink tag='li'>
-                    <DropdownItem className='nav-item'>Profile</DropdownItem>
+                    <DropdownItem href='profile' className='nav-item'>
+                      Profile
+                    </DropdownItem>
                   </NavLink>
                   <NavLink tag='li'>
                     <DropdownItem className='nav-item'>Settings</DropdownItem>

@@ -13,7 +13,7 @@ import Roles from "views/Roles/Roles";
 
 
 // import Dashboard from "views/Dashboard.js";
-import Icons from "views/Icons.js";
+// import Icons from "views/Icons.js";
 // import Map from "views/Map.js";
 // import Notifications from "views/Notifications.js";
 import Company from "views/Company/Company";
@@ -25,6 +25,7 @@ import DepositSlips from "views/DepositSlips/DepositSlips";
 import BankReconciliation from "views/BankReconciliation/BankReconciliation";
 import DepositSlipFormats from "views/DepositSlipFormat/DepositSlipFormat";
 import Login from "views/Login/Login";
+import Profile from "views/Profile/Profile";
 // import Rtl from "views/Rtl.js";
 // import TableList from "views/TableList.js";
 // import Typography from "views/Typography.js";
@@ -166,6 +167,13 @@ var routes = [
     icon: 'fa fa-user-tag',
     component: Login,
     layout: '/auth'
+  },
+  {
+    path: '/profile',
+    name: 'Profile',
+    icon: 'fa fa-user',
+    component: Profile,
+    layout: '/admin'
   },
   // { divider: true },
   // {

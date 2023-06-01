@@ -3,7 +3,7 @@ import dbQuery from '../../helper/dbQuery';
 import { encrypt } from '../../helper/encryptor';
 import { numberInput, stringInput } from '../../helper/emptyToNull';
 
-const updateCheck = async (dbPool, res, req) => {
+const updateUser = async (dbPool, res, req) => {
   if (!req?.params?.id) {
     res.send(
       JSON.stringify({ success: false, message: 'User id is not present' })
@@ -42,4 +42,4 @@ const updateCheck = async (dbPool, res, req) => {
   res.send(JSON.stringify({ success: true, result }));
 };
 
-export default updateCheck;
+export default updateUser;

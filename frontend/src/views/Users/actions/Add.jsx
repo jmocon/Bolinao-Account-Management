@@ -14,7 +14,7 @@ import {
 
 import RoleDropdown from 'components/Dropdown/RoleDropdown';
 import { addUser } from 'api/user';
-import ShowTemporaryPassword from 'views/Deposits/components/ShowTemporaryPassword';
+import ShowTemporaryPassword from 'views/Users/components/ShowTemporaryPassword';
 import defaultAlert from 'constants/defaultAlert';
 import useAlert from 'helper/useAlert';
 import confirmOnClose from 'helper/confirmOnClose';
@@ -47,16 +47,21 @@ const Add = ({ onChange, notify }) => {
   const [tempPass, setTempPass] = useState('');
   const [isShowPassOpen, setIsShowPassOpen] = useState(false);
 
-  const CheckContent = () => {
-    setSubmitted(true);
-    return !inputs.firstName || !inputs.emailAddress || !inputs.username;
-  };
+  const CheckContent = () =>
+    !inputs.firstName ||
+    !inputs.emailAddress ||
+    !inputs.username ||
+    !inputs.roleId;
 
   const handleAdd = async () => {
+    setSubmitted(true);
+
     if (CheckContent()) {
       alertFn.danger('Complete all required fields');
       return;
     }
+
+    inputs.male ??= '0';
 
     let result;
     try {
@@ -73,6 +78,7 @@ const Add = ({ onChange, notify }) => {
     setTempPass(result.temporaryPassword);
     setIsShowPassOpen(true);
   };
+
   const togglePass = () => {
     setIsShowPassOpen(false);
     onChange();
