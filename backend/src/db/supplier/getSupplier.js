@@ -12,8 +12,8 @@ const getSupplier = async (dbPool, res, req) => {
 
   dbPool.query(query, (err, result) => {
     if (err) {
-      console.log(err);
       dbQueryError(res, err);
+      return
     }
 
     res.send(JSON.stringify({ success: true, data: result }));
