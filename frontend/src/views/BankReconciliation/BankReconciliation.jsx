@@ -63,8 +63,6 @@ const BankReconciliation = () => {
 
         tempAgg[curr.clearedDate].withdrawal =
           tempAgg[curr.clearedDate].withdrawal + net;
-          console.log(withdrawal)
-          console.log(net)
         withdrawal = withdrawal + net;
 
         return tempAgg;

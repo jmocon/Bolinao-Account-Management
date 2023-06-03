@@ -1,4 +1,5 @@
 import React from 'react';
+import { useHistory } from 'react-router-dom';
 import { Route, Switch, Redirect, useLocation } from 'react-router-dom';
 // javascript plugin used to create scrollbars on windows
 import PerfectScrollbar from 'perfect-scrollbar';
@@ -17,6 +18,12 @@ import { BackgroundColorContext } from 'contexts/BackgroundColorContext';
 var ps;
 
 const Admin = () => {
+  const user = localStorage.getItem('user');
+  const history = useHistory();
+  if (!user) {
+    history.push('/auth/login');
+  }
+
   const location = useLocation();
   const mainPanelRef = React.useRef(null);
   const [sidebarOpened, setsidebarOpened] = React.useState(

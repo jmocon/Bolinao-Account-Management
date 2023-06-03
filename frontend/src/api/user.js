@@ -61,6 +61,17 @@ export const addUser = async (data) => {
   return response.data;
 };
 
+export const login = async (data) => {
+  let response;
+  try {
+    response = await axios.post(`${DEFAULT_ROUTE}/login`, data);
+  } catch (error) {
+    throw new Error(`Error occurred while logging in: ${error}`);
+  }
+
+  return response.data;
+};
+
 export const updateUser = async (id, data) => {
   let response;
   try {

@@ -9,22 +9,53 @@ import {
   Container,
   Label,
   Input,
-  Button
+  Button,
+  Alert
 } from 'reactstrap';
-import NotificationAlert from 'react-notification-alert';
+import { useHistory } from 'react-router-dom';
+import useAlert from 'helper/useAlert';
+import defaultAlert from 'constants/defaultAlert';
+import { login } from 'api/user';
 
 const Login = () => {
-  const notifyRef = React.useRef(null);
+  const [alert, setAlert] = useState(defaultAlert);
+  const alertFn = useAlert(setAlert);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const history = useHistory();
 
-  const handleLogin = () => {
-    
-  }
+  const handleLogin = async () => {
+    if (!username || !password) {
+      alertFn.danger('Complete all required fields');
+      return;
+    }
+
+    let result;
+    try {
+      result = await login({ username, password });
+    } catch (error) {
+      alertFn.danger(error);
+      return;
+    }
+
+    if (!result.success) {
+      alertFn.danger(result.message);
+      return;
+    }
+
+    const data = {
+      userId: result.userId,
+      username: result.username,
+      roleId: result.roleId
+    };
+
+    localStorage.setItem('user', JSON.stringify(data));
+    history.push('/');
+    return <></>;
+  };
 
   return (
     <div className='content'>
-      <NotificationAlert ref={notifyRef} />
       <Container>
         <Row>
           <Col
@@ -46,6 +77,12 @@ const Login = () => {
                     </CardTitle>
                   </Col>
                 </Row>
+                <Alert
+                  color={alert.color}
+                  isOpen={alert.visible}
+                  toggle={alertFn.dismiss}>
+                  {alert.message}
+                </Alert>
               </CardHeader>
               <CardBody>
                 <Row>
@@ -71,7 +108,7 @@ const Login = () => {
                 </Row>
                 <Row className='mt-2'>
                   <Col className='text-center'>
-                    <Button>Login</Button>
+                    <Button onClick={handleLogin}>Login</Button>
                   </Col>
                 </Row>
               </CardBody>

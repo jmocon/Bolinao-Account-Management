@@ -9,6 +9,7 @@ import updateUser from '../db/user/updateUser';
 import deleteUser from '../db/user/deleteUser';
 import resetPassword from '../db/user/resetPassword';
 import updatePassword from '../db/user/updatePassword';
+import login from '../db/user/login';
 
 const router = express.Router();
 const dbPool = getDbPool();
@@ -21,6 +22,9 @@ router.get('/', async (req, res) => {
 });
 router.post('/', async (req, res) => {
   await addUser(dbPool, res, req);
+});
+router.post('/login', async (req, res) => {
+  await login(dbPool, res, req);
 });
 router.put('/updatePassword/:id', async (req, res) => {
   await updatePassword(dbPool, res, req);

@@ -26,6 +26,7 @@ import BankReconciliation from "views/BankReconciliation/BankReconciliation";
 import DepositSlipFormats from "views/DepositSlipFormat/DepositSlipFormat";
 import Login from "views/Login/Login";
 import Profile from "views/Profile/Profile";
+import Logout from "views/Logout/Logout";
 // import Rtl from "views/Rtl.js";
 // import TableList from "views/TableList.js";
 // import Typography from "views/Typography.js";
@@ -166,6 +167,13 @@ var routes = [
     name: 'Login',
     icon: 'fa fa-user-tag',
     component: Login,
+    layout: '/auth'
+  },
+  {
+    path: '/logout',
+    name: 'Logout',
+    icon: 'fa fa-user-tag',
+    component: Logout,
     layout: '/auth'
   },
   {
