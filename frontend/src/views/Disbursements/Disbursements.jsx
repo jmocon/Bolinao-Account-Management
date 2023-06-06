@@ -227,7 +227,7 @@ const Disbursements = () => {
                 columns={columns}
                 data={data}
                 defaultSortColumn={'id'}
-                defaultSortDirection={sortDirections.asc}
+                defaultSortDirection={sortDirections.desc}
               />
             </CardBody>
           </Card>

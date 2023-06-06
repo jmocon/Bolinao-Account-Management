@@ -188,6 +188,7 @@ const Deposits = () => {
                 format={{
                   7: (value) => numberToCurrency(value)
                 }}
+                defaultSortDirection
                 withAction
               />
             </CardBody>
