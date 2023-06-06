@@ -26,6 +26,13 @@ const DepositSlipPrint = () => {
           if (isNaN(product)) {
             product = value;
           }
+
+          if (product > 0) {
+            product = numberToDecimal(product)
+          }
+          if (product === 0) {
+            product = ''
+          }
           temp.cashAmount.push(product);
           return temp;
         },
@@ -95,7 +102,6 @@ const DepositSlipPrint = () => {
   }, [searchParams]);
 
   const currencyFormat = [
-    'cashAmount',
     'cashTotal',
     'checkAmount',
     'checkTotal',
@@ -129,6 +135,7 @@ const DepositSlipPrint = () => {
                 {details[key].map((ph, i) => (
                   <li
                     key={`${key}-${i}-${ph}`}
+                    className='checklist'
                     style={{
                       marginBottom: value?.margin && `${value?.margin}px`,
                       listStyleType: 'none'

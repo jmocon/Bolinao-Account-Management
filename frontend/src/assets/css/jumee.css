@@ -68,3 +68,7 @@ tfoot tr th {
 		padding: 78px 30px 30px 250px !important;
 	}
 }
+
+li.checklist:empty::before {
+	content: "\200b"; 
+}
