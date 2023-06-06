@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Select from 'react-select';
 
 import { getCompanies } from 'api/company';
+import selectStyle from './constant/selectStyle';
 
 const CompanyDropdown = ({ label, value, onChange, placeholder }) => {
   const [options, setOptions] = useState([]);
@@ -34,13 +35,7 @@ const CompanyDropdown = ({ label, value, onChange, placeholder }) => {
 
   return (
     <Select
-      styles={{
-        control: (baseStyles) => ({
-          ...baseStyles,
-          borderColor: 'rgba(29, 37, 59, 0.5)',
-          borderRadius: '0.4285rem'
-        })
-      }}
+      styles={selectStyle}
       isSearchable
       placeholder={placeholder || label}
       label={label}

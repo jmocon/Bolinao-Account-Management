@@ -166,6 +166,7 @@ var routes = [
     path: '/login',
     name: 'Login',
     icon: 'fa fa-user-tag',
+    hidden: true,
     component: Login,
     layout: '/auth'
   },
@@ -173,13 +174,15 @@ var routes = [
     path: '/logout',
     name: 'Logout',
     icon: 'fa fa-user-tag',
+    hidden: true,
     component: Logout,
-    layout: '/auth'
+    layout: '/admin'
   },
   {
     path: '/profile',
     name: 'Profile',
     icon: 'fa fa-user',
+    hidden: true,
     component: Profile,
     layout: '/admin'
   },

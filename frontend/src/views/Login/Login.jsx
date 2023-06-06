@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState } from 'react';
 import {
   Card,
   CardHeader,
@@ -55,68 +55,66 @@ const Login = () => {
   };
 
   return (
-    <div className='content'>
-      <Container>
-        <Row>
-          <Col
-            md={{
-              offset: 3,
-              size: 6
-            }}
-            lg={{
-              offset: 4,
-              size: 4
-            }}
-            className='py-4'>
-            <Card>
-              <CardHeader>
-                <Row>
-                  <Col>
-                    <CardTitle tag='h1' className='text-center'>
-                      Login
-                    </CardTitle>
-                  </Col>
-                </Row>
-                <Alert
-                  color={alert.color}
-                  isOpen={alert.visible}
-                  toggle={alertFn.dismiss}>
-                  {alert.message}
-                </Alert>
-              </CardHeader>
-              <CardBody>
-                <Row>
-                  <Col>
-                    <Label>Username</Label>
-                    <Input
-                      placeholder='Username'
-                      value={username}
-                      onChange={(e) => setUsername(e.target.value)}
-                    />
-                  </Col>
-                </Row>
-                <Row className='mt-2'>
-                  <Col>
-                    <Label>Password</Label>
-                    <Input
-                      type='password'
-                      placeholder='Password'
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                    />
-                  </Col>
-                </Row>
-                <Row className='mt-2'>
-                  <Col className='text-center'>
-                    <Button onClick={handleLogin}>Login</Button>
-                  </Col>
-                </Row>
-              </CardBody>
-            </Card>
-          </Col>
-        </Row>
-      </Container>
-    </div>
+    <Container>
+      <Row>
+        <Col
+          md={{
+            offset: 3,
+            size: 6
+          }}
+          lg={{
+            offset: 4,
+            size: 4
+          }}
+          className='py-4'>
+          <Card>
+            <CardHeader>
+              <Row>
+                <Col>
+                  <CardTitle tag='h1' className='text-center'>
+                    Login
+                  </CardTitle>
+                </Col>
+              </Row>
+              <Alert
+                color={alert.color}
+                isOpen={alert.visible}
+                toggle={alertFn.dismiss}>
+                {alert.message}
+              </Alert>
+            </CardHeader>
+            <CardBody>
+              <Row>
+                <Col>
+                  <Label>Username</Label>
+                  <Input
+                    placeholder='Username'
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                  />
+                </Col>
+              </Row>
+              <Row className='mt-2'>
+                <Col>
+                  <Label>Password</Label>
+                  <Input
+                    type='password'
+                    placeholder='Password'
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
+                </Col>
+              </Row>
+              <Row className='mt-2'>
+                <Col className='text-center'>
+                  <Button onClick={handleLogin}>Login</Button>
+                </Col>
+              </Row>
+            </CardBody>
+          </Card>
+        </Col>
+      </Row>
+    </Container>
   );
 };
 

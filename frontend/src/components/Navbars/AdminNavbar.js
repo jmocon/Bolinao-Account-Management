@@ -70,7 +70,7 @@ function AdminNavbar(props) {
           </NavbarToggler>
           <Collapse navbar isOpen={collapseOpen}>
             <Nav className='ml-auto' navbar>
-              <UncontrolledDropdown nav>
+              {/* <UncontrolledDropdown nav>
                 <DropdownToggle
                   caret
                   color='default'
@@ -107,7 +107,7 @@ function AdminNavbar(props) {
                     </DropdownItem>
                   </NavLink>
                 </DropdownMenu>
-              </UncontrolledDropdown>
+              </UncontrolledDropdown> */}
               <UncontrolledDropdown nav>
                 <DropdownToggle
                   caret
@@ -131,7 +131,7 @@ function AdminNavbar(props) {
                   </NavLink>
                   <DropdownItem divider tag='li' />
                   <NavLink tag='li'>
-                    <DropdownItem className='nav-item'>Log out</DropdownItem>
+                    <DropdownItem href='logout' className='nav-item'>Log out</DropdownItem>
                   </NavLink>
                 </DropdownMenu>
               </UncontrolledDropdown>

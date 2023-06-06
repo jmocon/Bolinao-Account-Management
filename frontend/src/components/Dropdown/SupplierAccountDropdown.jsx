@@ -3,6 +3,7 @@ import Select from 'react-select';
 
 import sampleSupplierAccounts from 'helper/sampleData/sampleSupplierAccounts';
 import { getBank } from 'helper/sampleData/sampleBanks';
+import selectStyle from './constant/selectStyle';
 
 const SupplierAccountDropdown = ({ label, value, onChange }) => {
   const options = sampleSupplierAccounts().map((supplierBank) => {
@@ -16,13 +17,7 @@ const SupplierAccountDropdown = ({ label, value, onChange }) => {
 
   return (
     <Select
-      styles={{
-        control: (baseStyles, state) => ({
-          ...baseStyles,
-          borderColor: 'rgba(29, 37, 59, 0.5)',
-          borderRadius: '0.4285rem'
-        })
-      }}
+      styles={selectStyle}
       isSearchable
       label={label}
       options={options}

@@ -99,6 +99,7 @@ function Sidebar(props) {
             <Nav>
               {routes.map((prop, key) => {
                 if (prop.redirect) return null;
+                if (prop.hidden) return null;
                 if (prop.divider) {
                   return (
                     <li key={key}>

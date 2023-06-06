@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Select from 'react-select';
 
 import { getEWTs } from 'api/ewt';
+import selectStyle from './constant/selectStyle';
 
 const EWTDropdown = ({ label, value, onChange }) => {
   const [options, setOptions] = useState([]);
@@ -33,13 +34,7 @@ const EWTDropdown = ({ label, value, onChange }) => {
 
   return (
     <Select
-      styles={{
-        control: (baseStyles) => ({
-          ...baseStyles,
-          borderColor: 'rgba(29, 37, 59, 0.5)',
-          borderRadius: '0.4285rem'
-        })
-      }}
+      styles={selectStyle}
       isSearchable
       label={label}
       options={options}

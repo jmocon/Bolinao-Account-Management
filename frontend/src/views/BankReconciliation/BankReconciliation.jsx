@@ -27,6 +27,7 @@ const BankReconciliation = () => {
     const fetchData = async () => {
       let deposit = 0;
       let withdrawal = 0;
+      let runningBalance = 0;
       let result;
       try {
         result = await getBankReconciliation(filter);
@@ -48,7 +49,15 @@ const BankReconciliation = () => {
         return tempAgg;
       }, {});
 
-      const formatted = result.disbursement.reduce((agg, curr) => {
+      const formatted = result.disbursement.sort((a,b) => {
+        if ( a.clearedDate < b.clearedDate ){
+          return -1;
+        }
+        if ( a.clearedDate > b.clearedDate ){
+          return 1;
+        }
+        return 0;
+      }).reduce((agg, curr) => {
         const tempAgg = { ...agg };
 
         const { net } = computeDisbursement(
@@ -58,12 +67,16 @@ const BankReconciliation = () => {
         );
 
         if (!tempAgg[curr.clearedDate]) {
-          tempAgg[curr.clearedDate] = { deposit: 0, withdrawal: 0 };
+          tempAgg[curr.clearedDate] = { deposit: 0, withdrawal: 0, runningBalance: 0 };
         }
 
         tempAgg[curr.clearedDate].withdrawal =
           tempAgg[curr.clearedDate].withdrawal + net;
         withdrawal = withdrawal + net;
+
+        runningBalance += tempAgg[curr.clearedDate].deposit
+        runningBalance -= tempAgg[curr.clearedDate].withdrawal
+        tempAgg[curr.clearedDate].runningBalance = runningBalance
 
         return tempAgg;
       }, formattedDeposit);
@@ -134,6 +147,7 @@ const BankReconciliation = () => {
                     <td>Date</td>
                     <td>Deposit</td>
                     <td>Withdrawal</td>
+                    <td>Running Balance</td>
                   </tr>
                 </thead>
                 <tbody>
@@ -142,6 +156,7 @@ const BankReconciliation = () => {
                       <td>{date}</td>
                       <td>{numberToCurrency(value.deposit)}</td>
                       <td>{numberToCurrency(value.withdrawal)}</td>
+                      <td>{numberToCurrency(value.runningBalance)}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -150,6 +165,7 @@ const BankReconciliation = () => {
                     <td>Total</td>
                     <td>{numberToCurrency(total.deposit)}</td>
                     <td>{numberToCurrency(total.withdrawal)}</td>
+                    <td></td>
                   </tr>
                 </thead>
               </Table>

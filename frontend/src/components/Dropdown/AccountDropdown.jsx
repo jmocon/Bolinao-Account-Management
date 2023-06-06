@@ -2,6 +2,7 @@ import React from 'react';
 import Select from 'react-select';
 
 import sampleAccounts from 'helper/sampleData/sampleAccounts';
+import selectStyle from './constant/selectStyle';
 
 const AccountDropdown = ({ label, value, onChange }) => {
   const options = sampleAccounts().map((account) => ({
@@ -11,13 +12,7 @@ const AccountDropdown = ({ label, value, onChange }) => {
 
   return (
     <Select
-      styles={{
-        control: (baseStyles, state) => ({
-          ...baseStyles,
-          borderColor: 'rgba(29, 37, 59, 0.5)',
-          borderRadius: '0.4285rem'
-        })
-      }}
+      styles={selectStyle}
       isSearchable
       label={label}
       options={options}

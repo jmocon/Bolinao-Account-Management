@@ -82,7 +82,7 @@ const Add = ({ onChange, notify }) => {
     return () => {
       clearInterval(interval);
     };
-  }, [fetchDeposits]);
+  }, [fetchDeposits, isOpen]);
 
   const handleAdd = async () => {
     // Checking

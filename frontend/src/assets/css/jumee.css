@@ -56,12 +56,15 @@ tfoot tr th {
 	margin-right: 5px;
 }
 
-.sidebar .nav li>a, .sidebar .nav li:first-child > a {
+.sidebar .nav li>a,
+.sidebar .nav li:first-child>a {
 	margin: 0 5px;
 	padding-left: 5px;
 	padding-right: 5px;
 }
 
-.content {
-	padding: 78px 30px 30px 250px !important;
+@media (min-width: 991px) {
+	.content {
+		padding: 78px 30px 30px 250px !important;
+	}
 }
