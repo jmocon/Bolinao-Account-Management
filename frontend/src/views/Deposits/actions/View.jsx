@@ -73,7 +73,7 @@ const View = ({ id, isOpen, toggle, notify }) => {
     } catch (error) {
       setAlert({
         color: 'danger',
-        message: `Error encountered while fetching Disbursement: ${error}`,
+        message: `Error encountered while clearing deposit: ${error}`,
         visible: true
       });
       return;

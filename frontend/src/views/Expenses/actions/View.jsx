@@ -41,7 +41,7 @@ const View = ({ id, isOpen, toggle }) => {
       } catch (error) {
         setAlert({
           color: 'danger',
-          message: `Error encountered while fetching Disbursement: ${error}`,
+          message: `Error encountered while fetching expense details: ${error}`,
           visible: true
         });
         return;

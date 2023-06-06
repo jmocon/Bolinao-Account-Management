@@ -24,8 +24,13 @@ import nonExpenseCategories from 'constants/nonExpenseCategories';
 import DisbursementStatusPill from 'components/Pills/DisbursementStatusPill';
 import computeDisbursement from 'helper/computeDisbursement';
 import ClearedDate from '../components/ClearedDate';
+import useAlert from 'helper/useAlert';
+import defaultAlert from 'constants/defaultAlert';
 
 const View = ({ id, isOpen, toggle }) => {
+  const [alert, setAlert] = useState(defaultAlert);
+  const alertFn = useAlert(setAlert);
+
   const [dis, setDis] = useState({});
   const [vat, setVat] = useState(0);
   const [gross, setGross] = useState(0);
@@ -33,19 +38,6 @@ const View = ({ id, isOpen, toggle }) => {
   const [net, setNet] = useState(0);
 
   const [clearDateModal, setClearDateModal] = useState(false);
-
-  // Notification
-  const [alert, setAlert] = useState({
-    color: 'primary',
-    message: '',
-    visible: false
-  });
-  const onDismiss = () =>
-    setAlert({
-      color: 'primary',
-      message: '',
-      visible: false
-    });
 
   useEffect(() => {
     const fetchDisbursement = async () => {
@@ -114,21 +106,15 @@ const View = ({ id, isOpen, toggle }) => {
     try {
       response = await clearDisbursement(id, clearedDate);
     } catch (error) {
-      setAlert({
-        color: 'danger',
-        message: `Error encountered while fetching Disbursement: ${error}`,
-        visible: true
-      });
+      alertFn.danger(`Error encountered while clearing Disbursement: ${error}`);
       return;
     }
 
     if (!response.success) {
-      setAlert({
-        color: 'danger',
-        message: `Error encountered while setting cleared date: ${response.message}`,
-        visible: true
-      });
-     }
+      alertFn.danger(
+        `Error encountered while setting cleared date: ${response.message}`
+      );
+    }
 
     setClearDateModal(false);
     toggle();
@@ -141,7 +127,10 @@ const View = ({ id, isOpen, toggle }) => {
         <DisbursementStatusPill status={dis.status} className='ml-3' />
       </ModalHeader>
       <ModalBody>
-        <Alert color={alert.color} isOpen={alert.visible} toggle={onDismiss}>
+        <Alert
+          color={alert.color}
+          isOpen={alert.visible}
+          toggle={alertFn.dismiss}>
           {alert.message}
         </Alert>
 

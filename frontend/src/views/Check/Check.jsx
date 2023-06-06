@@ -22,10 +22,12 @@ const Check = () => {
           result.vatableAmount,
           result.ewtTaxRate
         );
+
         setDis({
           ...result,
           amount: computeResult.net.toLocaleString('en', { minimumFractionDigits: 2 }),
-          amountInWords: amountToWords(computeResult.net)
+          amountInWords: amountToWords(computeResult.net),
+          checkDate: result.checkDateOrig
         });
       }
     };
@@ -58,7 +60,6 @@ const Check = () => {
               height: '10px'
             }}>
             {dis[type]}
-            {/* {type} */}
           </div>
         );
       })}

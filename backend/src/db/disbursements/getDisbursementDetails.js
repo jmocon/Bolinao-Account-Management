@@ -18,6 +18,7 @@ const getDisbursementDetails = async (dbPool, res, req) => {
       ba.name as bankAccountName,
       d.ap_charge_to as apChargeTo,
       d.check_number as checkNumber,
+      DATE_FORMAT(d.check_date,'%m-%d-%Y') as checkDateOrig,
       DATE_FORMAT(d.check_date,'%b %d, %Y') as checkDate,
       DATE_FORMAT(d.cleared_date,'%b %d, %Y') as clearedDate,
       d.status,
