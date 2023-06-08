@@ -3,7 +3,7 @@ import Select from 'react-select';
 
 import nonExpenseCategories from 'constants/nonExpenseCategories';
 
-const NonExpenseCategoryDropdown = ({ label, value, onChange }) => {
+const NonExpenseCategoryDropdown = ({ label, value, onChange, isDisabled }) => {
   const options = Object.entries(nonExpenseCategories).map(([val, lbl]) => ({
     label: lbl,
     value: Number(val)
@@ -26,6 +26,7 @@ const NonExpenseCategoryDropdown = ({ label, value, onChange }) => {
       label={label}
       options={options}
       value={selected}
+      isDisabled={isDisabled}
       onChange={({ value }) => onChange(value)}
     />
   );

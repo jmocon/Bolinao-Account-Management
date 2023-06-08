@@ -143,6 +143,10 @@ const View = ({ id, isOpen, toggle }) => {
             <Label>Company</Label>
             <span className='form-control'>{dis.companyName}</span>
           </Col>
+          <Col lg='4' md='6' sm='12'>
+            <Label>Id</Label>
+            <span className='form-control'>{id}</span>
+          </Col>
         </Row>
         <Row className='mb-2'>
           <Col lg='4' md='6' sm='12'>
