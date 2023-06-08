@@ -15,13 +15,22 @@ const addVoucher = async (dbPool, res, req) => {
     WHERE d.id = ${data.disbursementId}
   `;
 
-  let bankAccount;
+  let resultBankCodeQuery;
   try {
-    const result = await dbQuery(dbPool, bankCodeQuery);
-    bankAccount = result[0].name;
+    resultBankCodeQuery = await dbQuery(dbPool, bankCodeQuery);
   } catch (error) {
     dbQueryError(res, error, bankCodeQuery);
+    return;
   }
+
+  if (!resultBankCodeQuery[0]?.name) {
+    dbQueryError(
+      res,
+      `Bank account not found for Disbursement: ${data.disbursementId}`
+    );
+    return;
+  }
+  const bankAccount = resultBankCodeQuery[0]?.name;
 
   const counterQuery = `
     SELECT
@@ -36,6 +45,7 @@ const addVoucher = async (dbPool, res, req) => {
     counter = result[0].counter;
   } catch (error) {
     dbQueryError(res, error, counterQuery);
+    return;
   }
 
   if (!counter) {
@@ -60,6 +70,7 @@ const addVoucher = async (dbPool, res, req) => {
     insertResult = await dbQuery(dbPool, insertQuery);
   } catch (error) {
     dbQueryError(res, error, insertQuery);
+    return;
   }
 
   let updateStatusResult;
@@ -71,6 +82,7 @@ const addVoucher = async (dbPool, res, req) => {
     );
   } catch (error) {
     dbQueryError(res, error, insertQuery);
+    return;
   }
 
   res.send(JSON.stringify({ success: true, data: insertResult }));

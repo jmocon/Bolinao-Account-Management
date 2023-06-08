@@ -39,12 +39,38 @@ const Add = ({ onChange, notify }) => {
     toggleAdd();
   };
 
+  const CheckContent = () => {
+    let missing = '';
+
+    const addMissing = (value) => {
+      if (missing) {
+        missing = `${missing}, ${value}`;
+        return;
+      }
+      missing = value;
+    };
+
+    if (!inputs.bankAccountId) addMissing('Bank Account');
+    if (!inputs.checkNumber) addMissing('Check Number');
+    if (!inputs.checkDate) addMissing('Check Date');
+
+    return missing;
+  };
+
   const handleInput = (name, value) => {
     setIsDirty(true);
     setInputs((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleAdd = async (status = 1) => {
+    if (status === 1) {
+      const missing = CheckContent();
+      if (missing) {
+        alertFn.danger(`Complete all required fields: ${missing}`);
+        return;
+      }
+    }
+
     const data = {
       ...inputs,
       status
@@ -63,7 +89,7 @@ const Add = ({ onChange, notify }) => {
       'Successfully added disbursement.',
       'tim-icons icon-check-2'
     );
-    toggleModal();
+    toggleAdd();
   };
 
   return (

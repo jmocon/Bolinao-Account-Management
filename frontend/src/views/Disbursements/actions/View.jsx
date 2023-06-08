@@ -72,8 +72,14 @@ const View = ({ id, isOpen, toggle }) => {
     let response;
     switch (status) {
       case disbursementStatus.print:
-        response = await addVoucher({ disbursementId: id });
-        handlePrintVoucher(response.data.insertId);
+        try {
+          response = await addVoucher({ disbursementId: id });
+        } catch (error) {
+          alertFn.danger(error);
+        }
+        if (response.success) {
+          handlePrintVoucher(response.data.insertId);
+        }
         break;
       case disbursementStatus.check:
         response = await updateStatus(id, status);
@@ -84,9 +90,11 @@ const View = ({ id, isOpen, toggle }) => {
         break;
     }
 
-    if (response.success) {
-      toggle();
+    if (!response.success) {
+      alertFn.danger(response.message);
+      return;
     }
+    toggle();
   };
 
   const handlePrintVoucher = (voucherId) => {

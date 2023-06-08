@@ -13,7 +13,6 @@ import { getEWT } from 'api/ewt';
 import { getSupplier } from 'api/supplier';
 import numberToCurrency from 'helper/numberToCurrency';
 import computeDisbursement from 'helper/computeDisbursement';
-import expenseCategories from 'constants/expenseCategories';
 
 const DisbursementForm = ({ inputs, handleInput, setAlert }) => {
   const [checkPayee, setCheckPayee] = useState();
