@@ -14,10 +14,10 @@ import { getSupplier } from 'api/supplier';
 import numberToCurrency from 'helper/numberToCurrency';
 import computeDisbursement from 'helper/computeDisbursement';
 
-const DisbursementForm = ({ inputs, handleInput, setAlert }) => {
+const DisbursementForm = ({ inputs, handleInput, setAlert, isEwtChecked = false }) => {
   const [checkPayee, setCheckPayee] = useState();
   const [ewt, setEwt] = useState({});
-  const [hasEwt, setHasEwt] = useState(false);
+  const [hasEwt, setHasEwt] = useState(isEwtChecked);
 
   const [vat, setVat] = useState(0);
   const [gross, setGross] = useState(0);
