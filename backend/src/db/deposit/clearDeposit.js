@@ -1,27 +1,29 @@
+import dbQuery from '../../helper/dbQuery';
 import dbQueryError from '../../error/dbQueryError';
 
-const clearDeposit = (dbPool, res, req) => {
+const clearDeposit = async (dbPool, res, req) => {
   if (!req?.params?.id) {
-    res.send(
-      JSON.stringify({ success: false, message: 'Deposit id is not present' })
-    );
+    response.error('Deposit id is not present');
     return;
   }
 
   const data = req.body;
+
   const query = `
   UPDATE deposit
   SET cleared_date = "${data.clearedDate}"
   WHERE id = "${req.params.id}"
   `;
 
-  dbPool.query(query, (err, result) => {
-    if (err) {
-      dbQueryError(res, err);
-    }
+  let result;
+  try {
+    result = await dbQuery(dbPool, query);
+  } catch (error) {
+    response.dbError(error, query);
+    return;
+  }
 
-    res.send(JSON.stringify({ success: true, data: result }));
-  });
+  response.success(result, 'Successfully cleared deposit.');
 };
 
 export default clearDeposit;

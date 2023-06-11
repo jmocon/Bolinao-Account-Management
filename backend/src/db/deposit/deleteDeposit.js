@@ -1,15 +1,25 @@
-import dbQueryError from '../../error/dbQueryError';
+import dbQuery from '../../helper/dbQuery';
+import useResponse from '../../helper/useResponse';
 
-const deleteDeposit = (dbPool, res, req) => {
+const deleteDeposit = async (dbPool, res, req) => {
+  const response = useResponse(res);
+
+  if (!req?.params?.id) {
+    response.error('Deposit id is not present');
+    return;
+  }
+
   const query = `DELETE FROM deposit WHERE id = ${req.params.id}`;
 
-  dbPool.query(query, (err, result) => {
-    if (err) {
-      dbQueryError(res, err);
-    }
+  let result;
+  try {
+    result = await dbQuery(dbPool, query);
+  } catch (error) {
+    response.dbError(error, query);
+    return;
+  }
 
-    res.send(JSON.stringify({ success: true, data: result }));
-  });
+  response.success(result, 'Successfully deleted deposit.');
 };
 
 export default deleteDeposit;

@@ -14,9 +14,9 @@ import NotificationAlert from 'react-notification-alert';
 
 import BankAccountDropdown from 'components/Dropdown/BankAccountDropdown';
 import numberToCurrency from 'helper/numberToCurrency';
-import { getBankBalance } from 'api/deposit';
+import { getDepositBalance } from 'api/deposit';
 
-const BankBalance = () => {
+const DepositBalance = () => {
   const notifyRef = useRef(null);
   const [filter, setFilter] = useState({});
   const [data, setData] = useState([]);
@@ -26,7 +26,7 @@ const BankBalance = () => {
       let runningBalance = 0;
       let result;
       try {
-        result = await getBankBalance(filter);
+        result = await getDepositBalance(filter);
       } catch (error) {
         handleNotify('danger', error, 'tim-icons icon-simple-remove');
         return;
@@ -67,7 +67,7 @@ const BankBalance = () => {
         <CardHeader>
           <Row>
             <Col>
-              <CardTitle tag='h4'>Bank Balance</CardTitle>
+              <CardTitle tag='h4'>Deposit Balance</CardTitle>
             </Col>
           </Row>
         </CardHeader>
@@ -99,7 +99,8 @@ const BankBalance = () => {
               <Table>
                 <thead>
                   <tr>
-                    <td>Date</td>
+                    <td>Deposit Date</td>
+                    <td>Payee</td>
                     <td>Amount</td>
                     <td>Running Balance</td>
                   </tr>
@@ -107,7 +108,7 @@ const BankBalance = () => {
                 <tbody>
                   {data.length === 0 && (
                     <tr>
-                      <td colSpan={3} className='text-center'>
+                      <td colSpan={4} className='text-center'>
                         No rows to show
                       </td>
                     </tr>
@@ -115,6 +116,7 @@ const BankBalance = () => {
                   {data.map((deposit) => (
                     <tr key={deposit.depositId}>
                       <td>{deposit.depositDate}</td>
+                      <td>{deposit.payee}</td>
                       <td>{numberToCurrency(deposit.amount)}</td>
                       <td>{numberToCurrency(deposit.runningBalance)}</td>
                     </tr>
@@ -129,4 +131,4 @@ const BankBalance = () => {
   );
 };
 
-export default BankBalance;
+export default DepositBalance;

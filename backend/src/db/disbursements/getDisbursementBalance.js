@@ -1,7 +1,7 @@
 import dbQuery from '../../helper/dbQuery';
 import useResponse from '../../helper/useResponse';
 
-const getBankBalance = async (dbPool, res, req) => {
+const getDisbursementBalance = async (dbPool, res, req) => {
   const bankAccountId = req.params?.bankAccountId;
   const startDate = req.params?.startDate;
   const endDate = req.params?.endDate;
@@ -25,11 +25,12 @@ const getBankBalance = async (dbPool, res, req) => {
 
   const query = `
   SELECT *
-  FROM deposit 
-  WHERE bank_id = ${bankAccountId}
+  FROM disbursements
+  WHERE bank_account_id = ${bankAccountId}
   AND cleared_date IS NULL
-  AND deposit_date >= "${startDate}"
-  AND deposit_date <= "${endDate}"
+  AND status NOT IN (0,2,6,7)
+  AND disbursement_date >= "${startDate}"
+  AND disbursement_date <= "${endDate}"
   `;
 
   let result;
@@ -40,7 +41,7 @@ const getBankBalance = async (dbPool, res, req) => {
     return;
   }
 
-  response.success(result, 'Successfully fetched bank balance.');
+  response.success(result, 'Successfully fetched disbursement balance.');
 };
 
-export default getBankBalance;
+export default getDisbursementBalance;

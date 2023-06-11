@@ -10,13 +10,13 @@ import updateDeposit from '../db/deposit/updateDeposit';
 import clearDeposit from '../db/deposit/clearDeposit';
 import deleteDeposit from '../db/deposit/deleteDeposit';
 import getOpenDeposits from '../db/deposit/getOpenDeposits';
-import getBankBalance from '../db/deposit/getBankBalance';
+import getDepositBalance from '../db/deposit/getDepositBalance';
 
 const router = express.Router();
 const dbPool = getDbPool();
 
-router.get('/bankBalance/:bankAccountId/:startDate/:endDate', async (req, res) => {
-  await getBankBalance(dbPool, res, req);
+router.get('/balance/:bankAccountId/:startDate/:endDate', async (req, res) => {
+  await getDepositBalance(dbPool, res, req);
 });
 router.get('/table', async (req, res) => {
   await getDepositTable(dbPool, res, req);

@@ -1,9 +1,10 @@
-import dbQueryError from '../../error/dbQueryError';
 import dbQuery from '../../helper/dbQuery';
 import { numberInput, stringInput } from '../../helper/emptyToNull';
+import useResponse from '../../helper/useResponse';
 
 const addDeposit = async (dbPool, res, req) => {
   const data = req.body;
+  const response = useResponse(res);
 
   const query = `
   INSERT INTO deposit
@@ -33,11 +34,11 @@ const addDeposit = async (dbPool, res, req) => {
   try {
     result = await dbQuery(dbPool, query);
   } catch (error) {
-    dbQueryError(res, error, query);
+    response.dbError(error, query);
     return;
   }
 
-  res.send(JSON.stringify({ success: true, data: result }));
+  response.success(result, 'Successfully added deposit.');
 };
 
 export default addDeposit;

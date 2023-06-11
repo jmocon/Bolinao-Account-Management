@@ -27,7 +27,8 @@ import DepositSlipFormats from "views/DepositSlipFormat/DepositSlipFormat";
 import Login from "views/Login/Login";
 import Profile from "views/Profile/Profile";
 import Logout from "views/Logout/Logout";
-import BankBalance from "views/BankBalance/BankBalance";
+import DepositBalance from "views/DepositBalance/DepositBalance";
+import DisbursementBalance from "views/DisbursementBalance/DisbursementBalance";
 // import Rtl from "views/Rtl.js";
 // import TableList from "views/TableList.js";
 // import Typography from "views/Typography.js";
@@ -92,10 +93,17 @@ var routes = [
     layout: '/admin'
   },
   {
-    path: '/bankbalance',
-    name: 'Bank Balance',
+    path: '/disbursementbalance',
+    name: 'Disbursement Balance',
     icon: 'fa-solid fa-magnifying-glass-dollar',
-    component: BankBalance,
+    component: DisbursementBalance,
+    layout: '/admin'
+  },
+  {
+    path: '/depositbalance',
+    name: 'Deposit Balance',
+    icon: 'fa-solid fa-magnifying-glass-dollar',
+    component: DepositBalance,
     layout: '/admin'
   },
   { divider: true },

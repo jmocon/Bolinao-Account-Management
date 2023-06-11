@@ -23,6 +23,19 @@ const mapData = (disbursement) => ({
   status: disbursement.status
 });
 
+export const getDisbursementBalance = async ({ bankAccountId, startDate, endDate }) => {
+  let response;
+  try {
+    response = await axios.get(
+      `${DEFAULT_ROUTE}/balance/${bankAccountId}/${startDate}/${endDate}`
+    );
+  } catch (error) {
+    throw new Error(`Error occurred while getting disbursement balance: ${error}`);
+  }
+
+  return response.data.data.map(mapData);
+};
+
 export const getDisbursement = async (id) => {
   let response;
   try {

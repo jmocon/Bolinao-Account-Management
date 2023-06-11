@@ -15,13 +15,20 @@ import getDESummary from '../db/disbursements/getDESummary';
 import getIESummary from '../db/disbursements/getIESummary';
 import getEWTSummary from '../db/disbursements/getEWTSummary';
 import getBankReconciliation from '../db/disbursements/getBankReconciliation';
+import getDisbursementBalance from '../db/disbursements/getDisbursementBalance';
 
 const router = express.Router();
 const dbPool = getDbPool();
 
-router.get('/bankReconciliation/:bankAccountId/:startDate/:endDate', async (req, res) => {
-  await getBankReconciliation(dbPool, res, req);
+router.get('/balance/:bankAccountId/:startDate/:endDate', async (req, res) => {
+  await getDisbursementBalance(dbPool, res, req);
 });
+router.get(
+  '/bankReconciliation/:bankAccountId/:startDate/:endDate',
+  async (req, res) => {
+    await getBankReconciliation(dbPool, res, req);
+  }
+);
 router.get('/deSummary', async (req, res) => {
   await getDESummary(dbPool, res, req);
 });
