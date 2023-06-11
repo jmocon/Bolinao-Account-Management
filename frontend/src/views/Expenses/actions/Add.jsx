@@ -26,10 +26,11 @@ import defaultAlert from 'constants/defaultAlert';
 
 import { getEWT } from 'api/ewt';
 import { addExpense } from 'api/expense';
+import useAlert from 'helper/useAlert';
 
 const Add = ({ onChange, notify }) => {
   const [alert, setAlert] = useState(defaultAlert);
-  const onDismiss = () => setAlert(defaultAlert);
+  const alertFn = useAlert(setAlert);
 
   const [isOpen, setIsOpen] = useState(false);
   const toggleModal = () => {
@@ -85,7 +86,7 @@ const Add = ({ onChange, notify }) => {
     try {
       await addExpense({ ...inputs, status });
     } catch (error) {
-      console.log(error);
+      alertFn.danger(`Error encountered while adding expense: ${error}`);
       return;
     }
 
@@ -107,7 +108,10 @@ const Add = ({ onChange, notify }) => {
       <Modal isOpen={isOpen} toggle={toggleModal} size='xl'>
         <ModalHeader toggle={toggleModal}>New Expense</ModalHeader>
         <ModalBody>
-          <Alert color={alert.color} isOpen={alert.visible} toggle={onDismiss}>
+          <Alert
+            color={alert.color}
+            isOpen={alert.visible}
+            toggle={alertFn.dismiss}>
             {alert.message}
           </Alert>
 

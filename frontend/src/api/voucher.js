@@ -8,23 +8,12 @@ const mapData = (voucher) => ({
   abbr: voucher.abbr,
 });
 
-// export const getVoucher = async (id) => {
-//   let response;
-//   try {
-//     response = await axios.get(`${DEFAULT_ROUTE}/${id}`);
-//   } catch (error) {
-//     console.log(`Error occurred while getting voucher: ${error}`);
-//   }
-
-//   return mapData(response.data.data[0]);
-// };
-
 export const getVoucherDetail = async (id) => {
   let response;
   try {
     response = await axios.get(`${DEFAULT_ROUTE}/${id}`);
   } catch (error) {
-    console.log(`Error occurred while getting voucher: ${error}`);
+    throw new Error(`Error occurred while getting voucher: ${error}`);
   }
 
   return response.data.data[0];
@@ -35,7 +24,7 @@ export const getVouchers = async () => {
   try {
     response = await axios.get(DEFAULT_ROUTE);
   } catch (error) {
-    console.log(`Error occurred while getting vouchers: ${error}`);
+    throw new Error(`Error occurred while getting vouchers: ${error}`);
   }
 
   const { data, success } = response.data;
@@ -53,7 +42,7 @@ export const addVoucher = async (data) => {
   try {
     response = await axios.post(DEFAULT_ROUTE, data);
   } catch (error) {
-    console.log(`Error occurred while adding voucher: ${error}`);
+    throw new Error(`Error occurred while adding voucher: ${error}`);
   }
 
   return response.data;
@@ -64,7 +53,7 @@ export const addVoucher = async (data) => {
 //   try {
 //     response = await axios.put(`${DEFAULT_ROUTE}/${id}`, data);
 //   } catch (error) {
-//     console.log(`Error occurred while updating voucher: ${error}`);
+//     throw new Error(`Error occurred while updating voucher: ${error}`);
 //   }
 
 //   return response.data;
@@ -75,7 +64,7 @@ export const addVoucher = async (data) => {
 //   try {
 //     response = await axios.delete(`${DEFAULT_ROUTE}/${id}`);
 //   } catch (error) {
-//     console.log(`Error occurred while deleting Voucher: ${error}`);
+//     throw new Error(`Error occurred while deleting Voucher: ${error}`);
 //   }
 
 //   return response.data;

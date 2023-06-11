@@ -18,7 +18,7 @@ export const getSupplier = async (id) => {
   try {
     response = await axios.get(`${DEFAULT_ROUTE}/${id}`);
   } catch (error) {
-    console.log(`Error occurred while getting supplier: ${error}`);
+    throw new Error(`Error occurred while getting supplier: ${error}`);
   }
 
   return mapData(response.data.data[0]);
@@ -29,7 +29,7 @@ export const getSuppliers = async () => {
   try {
     response = await axios.get(DEFAULT_ROUTE);
   } catch (error) {
-    console.log(`Error occurred while getting suppliers: ${error}`);
+    throw new Error(`Error occurred while getting suppliers: ${error}`);
   }
 
   const { data, success } = response.data;
@@ -48,7 +48,7 @@ export const addSupplier = async (data) => {
   try {
     response = await axios.post(DEFAULT_ROUTE, data);
   } catch (error) {
-    console.log(`Error occurred while adding supplier: ${error}`);
+    throw new Error(`Error occurred while adding supplier: ${error}`);
   }
 
   return response.data;
@@ -59,7 +59,7 @@ export const updateSupplier = async (id, data) => {
   try {
     response = await axios.put(`${DEFAULT_ROUTE}/${id}`, data);
   } catch (error) {
-    console.log(`Error occurred while updating supplier: ${error}`);
+    throw new Error(`Error occurred while updating supplier: ${error}`);
   }
 
   return response.data;
@@ -70,7 +70,7 @@ export const deleteSupplier = async (id) => {
   try {
     response = await axios.delete(`${DEFAULT_ROUTE}/${id}`);
   } catch (error) {
-    console.log(`Error occurred while deleting Supplier: ${error}`);
+    throw new Error(`Error occurred while deleting Supplier: ${error}`);
   }
 
   return response.data;

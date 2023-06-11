@@ -62,9 +62,6 @@ const Update = ({ id, isOpen, toggle, notify }) => {
   };
 
   const handleUpdate = async (status = 1) => {
-    console.log(inputs.bankAccountId)
-    console.log(inputs.checkNumber)
-    console.log(inputs.checkDate)
     if (status === 1) {
       const missing = CheckContent();
       if (missing) {

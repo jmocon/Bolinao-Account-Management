@@ -27,6 +27,7 @@ import DepositSlipFormats from "views/DepositSlipFormat/DepositSlipFormat";
 import Login from "views/Login/Login";
 import Profile from "views/Profile/Profile";
 import Logout from "views/Logout/Logout";
+import BankBalance from "views/BankBalance/BankBalance";
 // import Rtl from "views/Rtl.js";
 // import TableList from "views/TableList.js";
 // import Typography from "views/Typography.js";
@@ -88,6 +89,13 @@ var routes = [
     name: 'Bank Reconciliation',
     icon: 'fa-solid fa-magnifying-glass-dollar',
     component: BankReconciliation,
+    layout: '/admin'
+  },
+  {
+    path: '/bankbalance',
+    name: 'Bank Balance',
+    icon: 'fa-solid fa-magnifying-glass-dollar',
+    component: BankBalance,
     layout: '/admin'
   },
   { divider: true },

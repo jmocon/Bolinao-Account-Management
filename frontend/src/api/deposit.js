@@ -17,6 +17,19 @@ export const mapDeposit = (deposit) => ({
   clearedDate: deposit.cleared_date && deposit.cleared_date.substring(0, 10)
 });
 
+export const getBankBalance = async ({ bankAccountId, startDate, endDate }) => {
+  let response;
+  try {
+    response = await axios.get(
+      `${DEFAULT_ROUTE}/bankBalance/${bankAccountId}/${startDate}/${endDate}`
+    );
+  } catch (error) {
+    throw new Error(`Error occurred while getting deposit: ${error}`);
+  }
+
+  return response.data.data.map(mapDeposit);
+};
+
 export const getDeposit = async (id) => {
   let response;
   try {
