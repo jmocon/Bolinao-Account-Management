@@ -130,22 +130,26 @@ const Deposits = () => {
             onClick={() => handleModal('view', deposit.depositId)}>
             <i className='tim-icons icon-zoom-split'></i>
           </Button>
-          <Button
-            size='sm'
-            color='success'
-            title='Edit'
-            className='btn-icon mr-1'
-            onClick={() => handleModal('update', deposit.depositId)}>
-            <i className='tim-icons icon-pencil'></i>
-          </Button>
-          <Button
-            size='sm'
-            color='danger'
-            title='Delete'
-            className='btn-icon mr-1'
-            onClick={() => handleModal('delete', deposit.depositId)}>
-            <i className='tim-icons icon-simple-remove'></i>
-          </Button>
+          {!deposit.clearedDate && (
+            <>
+              <Button
+                size='sm'
+                color='success'
+                title='Edit'
+                className='btn-icon mr-1'
+                onClick={() => handleModal('update', deposit.depositId)}>
+                <i className='tim-icons icon-pencil'></i>
+              </Button>
+              <Button
+                size='sm'
+                color='danger'
+                title='Delete'
+                className='btn-icon mr-1'
+                onClick={() => handleModal('delete', deposit.depositId)}>
+                <i className='tim-icons icon-simple-remove'></i>
+              </Button>
+            </>
+          )}
         </>
       ];
     });

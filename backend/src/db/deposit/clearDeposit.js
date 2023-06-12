@@ -1,7 +1,9 @@
 import dbQuery from '../../helper/dbQuery';
-import dbQueryError from '../../error/dbQueryError';
+import useResponse from '../../helper/useResponse';
 
 const clearDeposit = async (dbPool, res, req) => {
+  const response = useResponse(res);
+
   if (!req?.params?.id) {
     response.error('Deposit id is not present');
     return;
