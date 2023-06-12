@@ -17,7 +17,7 @@ import BankAccountDropdown from 'components/Dropdown/BankAccountDropdown';
 import computeDisbursement from 'helper/computeDisbursement';
 import numberToCurrency from 'helper/numberToCurrency';
 
-const BankReconciliation = () => {
+const BankBalance = () => {
   const notifyRef = useRef(null);
   const [filter, setFilter] = useState({});
   const [data, setData] = useState({});
@@ -112,7 +112,7 @@ const BankReconciliation = () => {
         <CardHeader>
           <Row>
             <Col>
-              <CardTitle tag='h4'>Bank Reconciliation</CardTitle>
+              <CardTitle tag='h4'>Bank Balance</CardTitle>
             </Col>
           </Row>
         </CardHeader>
@@ -177,4 +177,4 @@ const BankReconciliation = () => {
   );
 };
 
-export default BankReconciliation;
+export default BankBalance;

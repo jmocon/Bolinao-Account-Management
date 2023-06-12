@@ -19,7 +19,7 @@ import numberToCurrency from 'helper/numberToCurrency';
 import { Link } from 'react-router-dom';
 import computeDisbursement from 'helper/computeDisbursement';
 
-const IESummary = () => {
+const IEReport = () => {
   const notifyRef = useRef(null);
   const [companyId, setCompanyId] = useState();
   const [month, setMonth] = useState('');
@@ -77,7 +77,7 @@ const IESummary = () => {
         <CardHeader>
           <Row>
             <Col>
-              <CardTitle tag='h4'>IE Summary</CardTitle>
+              <CardTitle tag='h4'>IE Report</CardTitle>
             </Col>
             <Col className='text-right'>
               <Link
@@ -153,4 +153,4 @@ const IESummary = () => {
   );
 };
 
-export default IESummary;
+export default IEReport;

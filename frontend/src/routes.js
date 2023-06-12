@@ -17,12 +17,12 @@ import Roles from "views/Roles/Roles";
 // import Map from "views/Map.js";
 // import Notifications from "views/Notifications.js";
 import Company from "views/Company/Company";
-import DESummary from "views/DESummary/DESummary";
-import IESummary from "views/IESummary/IESummary";
-import EWTSummary from "views/EWTSummary/EWTSummary";
+import DEReport from "views/DESummary/DESummary";
+import IEReport from "views/IESummary/IESummary";
+import EWTReport from "views/EWTSummary/EWTSummary";
 import CheckFormats from "views/CheckFormats/CheckFormats";
 import DepositSlips from "views/DepositSlips/DepositSlips";
-import BankReconciliation from "views/BankReconciliation/BankReconciliation";
+import BankBalance from "views/BankBalance/BankBalance";
 import DepositSlipFormats from "views/DepositSlipFormat/DepositSlipFormat";
 import Login from "views/Login/Login";
 import Profile from "views/Profile/Profile";
@@ -65,31 +65,31 @@ var routes = [
   },
   { divider: true },
   {
-    path: '/desummary',
-    name: 'DE Summary',
+    path: '/dereport',
+    name: 'DE Report',
     icon: 'fa fa-chart-simple',
-    component: DESummary,
+    component: DEReport,
     layout: '/admin'
   },
   {
-    path: '/iesummary',
-    name: 'IE Summary',
+    path: '/iereport',
+    name: 'IE Report',
     icon: 'fa-solid fa-chart-simple',
-    component: IESummary,
+    component: IEReport,
     layout: '/admin'
   },
   {
-    path: '/ewtsummary',
-    name: 'EWT Summary',
+    path: '/ewtreport',
+    name: 'EWT Report',
     icon: 'fa-solid fa-chart-simple',
-    component: EWTSummary,
+    component: EWTReport,
     layout: '/admin'
   },
   {
     path: '/bankreconciliation',
-    name: 'Bank Reconciliation',
+    name: 'Bank Balance',
     icon: 'fa-solid fa-magnifying-glass-dollar',
-    component: BankReconciliation,
+    component: BankBalance,
     layout: '/admin'
   },
   {

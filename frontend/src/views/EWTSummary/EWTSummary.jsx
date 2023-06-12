@@ -19,7 +19,7 @@ import numberToCurrency from 'helper/numberToCurrency';
 import { Link } from 'react-router-dom';
 import computeDisbursement from 'helper/computeDisbursement';
 
-const EWTSummary = () => {
+const EWTReport = () => {
   const notifyRef = useRef(null);
   const [companyId, setCompanyId] = useState();
   const [month, setMonth] = useState('');
@@ -73,7 +73,7 @@ const EWTSummary = () => {
         <CardHeader>
           <Row>
             <Col>
-              <CardTitle tag='h4'>EWT Summary</CardTitle>
+              <CardTitle tag='h4'>EWT Report</CardTitle>
             </Col>
             <Col className='text-right'>
               <Link
@@ -151,4 +151,4 @@ const EWTSummary = () => {
   );
 };
 
-export default EWTSummary;
+export default EWTReport;

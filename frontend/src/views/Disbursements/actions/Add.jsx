@@ -53,6 +53,11 @@ const Add = ({ onChange, notify }) => {
     if (!inputs.bankAccountId) addMissing('Bank Account');
     if (!inputs.checkNumber) addMissing('Check Number');
     if (!inputs.checkDate) addMissing('Check Date');
+    if (
+      (!inputs.vatableAmount && !inputs.nonVatableAmount) ||
+      inputs.vatableAmount + inputs.nonVatableAmount === 0
+    )
+      addMissing('Add an amount');
 
     return missing;
   };
