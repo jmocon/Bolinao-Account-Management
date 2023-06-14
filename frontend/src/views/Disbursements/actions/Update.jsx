@@ -56,7 +56,8 @@ const Update = ({ id, isOpen, toggle, notify }) => {
 
     if (!inputs.bankAccountId) addMissing('Bank Account');
     if (!inputs.checkNumber) addMissing('Check Number');
-    if (!inputs.checkDate || inputs.checkDate === '0000-00-00') addMissing('Check Date');
+    if (!inputs.checkDate || inputs.checkDate === '0000-00-00')
+      addMissing('Check Date');
 
     return missing;
   };
@@ -118,6 +119,8 @@ const Update = ({ id, isOpen, toggle, notify }) => {
     fetchDisbursement();
   }, [id]);
 
+  console.log(inputs);
+
   return (
     <Modal isOpen={isOpen} toggle={toggleModal} size='xl'>
       <ModalHeader toggle={toggleModal}>Update Disbursement</ModalHeader>
@@ -138,7 +141,7 @@ const Update = ({ id, isOpen, toggle, notify }) => {
       <ModalFooter className='p-4 justify-content-end'>
         <Button
           color='primary'
-          onClick={() => handleUpdate(0)}
+          onClick={() => handleUpdate(inputs.status === 0 ? 0 : 2)}
           className='mr-2'>
           Draft
         </Button>
