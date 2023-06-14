@@ -34,14 +34,13 @@ const DisbursementBalance = () => {
       }
 
       const rows = result.map((row) => {
-        
         const { net } = computeDisbursement(
           row.nonVatableAmount,
           row.vatableAmount,
           row.ewtTaxRate
         );
         runningBalance = runningBalance + net;
-        return { ...row,net, runningBalance };
+        return { ...row, net, runningBalance };
       });
 
       setData(rows);
@@ -81,6 +80,12 @@ const DisbursementBalance = () => {
         <CardBody>
           <Row className='mb-4'>
             <Col>
+              <Label>Bank Account</Label>
+              <BankAccountDropdown
+                onChange={(value) => handleFilter('bankAccountId', value)}
+              />
+            </Col>
+            <Col>
               <Label>Start Date</Label>
               <Input
                 type='date'
@@ -92,12 +97,6 @@ const DisbursementBalance = () => {
               <Input
                 type='date'
                 onChange={(e) => handleFilter('endDate', e.target.value)}
-              />
-            </Col>
-            <Col>
-              <Label>Bank Account</Label>
-              <BankAccountDropdown
-                onChange={(value) => handleFilter('bankAccountId', value)}
               />
             </Col>
           </Row>
