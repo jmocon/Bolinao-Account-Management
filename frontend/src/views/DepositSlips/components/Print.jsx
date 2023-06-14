@@ -183,9 +183,6 @@ const Print = ({ depositSlipId, notify }) => {
           <Button color='info' onClick={handlePrint} className='mr-2'>
             Print
           </Button>
-          <Button color='default' onClick={toggleModal}>
-            Cancel
-          </Button>
         </ModalFooter>
       </Modal>
     </>

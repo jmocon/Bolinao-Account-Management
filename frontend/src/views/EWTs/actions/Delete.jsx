@@ -86,9 +86,6 @@ const Delete = ({ ewtId, onChange, isOpen, toggle, toast }) => {
         <Button color='danger' onClick={handleDelete} className='mr-2'>
           Delete
         </Button>
-        <Button color='default' onClick={toggle}>
-          Close
-        </Button>
       </ModalFooter>
     </Modal>
   );

@@ -69,9 +69,6 @@ const View = ({ ewtId, isOpen, toggle, toast }) => {
         </Row>
       </ModalBody>
       <ModalFooter className='p-4 justify-content-end'>
-        <Button color='default' onClick={toggle}>
-          Close
-        </Button>
       </ModalFooter>
     </Modal>
   );

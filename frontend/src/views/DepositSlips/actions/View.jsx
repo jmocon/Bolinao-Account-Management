@@ -90,9 +90,6 @@ const View = ({ id, isOpen, toggle, notify }) => {
       </ModalBody>
       <ModalFooter className='p-4 justify-content-end'>
         <Print depositSlipId={id} notify={notify} />
-        <Button color='default' onClick={toggle}>
-          Close
-        </Button>
       </ModalFooter>
     </Modal>
   );

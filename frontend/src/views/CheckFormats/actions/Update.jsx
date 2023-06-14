@@ -296,9 +296,6 @@ const Update = ({ id, isOpen, toggle, notify }) => {
         <Button color='info' onClick={handleUpdate} className='mr-2'>
           Update
         </Button>
-        <Button color='default' onClick={toggleModal}>
-          Cancel
-        </Button>
       </ModalFooter>
     </Modal>
   );

@@ -226,9 +226,6 @@ const View = ({ id, isOpen, toggle }) => {
             Cancelled
           </Button>
         )}
-        <Button color='default' onClick={toggle}>
-          Close
-        </Button>
       </ModalFooter>
     </Modal>
   );

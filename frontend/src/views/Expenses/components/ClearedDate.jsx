@@ -71,9 +71,6 @@ const ClearedDate = ({ onClear, modalState, setModalState }) => {
           <Button color='info' onClick={handleConfirm} className='mr-2'>
             Confirm
           </Button>
-          <Button color='default' onClick={toggleModal}>
-            Cancel
-          </Button>
         </ModalFooter>
       </Modal>
     </>

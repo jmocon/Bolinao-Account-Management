@@ -174,9 +174,6 @@ const View = ({ id, isOpen, toggle, notify }) => {
             setModalState={setClearDateModal}
           />
         )}
-        <Button color='default' onClick={toggle}>
-          Close
-        </Button>
       </ModalFooter>
     </Modal>
   );

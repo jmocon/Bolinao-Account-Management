@@ -84,9 +84,6 @@ const View = ({ id, isOpen, toggle }) => {
         </Row>
       </ModalBody>
       <ModalFooter>
-        <Button color='default' onClick={toggle}>
-          Close
-        </Button>
       </ModalFooter>
     </Modal>
   );

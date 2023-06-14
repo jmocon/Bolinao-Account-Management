@@ -79,9 +79,6 @@ const Delete = ({ id, isOpen, toggle, notify }) => {
         <Button color='danger' onClick={handleDelete} className='mr-2'>
           Delete
         </Button>
-        <Button color='default' onClick={toggle}>
-          Close
-        </Button>
       </ModalFooter>
     </Modal>
   );

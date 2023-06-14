@@ -104,9 +104,6 @@ const View = ({ roleId, isOpen, toggle, notification }) => {
         </Row>
       </ModalBody>
       <ModalFooter className='p-4 d-flex flex-row-reverse'>
-        <Button color='default' onClick={toggle}>
-          Close
-        </Button>
       </ModalFooter>
     </Modal>
   );

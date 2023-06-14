@@ -287,9 +287,6 @@ const Add = ({ onChange, notify }) => {
           <Button color='info' onClick={handleAdd} className='mr-2'>
             Add
           </Button>
-          <Button color='default' onClick={toggleModal}>
-            Cancel
-          </Button>
         </ModalFooter>
       </Modal>
     </>
