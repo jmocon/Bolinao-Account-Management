@@ -337,7 +337,8 @@ const View = ({ id, isOpen, toggle }) => {
           />
         )}
         {disbursementStatus.cleared !== dis.status &&
-        disbursementStatus.approved !== dis.status &&
+          disbursementStatus.approved !== dis.status &&
+          disbursementStatus.cancelled !== dis.status &&
           disbursementStatus.draft !== dis.status && (
             <Button
               color='danger'
