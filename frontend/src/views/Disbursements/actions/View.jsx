@@ -272,15 +272,6 @@ const View = ({ id, isOpen, toggle }) => {
         </Row>
       </ModalBody>
       <ModalFooter className='p-4 justify-content-end'>
-        {(disbursementStatus.forCorrection === dis.status ||
-          disbursementStatus.draft === dis.status) && (
-          <Button
-            color='info'
-            className='mr-2'
-            onClick={() => handleStatus(disbursementStatus.forApproval)}>
-            Save
-          </Button>
-        )}
         {disbursementStatus.forApproval === dis.status && (
           <>
             <Button
