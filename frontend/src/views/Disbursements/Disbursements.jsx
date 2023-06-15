@@ -114,7 +114,7 @@ const Disbursements = () => {
       Title: 'Status',
       accessor: 'status',
       searchValue: (value) => getDisbursementStatus(value).title,
-      cellFormat: (value) => <DisbursementStatusPill status={value} />
+      cellFormat: (value) => <DisbursementStatusPill status={value} style={{fontSize: '15px'}}/>
     },
     {
       Title: 'Actions',

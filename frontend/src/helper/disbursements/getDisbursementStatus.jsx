@@ -3,17 +3,17 @@ import disbursementStatus from 'constants/disbursementStatus';
 const DISBURSEMENT_STATUS_DRAFT = {
   value: disbursementStatus.draft,
   title: 'Draft',
-  color: 'secondary'
+  color: 'draft'
 };
 const DISBURSEMENT_STATUS_PENDING = {
   value: disbursementStatus.forApproval,
-  title: 'Pending',
-  color: 'primary'
+  title: 'For Approval',
+  color: 'warning'
 };
 const DISBURSEMENT_STATUS_FOR_CORRECTION = {
   value: disbursementStatus.forCorrection,
   title: 'For Correction',
-  color: 'warning'
+  color: 'danger'
 };
 const DISBURSEMENT_STATUS_APPROVED = {
   value: disbursementStatus.approved,
@@ -23,17 +23,17 @@ const DISBURSEMENT_STATUS_APPROVED = {
 const DISBURSEMENT_STATUS_PRINT = {
   value: disbursementStatus.print,
   title: 'Printed',
-  color: 'info'
+  color: 'primary'
 };
 const DISBURSEMENT_STATUS_CHECK = {
   value: disbursementStatus.check,
-  title: 'Check Printed',
-  color: 'primary'
+  title: 'Releasing',
+  color: 'info'
 };
 const DISBURSEMENT_STATUS_CLEARED = {
   value: disbursementStatus.cleared,
   title: 'Cleared',
-  color: 'dark'
+  color: 'yellow'
 };
 const DISBURSEMENT_STATUS_CANCELLED = {
   value: disbursementStatus.cancelled,

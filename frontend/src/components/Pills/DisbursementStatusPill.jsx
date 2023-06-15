@@ -4,7 +4,11 @@ import { getDisbursementStatus } from 'helper/disbursements/getDisbursementStatu
 const DisbursementStatusPill = ({ status, ...rest }) => {
   const values = getDisbursementStatus(status);
 
-  return <Badge color={values.color} {...rest}>{values.title}</Badge>;
+  return (
+    <Badge color={values.color} {...rest}>
+      {values.title}
+    </Badge>
+  );
 };
 
 export default DisbursementStatusPill;
