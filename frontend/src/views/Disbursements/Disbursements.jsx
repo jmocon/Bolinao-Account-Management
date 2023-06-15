@@ -68,7 +68,7 @@ const Disbursements = () => {
     },
     {
       Title: 'Supplier',
-      accessor: 'supplierName',
+      accessor: 'supplierName'
     },
     { Title: 'Check Payee', accessor: 'checkPayee' },
     { Title: 'Particulars', accessor: 'particulars' },
@@ -114,7 +114,9 @@ const Disbursements = () => {
       Title: 'Status',
       accessor: 'status',
       searchValue: (value) => getDisbursementStatus(value).title,
-      cellFormat: (value) => <DisbursementStatusPill status={value} style={{fontSize: '15px'}}/>
+      cellFormat: (value) => (
+        <DisbursementStatusPill status={value} style={{ fontSize: '15px' }} />
+      )
     },
     {
       Title: 'Actions',
