@@ -1,6 +1,6 @@
 import sortDirections from 'constants/sortDirections';
 import { useState } from 'react';
-import { Col, ListGroup, ListGroupItem, Row } from 'reactstrap';
+import { ListGroup, ListGroupItem } from 'reactstrap';
 
 const TableHeader = ({ columns, sortDirection, onSortColumn }) => {
   const sortIconAsc = <i className='fa fa-sort-up ml-1'></i>;
@@ -38,8 +38,12 @@ const TableHeader = ({ columns, sortDirection, onSortColumn }) => {
             }}
             style={{ cursor: 'pointer' }}>
             <ListGroup horizontal>
-              <ListGroupItem className='p-0 border-0'>{column.Title}</ListGroupItem>
-              <ListGroupItem  className='p-0 border-0'>{handleSortIcon(index)}</ListGroupItem>
+              <ListGroupItem className='p-0 border-0'>
+                {column.Title}
+              </ListGroupItem>
+              <ListGroupItem className='p-0 border-0'>
+                {handleSortIcon(index)}
+              </ListGroupItem>
             </ListGroup>
           </th>
         ) : (

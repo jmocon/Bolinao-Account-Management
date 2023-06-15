@@ -181,7 +181,7 @@ const View = ({ id, isOpen, toggle }) => {
         <Row className='mb-2'>
           <Col lg='4' md='6' sm='12'>
             <Label>Item Code</Label>
-            <span className='form-control'>{dis.itemCode}</span>
+            <span className='form-control'>{dis.itemCode || 'NA'}</span>
           </Col>
           <Col lg='4' md='12'>
             <Label>Supplier</Label>

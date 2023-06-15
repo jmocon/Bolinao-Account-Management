@@ -3,6 +3,7 @@ const getDisbursementTable = (dbPool, res, req) => {
   SELECT
     d.id as id,
     c.name as companyName,
+    c.code as companyCode,
     d.expense_category as expenseCategory,
     d.non_expense_category as nonExpenseCategory,
     CONCAT(v.code,"-",LPAD(V.COUNTER, 5, 0)) as voucherCode,

@@ -53,7 +53,7 @@ const Disbursements = () => {
 
   const columns = [
     { Title: 'Id', accessor: 'id' },
-    { Title: 'Company', accessor: 'companyName', cellClassName: 'text-nowrap' },
+    { Title: 'Company', accessor: 'companyCode', cellClassName: 'text-nowrap' },
     { Title: 'Expense Category', accessor: 'expenseCategory' },
     { Title: 'Non-Expense Category', accessor: 'nonExpenseCategory' },
     {
@@ -68,11 +68,9 @@ const Disbursements = () => {
     },
     {
       Title: 'Supplier',
-      accessor: 'supplierName'
+      accessor: 'supplierName',
+      cellClassName: 'text-nowrap limit-text'
     },
-    { Title: 'Check Payee', accessor: 'checkPayee' },
-    { Title: 'Particulars', accessor: 'particulars' },
-    { Title: 'Item Code', accessor: 'itemCode' },
     { Title: 'Month Posting', accessor: 'monthPosting' },
     {
       Title: 'Amount',
@@ -81,8 +79,6 @@ const Disbursements = () => {
     },
     { Title: 'VAT', accessor: 'vat', cellFormat: numberToCurrency },
     { Title: 'Gross Amount', accessor: 'gross', cellFormat: numberToCurrency },
-    { Title: 'EWT Code', accessor: 'ewtCode' },
-    { Title: 'EWT Rate', accessor: 'ewtRate', cellClassName: 'text-nowrap' },
     {
       Title: 'EWT Amount',
       accessor: 'ewt',
@@ -92,11 +88,6 @@ const Disbursements = () => {
       Title: 'Net Amount',
       accessor: 'net',
       cellFormat: numberToCurrency
-    },
-    {
-      Title: 'AR Charge To',
-      accessor: 'apChargeTo',
-      cellClassName: 'text-nowrap'
     },
     { Title: 'Bank Account', accessor: 'bankAccountName' },
     { Title: 'Check No.', accessor: 'checkNumber' },

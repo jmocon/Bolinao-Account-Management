@@ -70,15 +70,21 @@ tfoot tr th {
 }
 
 li.checklist:empty::before {
-	content: "\200b"; 
+	content: "\200b";
 }
 
 .badge-draft {
 	color: #ffffff;
-    background-color: #0dcaf0;
+	background-color: #0dcaf0;
 }
 
 .badge-yellow {
 	color: #ffffff;
-    background-color: #ffc107;
+	background-color: #ffc107;
+}
+
+.limit-text {
+	overflow: hidden;
+	max-width: 200px;
+	text-overflow: ellipsis;
 }
