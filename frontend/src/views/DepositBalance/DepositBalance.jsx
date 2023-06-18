@@ -10,6 +10,7 @@ import {
   Row,
   Table
 } from 'reactstrap';
+import moment from 'moment'
 import NotificationAlert from 'react-notification-alert';
 
 import BankAccountDropdown from 'components/Dropdown/BankAccountDropdown';
@@ -18,7 +19,10 @@ import { getDepositBalance } from 'api/deposit';
 
 const DepositBalance = () => {
   const notifyRef = useRef(null);
-  const [filter, setFilter] = useState({});
+  const [filter, setFilter] = useState({
+    startDate: moment().subtract(6, 'days').format('YYYY-MM-DD'),
+    endDate: moment().format('YYYY-MM-DD')
+  });
   const [data, setData] = useState([]);
 
   useEffect(() => {
@@ -83,6 +87,7 @@ const DepositBalance = () => {
               <Label>Start Date</Label>
               <Input
                 type='date'
+                value={filter.startDate}
                 onChange={(e) => handleFilter('startDate', e.target.value)}
               />
             </Col>
@@ -90,6 +95,7 @@ const DepositBalance = () => {
               <Label>End Date</Label>
               <Input
                 type='date'
+                value={filter.endDate}
                 onChange={(e) => handleFilter('endDate', e.target.value)}
               />
             </Col>
