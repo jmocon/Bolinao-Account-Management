@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import {
   Row,
   Col,
-  Button,
   Modal,
   ModalHeader,
   ModalBody,

@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import {
   Row,
   Col,
-  Button,
   Modal,
   ModalHeader,
   ModalBody,
@@ -89,8 +88,7 @@ const View = ({ id, isOpen, toggle }) => {
           </Col>
         </Row>
       </ModalBody>
-      <ModalFooter className='p-4 justify-content-end'>
-      </ModalFooter>
+      <ModalFooter className='p-4 justify-content-end'></ModalFooter>
     </Modal>
   );
 };

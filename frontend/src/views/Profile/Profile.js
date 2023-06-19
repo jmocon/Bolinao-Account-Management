@@ -40,16 +40,6 @@ const Profile = () => {
   const [user, setUser] = useState({});
 
   const notifyRef = useRef(null);
-  const handleNotify = (type, message, icon = 'tim-icons icon-bell-55') => {
-    const options = {
-      place: 'bc',
-      message,
-      type,
-      icon,
-      autoDismiss: 5
-    };
-    notifyRef.current.notificationAlert(options);
-  };
 
   useEffect(() => {
     const fetchData = async () => {
