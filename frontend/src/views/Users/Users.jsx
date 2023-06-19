@@ -23,8 +23,17 @@ import View from './actions/View';
 import Update from './actions/Update';
 import Delete from './actions/Delete';
 import { getUsers } from 'api/user';
+import getLoggedUser from 'helper/getLoggedUser';
+import roles from 'constants/roles';
 
 function Users() {
+  const [roleId, setRoleId] = useState(0);
+
+  useEffect(() => {
+    const { roleId } = getLoggedUser();
+    setRoleId(roleId);
+  }, []);
+
   // DataTable
   const [rows, setRows] = useState([]);
   const columns = [
@@ -129,28 +138,32 @@ function Users() {
             onClick={() => handleModal('view', user.userId)}>
             <i className='tim-icons icon-zoom-split'></i>
           </Button>
-          <Button
-            size='sm'
-            color='success'
-            title='Edit'
-            className='btn-icon mr-1'
-            onClick={() => handleModal('update', user.userId)}>
-            <i className='tim-icons icon-pencil'></i>
-          </Button>
-          <Button
-            size='sm'
-            color='danger'
-            title='Delete'
-            className='btn-icon mr-1'
-            onClick={() => handleModal('delete', user.userId)}>
-            <i className='tim-icons icon-simple-remove'></i>
-          </Button>
+          {[roles.APPROVER].includes(roleId) && (
+            <>
+              <Button
+                size='sm'
+                color='success'
+                title='Edit'
+                className='btn-icon mr-1'
+                onClick={() => handleModal('update', user.userId)}>
+                <i className='tim-icons icon-pencil'></i>
+              </Button>
+              <Button
+                size='sm'
+                color='danger'
+                title='Delete'
+                className='btn-icon mr-1'
+                onClick={() => handleModal('delete', user.userId)}>
+                <i className='tim-icons icon-simple-remove'></i>
+              </Button>
+            </>
+          )}
         </>
       ];
     });
 
     setRows(userList);
-  }, []);
+  }, [roleId]);
 
   useEffect(() => {
     fetchUsers();
@@ -174,9 +187,11 @@ function Users() {
                 <Col>
                   <CardTitle tag='h4'>Users</CardTitle>
                 </Col>
-                <Col className='text-right'>
-                  <Add onChange={fetchUsers} notify={handleNotify} />
-                </Col>
+                {[roles.APPROVER].includes(roleId) && (
+                  <Col className='text-right'>
+                    <Add onChange={fetchUsers} notify={handleNotify} />
+                  </Col>
+                )}
               </Row>
             </CardHeader>
             <CardBody>
