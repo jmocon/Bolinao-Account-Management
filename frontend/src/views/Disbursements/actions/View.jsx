@@ -18,7 +18,7 @@ import {
 } from 'api/disbursement';
 import { addVoucher } from 'api/voucher';
 import numberToCurrency from 'helper/numberToCurrency';
-import disbursementStatus from 'constants/disbursementStatus';
+import disStatus from 'constants/disbursementStatus';
 import expenseCategories from 'constants/expenseCategories';
 import nonExpenseCategories from 'constants/nonExpenseCategories';
 import DisbursementStatusPill from 'components/Pills/DisbursementStatusPill';
@@ -26,6 +26,8 @@ import computeDisbursement from 'helper/computeDisbursement';
 import ClearedDate from '../components/ClearedDate';
 import useAlert from 'helper/useAlert';
 import defaultAlert from 'constants/defaultAlert';
+import getLoggedUser from 'helper/getLoggedUser';
+import roles from 'constants/roles';
 
 const View = ({ id, isOpen, toggle }) => {
   const [alert, setAlert] = useState(defaultAlert);
@@ -36,6 +38,12 @@ const View = ({ id, isOpen, toggle }) => {
   const [gross, setGross] = useState(0);
   const [ewtAmount, setEwtAmount] = useState(0);
   const [net, setNet] = useState(0);
+  const [roleId, setRoleId] = useState(0);
+
+  useEffect(() => {
+    const { roleId } = getLoggedUser();
+    setRoleId(roleId);
+  }, []);
 
   const [clearDateModal, setClearDateModal] = useState(false);
 
@@ -71,7 +79,7 @@ const View = ({ id, isOpen, toggle }) => {
   const handleStatus = async (status) => {
     let response;
     switch (status) {
-      case disbursementStatus.print:
+      case disStatus.print:
         try {
           response = await addVoucher({ disbursementId: id });
         } catch (error) {
@@ -81,7 +89,7 @@ const View = ({ id, isOpen, toggle }) => {
           handlePrintVoucher(response.data.insertId);
         }
         break;
-      case disbursementStatus.check:
+      case disStatus.check:
         response = await updateStatus(id, status);
         handlePrintCheck();
         break;
@@ -272,78 +280,94 @@ const View = ({ id, isOpen, toggle }) => {
         </Row>
       </ModalBody>
       <ModalFooter className='p-4 justify-content-end'>
-        {disbursementStatus.forApproval === dis.status && (
-          <>
+        {[roles.APPROVER].includes(roleId) &&
+          [disStatus.forApproval].includes(dis.status) && (
             <Button
               color='warning'
               className='mr-2'
-              onClick={() => handleStatus(disbursementStatus.forCorrection)}>
+              onClick={() => handleStatus(disStatus.forCorrection)}>
               For Correction
             </Button>
+          )}
+
+        {[roles.APPROVER].includes(roleId) &&
+          [disStatus.forApproval].includes(dis.status) && (
             <Button
               color='success'
               className='mr-2'
-              onClick={() => handleStatus(disbursementStatus.approved)}>
+              onClick={() => handleStatus(disStatus.approved)}>
               Approve
             </Button>
-          </>
-        )}
-        {disbursementStatus.approved === dis.status && (
-          <Button
-            color='info'
-            className='mr-2'
-            onClick={() => handleStatus(disbursementStatus.print)}>
-            Print Voucher
-          </Button>
-        )}
+          )}
 
-        {[
-          disbursementStatus.cleared,
-          disbursementStatus.print,
-          disbursementStatus.check
-        ].includes(dis.status) && (
-          <Button
-            color='info'
-            className='mr-2'
-            onClick={() => handlePrintVoucher(dis.voucherId)}>
-            Re-print Voucher
-          </Button>
-        )}
+        {[roles.APPROVER, roles.MAKER, roles.ENCODER].includes(roleId) &&
+          [disStatus.approved].includes(dis.status) && (
+            <Button
+              color='info'
+              className='mr-2'
+              onClick={() => handleStatus(disStatus.print)}>
+              Print Voucher
+            </Button>
+          )}
 
-        {[
-          disbursementStatus.approved,
-          disbursementStatus.print,
-          disbursementStatus.check,
-          disbursementStatus.cleared
-        ].includes(dis.status) &&
+        {[roles.APPROVER, roles.MAKER, roles.ENCODER].includes(roleId) &&
+          [disStatus.cleared, disStatus.print, disStatus.check].includes(
+            dis.status
+          ) && (
+            <Button
+              color='info'
+              className='mr-2'
+              onClick={() => handlePrintVoucher(dis.voucherId)}>
+              Re-print Voucher
+            </Button>
+          )}
+
+        {[roles.APPROVER, roles.MAKER, roles.ENCODER].includes(roleId) &&
+          [
+            disStatus.approved,
+            disStatus.print,
+            disStatus.check,
+            disStatus.cleared
+          ].includes(dis.status) &&
           dis.ewtCode && (
             <Button color='info' className='mr-2' onClick={handlePrintBir2307}>
               Print BIR 2307
             </Button>
           )}
-        {disbursementStatus.print === dis.status && (
-          <Button
-            color='info'
-            className='mr-2'
-            onClick={() => handleStatus(disbursementStatus.check)}>
-            Print Check
-          </Button>
-        )}
-        {disbursementStatus.check === dis.status && (
-          <ClearedDate
-            onClear={handleClearedDate}
-            modalState={clearDateModal}
-            setModalState={setClearDateModal}
-          />
-        )}
-        {disbursementStatus.cleared !== dis.status &&
-          disbursementStatus.approved !== dis.status &&
-          disbursementStatus.cancelled !== dis.status &&
-          disbursementStatus.draft !== dis.status && (
+
+        {[roles.APPROVER, roles.MAKER, roles.ENCODER].includes(roleId) &&
+          [disStatus.print].includes(dis.status) &&
+          dis.ewtCode && (
+            <Button
+              color='info'
+              className='mr-2'
+              onClick={() => handleStatus(disStatus.check)}>
+              Print Check
+            </Button>
+          )}
+
+        {[roles.APPROVER, roles.MAKER].includes(roleId) &&
+          [disStatus.check].includes(dis.status) &&
+          dis.ewtCode && (
+            <ClearedDate
+              onClear={handleClearedDate}
+              modalState={clearDateModal}
+              setModalState={setClearDateModal}
+            />
+          )}
+
+        {[roles.APPROVER, roles.MAKER].includes(roleId) &&
+          ![
+            disStatus.cleared,
+            disStatus.approved,
+            disStatus.cancelled,
+            disStatus.draft
+          ].includes(dis.status) &&
+          dis.ewtCode && (
             <Button
               color='danger'
               className='mr-4'
-              onClick={() => handleStatus(disbursementStatus.cancelled)}>
+              onClick={() => handleStatus(disStatus.cancelled)}>
               Cancelled
             </Button>
           )}
