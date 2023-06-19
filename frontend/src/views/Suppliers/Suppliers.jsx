@@ -17,8 +17,17 @@ import View from './actions/View';
 import Update from './actions/Update';
 import Delete from './actions/Delete';
 import { getSuppliers } from 'api/supplier';
+import getLoggedUser from 'helper/getLoggedUser';
+import roles from 'constants/roles';
 
 const Suppliers = () => {
+  const [roleId, setRoleId] = useState(0);
+
+  useEffect(() => {
+    const { roleId } = getLoggedUser();
+    setRoleId(roleId);
+  }, []);
+
   const [rows, setRows] = useState([]);
   const columns = ['Supplier Id', 'Name', 'TIN', 'Contact No.', 'Actions'];
 
@@ -100,27 +109,31 @@ const Suppliers = () => {
           onClick={() => handleModal('view', supplier.supplierId)}>
           <i className='tim-icons icon-zoom-split'></i>
         </Button>
-        <Button
-          size='sm'
-          color='success'
-          title='Edit'
-          className='btn-icon mr-1'
-          onClick={() => handleModal('update', supplier.supplierId)}>
-          <i className='tim-icons icon-pencil'></i>
-        </Button>
-        <Button
-          size='sm'
-          color='danger'
-          title='Delete'
-          className='btn-icon mr-1'
-          onClick={() => handleModal('delete', supplier.supplierId)}>
-          <i className='tim-icons icon-simple-remove'></i>
-        </Button>
+        {[roles.APPROVER].includes(roleId) && (
+          <>
+            <Button
+              size='sm'
+              color='success'
+              title='Edit'
+              className='btn-icon mr-1'
+              onClick={() => handleModal('update', supplier.supplierId)}>
+              <i className='tim-icons icon-pencil'></i>
+            </Button>
+            <Button
+              size='sm'
+              color='danger'
+              title='Delete'
+              className='btn-icon mr-1'
+              onClick={() => handleModal('delete', supplier.supplierId)}>
+              <i className='tim-icons icon-simple-remove'></i>
+            </Button>
+          </>
+        )}
       </>
     ]);
 
     setRows(result);
-  }, []);
+  }, [roleId]);
 
   useEffect(() => {
     fetchSuppliers();
@@ -144,9 +157,11 @@ const Suppliers = () => {
                 <Col>
                   <CardTitle tag='h4'>Suppliers</CardTitle>
                 </Col>
-                <Col className='text-right'>
-                  <Add onChange={fetchSuppliers} notify={handleNotify} />
-                </Col>
+                {[roles.APPROVER].includes(roleId) && (
+                  <Col className='text-right'>
+                    <Add onChange={fetchSuppliers} notify={handleNotify} />
+                  </Col>
+                )}
               </Row>
             </CardHeader>
             <CardBody>

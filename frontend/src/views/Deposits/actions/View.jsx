@@ -15,8 +15,16 @@ import { getBankAccount } from 'api/bankAccount';
 import modeOfPayments, { modeOfPaymentValues } from 'constants/modeOfPayments';
 import { getBank } from 'api/bank';
 import ClearedDate from '../components/ClearedDate';
+import getLoggedUser from 'helper/getLoggedUser';
+import roles from 'constants/roles';
 
 const View = ({ id, isOpen, toggle, notify }) => {
+  const [roleId, setRoleId] = useState(0);
+
+  useEffect(() => {
+    const { roleId } = getLoggedUser();
+    setRoleId(roleId);
+  }, []);
   const [deposit, setDeposit] = useState({});
   const [bankAccount, setBankAccount] = useState({});
   const [bank, setBank] = useState({});
@@ -166,7 +174,7 @@ const View = ({ id, isOpen, toggle, notify }) => {
         )}
       </ModalBody>
       <ModalFooter className='p-4 justify-content-end'>
-        {!deposit.clearedDate && (
+        {!deposit.clearedDate && [roles.APPROVER].includes(roleId) && (
           <ClearedDate
             onClear={handleClearedDate}
             modalState={clearDateModal}

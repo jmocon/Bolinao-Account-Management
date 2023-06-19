@@ -17,8 +17,16 @@ import View from './actions/View';
 import Update from './actions/Update';
 import Delete from './actions/Delete';
 import { getCompanies } from 'api/company';
+import getLoggedUser from 'helper/getLoggedUser';
+import roles from 'constants/roles';
 
 const Company = () => {
+  const [roleId, setRoleId] = useState(0);
+
+  useEffect(() => {
+    const { roleId } = getLoggedUser();
+    setRoleId(roleId);
+  }, []);
   const [rows, setRows] = useState([]);
   const columns = ['Code', 'Name', 'Actions'];
 
@@ -99,28 +107,32 @@ const Company = () => {
             onClick={() => handleModal('view', company.companyId)}>
             <i className='tim-icons icon-zoom-split'></i>
           </Button>
-          <Button
-            size='sm'
-            color='success'
-            title='Edit'
-            className='btn-icon mr-1'
-            onClick={() => handleModal('update', company.companyId)}>
-            <i className='tim-icons icon-pencil'></i>
-          </Button>
-          <Button
-            size='sm'
-            color='danger'
-            title='Delete'
-            className='btn-icon mr-1'
-            onClick={() => handleModal('delete', company.companyId)}>
-            <i className='tim-icons icon-simple-remove'></i>
-          </Button>
+          {[roles.APPROVER].includes(roleId) && (
+            <>
+              <Button
+                size='sm'
+                color='success'
+                title='Edit'
+                className='btn-icon mr-1'
+                onClick={() => handleModal('update', company.companyId)}>
+                <i className='tim-icons icon-pencil'></i>
+              </Button>
+              <Button
+                size='sm'
+                color='danger'
+                title='Delete'
+                className='btn-icon mr-1'
+                onClick={() => handleModal('delete', company.companyId)}>
+                <i className='tim-icons icon-simple-remove'></i>
+              </Button>
+            </>
+          )}
         </>
       ];
     });
 
     setRows(result);
-  }, []);
+  }, [roleId]);
 
   useEffect(() => {
     fetchCompanies();
@@ -144,9 +156,11 @@ const Company = () => {
                 <Col>
                   <CardTitle tag='h4'>Companies</CardTitle>
                 </Col>
-                <Col className='text-right'>
-                  <Add onChange={fetchCompanies} notify={handleNotify} />
-                </Col>
+                {[roles.APPROVER].includes(roleId) && (
+                  <Col className='text-right'>
+                    <Add onChange={fetchCompanies} notify={handleNotify} />
+                  </Col>
+                )}
               </Row>
             </CardHeader>
             <CardBody>

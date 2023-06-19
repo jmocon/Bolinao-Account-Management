@@ -19,8 +19,16 @@ import View from './actions/View';
 import Update from './actions/Update';
 import Delete from './actions/Delete';
 import { getDepositTable } from 'api/deposit';
+import getLoggedUser from 'helper/getLoggedUser';
+import roles from 'constants/roles';
 
 const Deposits = () => {
+  const [roleId, setRoleId] = useState(0);
+
+  useEffect(() => {
+    const { roleId } = getLoggedUser();
+    setRoleId(roleId);
+  }, []);
   const [rows, setRows] = useState([]);
   const columns = [
     'Deposit Id',
@@ -140,14 +148,18 @@ const Deposits = () => {
                 onClick={() => handleModal('update', deposit.depositId)}>
                 <i className='tim-icons icon-pencil'></i>
               </Button>
-              <Button
-                size='sm'
-                color='danger'
-                title='Delete'
-                className='btn-icon mr-1'
-                onClick={() => handleModal('delete', deposit.depositId)}>
-                <i className='tim-icons icon-simple-remove'></i>
-              </Button>
+              {[roles.APPROVER].includes(roleId) && (
+                <>
+                  <Button
+                    size='sm'
+                    color='danger'
+                    title='Delete'
+                    className='btn-icon mr-1'
+                    onClick={() => handleModal('delete', deposit.depositId)}>
+                    <i className='tim-icons icon-simple-remove'></i>
+                  </Button>
+                </>
+              )}
             </>
           )}
         </>
@@ -155,7 +167,7 @@ const Deposits = () => {
     });
 
     setRows(result);
-  }, []);
+  }, [roleId]);
 
   useEffect(() => {
     fetchDeposits();
