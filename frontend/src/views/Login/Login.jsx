@@ -34,7 +34,7 @@ const Login = () => {
     try {
       result = await login({ username, password });
     } catch (error) {
-      alertFn.danger(error);
+      alertFn.danger(`${error}`);
       return;
     }
 

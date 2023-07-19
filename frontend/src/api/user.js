@@ -66,6 +66,9 @@ export const login = async (data) => {
   try {
     response = await axios.post(`${DEFAULT_ROUTE}/login`, data);
   } catch (error) {
+    if (error?.response?.data) {
+      throw error?.response?.data;
+    }
     throw new Error(`Error occurred while logging in: ${error}`);
   }
 

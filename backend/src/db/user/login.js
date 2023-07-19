@@ -27,6 +27,11 @@ const login = async (dbPool, res, req) => {
     return;
   }
 
+  if (result.length === 0) {
+    res.status(401).send('Authentication failed');
+    return;
+  }
+
   const { password, reset_password } = result[0];
   if (inputPassword !== password) {
     if (inputPassword !== reset_password) {
