@@ -362,8 +362,7 @@ const View = ({ id, isOpen, toggle }) => {
             disStatus.approved,
             disStatus.cancelled,
             disStatus.draft
-          ].includes(dis.status) &&
-          dis.ewtCode && (
+          ].includes(dis.status) && (
             <Button
               color='danger'
               className='mr-4'
