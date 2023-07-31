@@ -119,8 +119,6 @@ const Update = ({ id, isOpen, toggle, notify }) => {
     fetchDisbursement();
   }, [id]);
 
-  console.log(inputs);
-
   return (
     <Modal isOpen={isOpen} toggle={toggleModal} size='xl'>
       <ModalHeader toggle={toggleModal}>Update Disbursement</ModalHeader>
@@ -139,12 +137,14 @@ const Update = ({ id, isOpen, toggle, notify }) => {
         />
       </ModalBody>
       <ModalFooter className='p-4 justify-content-end'>
-        <Button
-          color='primary'
-          onClick={() => handleUpdate(inputs.status === 0 ? 0 : 2)}
-          className='mr-2'>
-          Draft
-        </Button>
+        {inputs.status !== 2 && (
+          <Button
+            color='primary'
+            onClick={() => handleUpdate(inputs.status === 0 ? 0 : 2)}
+            className='mr-2'>
+            Draft
+          </Button>
+        )}
         <Button color='info' onClick={() => handleUpdate(1)} className='mr-2'>
           Update
         </Button>
