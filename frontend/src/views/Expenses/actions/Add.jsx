@@ -33,6 +33,12 @@ const Add = ({ onChange, notify }) => {
   const alertFn = useAlert(setAlert);
 
   const [isOpen, setIsOpen] = useState(false);
+  const toggleAdd = () => {
+    setInputs({});
+    setIsDirty(false);
+    alertFn.dismiss();
+    setIsOpen((currState) => !currState);
+  };
   const toggleModal = () => {
     if (!confirmOnClose(isDirty)) {
       return;
@@ -92,7 +98,7 @@ const Add = ({ onChange, notify }) => {
 
     onChange();
     notify('success', 'Successfully added expense.', 'tim-icons icon-check-2');
-    toggleModal();
+    toggleAdd();
   };
 
   return (
