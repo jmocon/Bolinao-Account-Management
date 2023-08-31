@@ -5,7 +5,7 @@ const getExpenseTable = async (dbPool, res, req) => {
   const query = `
   SELECT
     d.id as id,
-    c.name as companyName,
+    c.code as companyCode,
     d.expense_category as expenseCategory,
     ic.name as itemCode,
     d.particulars,

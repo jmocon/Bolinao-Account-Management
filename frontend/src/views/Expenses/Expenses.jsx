@@ -52,7 +52,7 @@ const Expenses = () => {
 
   const columns = [
     { Title: 'Id', accessor: 'id' },
-    { Title: 'Company', accessor: 'companyName', cellClassName: 'text-nowrap' },
+    { Title: 'Company', accessor: 'companyCode', cellClassName: 'text-nowrap' },
     { Title: 'Expense Category', accessor: 'expenseCategory' },
     { Title: 'Item Code', accessor: 'itemCode' },
     { Title: 'Particulars', accessor: 'particulars' },
