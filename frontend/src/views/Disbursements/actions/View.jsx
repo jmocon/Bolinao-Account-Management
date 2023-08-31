@@ -328,16 +328,14 @@ const View = ({ id, isOpen, toggle }) => {
             disStatus.print,
             disStatus.check,
             disStatus.cleared
-          ].includes(dis.status) &&
-          dis.ewtCode && (
+          ].includes(dis.status) && (
             <Button color='info' className='mr-2' onClick={handlePrintBir2307}>
               Print BIR 2307
             </Button>
           )}
 
         {[roles.APPROVER, roles.MAKER, roles.ENCODER].includes(roleId) &&
-          [disStatus.print].includes(dis.status) &&
-          dis.ewtCode && (
+          [disStatus.print].includes(dis.status) && (
             <Button
               color='info'
               className='mr-2'
@@ -347,8 +345,7 @@ const View = ({ id, isOpen, toggle }) => {
           )}
 
         {[roles.APPROVER, roles.MAKER].includes(roleId) &&
-          [disStatus.check].includes(dis.status) &&
-          dis.ewtCode && (
+          [disStatus.check].includes(dis.status) && (
             <ClearedDate
               onClear={handleClearedDate}
               modalState={clearDateModal}
