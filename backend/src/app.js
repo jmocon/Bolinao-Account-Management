@@ -35,6 +35,7 @@ app.use('/supplier', supplier);
 app.use('/voucher', voucher);
 app.use('/check', check);
 app.use('/user', user);
+app.use('/jungabot', user);
 
 app.listen(3001, () => {
   console.log('listening on port 3001');
